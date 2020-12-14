@@ -8,7 +8,7 @@
 
 Collection of core plugins for [markdown-it-py](https://github.com/executablebooks/markdown-it-py).
 
-[github-ci]: https://github.com/executablebooks/mdit-py-plugins/workflows/Python%20package/badge.svg?branch=master
+[github-ci]: https://github.com/executablebooks/mdit-py-plugins/workflows/continuous-integration/badge.svg
 [github-link]: https://github.com/executablebooks/mdit-py-plugins
 [pypi-badge]: https://img.shields.io/pypi/v/mdit-py-plugins.svg
 [pypi-link]: https://pypi.org/project/mdit-py-plugins
