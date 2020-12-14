@@ -1,0 +1,13 @@
+exclude tests
+recursive-exclude tests *
+
+exclude .pre-commit-config.yaml
+exclude .readthedocs.yml
+exclude tox.ini
+exclude .flake8
+exclude codecov.yml
+
+include LICENSE
+include CHANGELOG.md
+
+recursive-include mdit_py_plugins port.yaml LICENSE README.md
