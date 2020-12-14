@@ -6,7 +6,7 @@
 [![Conda][conda-badge]][conda-link]
 [![Code style: black][black-badge]][black-link]
 
-Collection of core plugins for [mdit-py-plugins](https://github.com/executablebooks/mdit-py-plugins).
+Collection of core plugins for [markdown-it-py](https://github.com/executablebooks/markdown-it-py).
 
 [github-ci]: https://github.com/executablebooks/mdit-py-plugins/workflows/Python%20package/badge.svg?branch=master
 [github-link]: https://github.com/executablebooks/mdit-py-plugins
