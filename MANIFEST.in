@@ -6,8 +6,10 @@ exclude .readthedocs.yml
 exclude tox.ini
 exclude .flake8
 exclude codecov.yml
+exclude .mypy.ini
 
 include LICENSE
 include CHANGELOG.md
+include mdit_py_plugins/py.typed
 
 recursive-include mdit_py_plugins port.yaml LICENSE README.md
