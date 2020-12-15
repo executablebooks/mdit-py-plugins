@@ -38,4 +38,4 @@ repos:
     rev: v0.790
     hooks:
     - id: mypy
-      additional_dependencies: [markdown-it-py]
+      additional_dependencies: [markdown-it-py>=0.6.0]
