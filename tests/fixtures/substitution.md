@@ -18,6 +18,19 @@ a {{inline}} b
 <p>a <span class="substitution" text="inline" /> b</p>
 .
 
+No closing:
+.
+{{ a
+
+{{b}
+
+{{c} }
+.
+<p>{{ a</p>
+<p>{{b}</p>
+<p>{{c} }</p>
+.
+
 New line:
 .
 {{a}}
