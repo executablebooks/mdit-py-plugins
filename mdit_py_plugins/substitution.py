@@ -86,6 +86,11 @@ def _substitution_block(state: StateBlock, startLine: int, endLine: int, silent:
         return False
 
     text = lineText[2:-2].strip()
+
+    # special case if multiple on same line, e.g. {{a}}{{b}}
+    if "}}" in text:
+        return False
+
     state.line = startLine + 1
 
     if silent:

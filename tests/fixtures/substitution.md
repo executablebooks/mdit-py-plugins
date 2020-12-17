@@ -18,6 +18,13 @@ a {{inline}} b
 <p>a <span class="substitution" text="inline" /> b</p>
 .
 
+Same line:
+.
+{{a}}{{b}}
+.
+<p><span class="substitution" text="a" /><span class="substitution" text="b" /></p>
+.
+
 No closing:
 .
 {{ a
@@ -29,6 +36,19 @@ No closing:
 <p>{{ a</p>
 <p>{{b}</p>
 <p>{{c} }</p>
+.
+
+Inside code
+.
+`{{ a }}`
+
+```python
+{{b}}
+```
+.
+<p><code>{{ a }}</code></p>
+<pre><code class="language-python">{{b}}
+</code></pre>
 .
 
 New line:
