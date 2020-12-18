@@ -12,7 +12,7 @@
   map:
   - 0
   - 1
-  markup: '{{'
+  markup: '{}'
   meta: {}
   nesting: 0
   tag: div
@@ -60,7 +60,7 @@
     info: ''
     level: 0
     map: null
-    markup: '{{'
+    markup: '{}'
     meta: {}
     nesting: 0
     tag: span
