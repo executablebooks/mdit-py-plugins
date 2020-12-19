@@ -67,7 +67,7 @@ def tasklists_plugin(
 
     def attr_set(token, name, value):
         index = token.attrIndex(name)
-        attr = [name, value]
+        attr = (name, value)
         if index < 0:
             token.attrPush(attr)
         else:

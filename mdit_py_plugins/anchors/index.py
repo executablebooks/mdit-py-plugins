@@ -90,7 +90,7 @@ def _make_anchors_func(
                         "link_open",
                         "a",
                         1,
-                        attrs=[["class", "header-anchor"], ["href", f"#{slug}"]],
+                        attrs=[("class", "header-anchor"), ("href", f"#{slug}")],
                     ),
                     Token("html_block", "", 0, content=permalinkSymbol),
                     Token("link_close", "a", -1),
