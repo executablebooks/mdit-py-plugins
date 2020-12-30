@@ -157,5 +157,5 @@ def tasklists_plugin(
         return (
             token.content.startswith("[ ]")
             or token.content.startswith("[x]")
-            or token.conten.startswith("[X]")
+            or token.content.startswith("[X]")
         )
