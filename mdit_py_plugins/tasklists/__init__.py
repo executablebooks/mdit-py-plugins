@@ -113,12 +113,12 @@ def tasklists_plugin(
     def make_checkbox(token, token_constructor):
         checkbox = token_constructor("html_inline", "", 0)
         disabled_attr = 'disabled="disabled"' if disable_checkboxes else ""
-        if token.content.startswith("[ ] "):
+        if token.content.startswith("[ ]"):
             checkbox.content = (
                 '<input class="task-list-item-checkbox" '
                 f'{disabled_attr} type="checkbox">'
             )
-        elif token.content.startswith("[x] ") or token.content.startswith("[X] "):
+        elif token.content.startswith("[x]") or token.content.startswith("[X]"):
             checkbox.content = (
                 '<input class="task-list-item-checkbox" checked="checked" '
                 f'{disabled_attr} type="checkbox">'
@@ -155,7 +155,7 @@ def tasklists_plugin(
     def starts_with_todo_markdown(token):
         # leading whitespace in a list item is already trimmed off by markdown-it
         return (
-            token.content.startswith("[ ] ")
-            or token.content.startswith("[x] ")
-            or token.content.startswith("[X] ")
+            token.content.startswith("[ ]")
+            or token.content.startswith("[x]")
+            or token.conten.startswith("[X]")
         )
