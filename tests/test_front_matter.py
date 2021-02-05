@@ -40,3 +40,10 @@ def test_token():
             hidden=True,
         )
     ]
+
+
+def test_short_source():
+    md = MarkdownIt("commonmark").use(front_matter_plugin)
+
+    # The code should not raise an IndexError.
+    assert md.parse("-")
