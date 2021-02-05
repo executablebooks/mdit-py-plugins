@@ -38,6 +38,7 @@ def make_front_matter_rule():
         auto_closed = False
         start = state.bMarks[startLine] + state.tShift[startLine]
         maximum = state.eMarks[startLine]
+        src_len = len(state.src)
 
         # Check out the first character of the first line quickly,
         # this should filter out non-front matter
@@ -47,7 +48,8 @@ def make_front_matter_rule():
         # Check out the rest of the marker string
         # while pos <= 3
         pos = start + 1
-        while pos <= maximum:
+        start_content = 0
+        while pos <= maximum and pos < src_len:
             if marker_str[(pos - start) % marker_len] != state.src[pos]:
                 start_content = pos + 1
                 break
