@@ -85,13 +85,15 @@ def _make_anchors_func(
             token.attrSet("id", slug)
 
             if permalink:
+                link_open = Token(
+                    "link_open",
+                    "a",
+                    1,
+                )
+                link_open.attrSet("class", "header-anchor")
+                link_open.attrSet("href", f"#{slug}")
                 link_tokens = [
-                    Token(
-                        "link_open",
-                        "a",
-                        1,
-                        attrs=[["class", "header-anchor"], ["href", f"#{slug}"]],
-                    ),
+                    link_open,
                     Token("html_block", "", 0, content=permalinkSymbol),
                     Token("link_close", "a", -1),
                 ]
