@@ -54,24 +54,15 @@ def tasklists_plugin(
 
             if is_todo_item(tokens, i):
                 todoify(tokens[i], tokens[i].__class__)
-                attr_set(
-                    tokens[i - 2],
+                tokens[i - 2].attrSet(
                     "class",
                     "task-list-item" + (" enabled" if not disable_checkboxes else ""),
                 )
-                attr_set(
-                    tokens[parent_token(tokens, i - 2)], "class", "contains-task-list"
+                tokens[parent_token(tokens, i - 2)].attrSet(
+                    "class", "contains-task-list"
                 )
 
     md.core.ruler.after("inline", "github-tasklists", fcn)
-
-    def attr_set(token, name, value):
-        index = token.attrIndex(name)
-        attr = [name, value]
-        if index < 0:
-            token.attrPush(attr)
-        else:
-            token.attrs[index] = attr
 
     def parent_token(tokens, index):
         target_level = tokens[index].level - 1

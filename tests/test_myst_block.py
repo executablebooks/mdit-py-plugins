@@ -22,61 +22,58 @@ def test_all(line, title, input, expected):
 def test_block_token():
     md = MarkdownIt("commonmark").use(myst_block_plugin)
     tokens = md.parse("+++")
-    assert tokens == [
-        Token(
-            type="myst_block_break",
-            tag="hr",
-            nesting=0,
-            attrs=[["class", "myst-block"]],
-            map=[0, 1],
-            level=0,
-            children=None,
-            content="",
-            markup="+++",
-            info="",
-            meta={},
-            block=True,
-            hidden=False,
-        )
-    ]
+    expected_token = Token(
+        type="myst_block_break",
+        tag="hr",
+        nesting=0,
+        map=[0, 1],
+        level=0,
+        children=None,
+        content="",
+        markup="+++",
+        info="",
+        meta={},
+        block=True,
+        hidden=False,
+    )
+    expected_token.attrSet("class", "myst-block")
+    assert tokens == [expected_token]
 
     tokens = md.parse("\n+ + + abc")
-    assert tokens == [
-        Token(
-            type="myst_block_break",
-            tag="hr",
-            nesting=0,
-            attrs=[["class", "myst-block"]],
-            map=[1, 2],
-            level=0,
-            children=None,
-            content="abc",
-            markup="+++",
-            info="",
-            meta={},
-            block=True,
-            hidden=False,
-        )
-    ]
+    expected_token = Token(
+        type="myst_block_break",
+        tag="hr",
+        nesting=0,
+        map=[1, 2],
+        level=0,
+        children=None,
+        content="abc",
+        markup="+++",
+        info="",
+        meta={},
+        block=True,
+        hidden=False,
+    )
+    expected_token.attrSet("class", "myst-block")
+    assert tokens == [expected_token]
 
 
 def test_comment_token():
     md = MarkdownIt("commonmark").use(myst_block_plugin)
     tokens = md.parse("\n\n% abc")
-    assert tokens == [
-        Token(
-            type="myst_line_comment",
-            tag="",
-            nesting=0,
-            attrs=[["class", "myst-line-comment"]],
-            map=[2, 3],
-            level=0,
-            children=None,
-            content="abc",
-            markup="%",
-            info="",
-            meta={},
-            block=True,
-            hidden=False,
-        )
-    ]
+    expected_token = Token(
+        type="myst_line_comment",
+        tag="",
+        nesting=0,
+        map=[2, 3],
+        level=0,
+        children=None,
+        content="abc",
+        markup="%",
+        info="",
+        meta={},
+        block=True,
+        hidden=False,
+    )
+    expected_token.attrSet("class", "myst-line-comment")
+    assert tokens == [expected_token]
