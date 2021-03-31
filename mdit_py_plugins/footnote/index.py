@@ -356,8 +356,9 @@ def render_footnote_anchor_name(self, tokens, idx, options, env):
     n = str(tokens[idx].meta["id"] + 1)
     prefix = ""
 
-    if isinstance(env.get("docId", None), str):
-        prefix = "-" + env.docId + "-"
+    doc_id = env.get("docId", None)
+    if isinstance(doc_id, str):
+        prefix = f"-{doc_id}-"
 
     return prefix + n
 
