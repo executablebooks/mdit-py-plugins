@@ -15,7 +15,7 @@ FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 
 def test_inline_func():
 
-    inline_func = main.make_inline_func(main.rules.dollars.inline[0])
+    inline_func = main.make_inline_func(main.rules["dollars"]["inline"][0])
 
     md = MarkdownIt()
     src = r"$a=1$ $b=2$"
@@ -41,7 +41,7 @@ def test_inline_func():
 
 
 def test_block_func():
-    block_func = main.make_block_func(main.rules.dollars.block[0])
+    block_func = main.make_block_func(main.rules["dollars"]["block"][0])
     md = MarkdownIt()
     src = r"$$\na=1\n\nc\nb=2$$ (abc)"
     tokens = []
