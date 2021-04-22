@@ -54,7 +54,7 @@ def line_comment(state: StateBlock, startLine: int, endLine: int, silent: bool):
 
     token = state.push("myst_line_comment", "", 0)
     token.attrSet("class", "myst-line-comment")
-    token.content = state.src[pos:maximum].strip()
+    token.content = state.src[pos:maximum].rstrip()
     token.map = [startLine, state.line]
     token.markup = chr(marker)
 
@@ -140,5 +140,5 @@ def render_myst_target(self, tokens, idx, options, env):
 
 
 def render_myst_line_comment(self, tokens, idx, options, env):
-    content = tokens[idx].content
+    content = tokens[idx].content.lstrip()
     return f"<!--- {escapeHtml(content)} --->"
