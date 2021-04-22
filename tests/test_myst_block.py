@@ -68,7 +68,7 @@ def test_comment_token():
         map=[2, 3],
         level=0,
         children=None,
-        content="abc",
+        content=" abc",
         markup="%",
         info="",
         meta={},
