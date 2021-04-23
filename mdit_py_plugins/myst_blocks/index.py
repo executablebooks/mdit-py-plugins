@@ -41,8 +41,7 @@ def line_comment(state: StateBlock, startLine: int, endLine: int, silent: bool):
     if state.sCount[startLine] - state.blkIndent >= 4:
         return False
 
-    percent_code = ord("%")
-    if state.srcCharCode[pos] != percent_code:
+    if state.src[pos] != "%":
         return False
 
     if silent:
@@ -60,7 +59,7 @@ def line_comment(state: StateBlock, startLine: int, endLine: int, silent: bool):
         pos = state.bMarks[nextLine] + state.tShift[nextLine]
         maximum = state.eMarks[nextLine]
 
-        if state.srcCharCode[pos] != percent_code:
+        if state.src[pos] != "%":
             break
         token.content += "\n" + state.src[pos + 1 : maximum].rstrip()
 
