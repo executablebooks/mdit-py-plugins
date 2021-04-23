@@ -73,7 +73,7 @@ Comment:
 .
 % abc
 .
-<!--- abc --->
+<!-- abc -->
 .
 
 Comment terminates other blocks:
@@ -86,11 +86,38 @@ a
 % abc
 .
 <p>a</p>
-<!--- abc ---><ul>
+<!-- abc --><ul>
 <li>b</li>
 </ul>
-<!--- abc ---><blockquote>
+<!-- abc --><blockquote>
 <p>c</p>
 </blockquote>
-<!--- abc --->
+<!-- abc -->
+.
+
+Multiline comment:
+.
+a
+% abc
+%   def
+- b
+%  abc
+%def
+> c
+%abc
+%
+%def
+.
+<p>a</p>
+<!-- abc
+def --><ul>
+<li>b</li>
+</ul>
+<!-- abc
+def --><blockquote>
+<p>c</p>
+</blockquote>
+<!-- abc
+
+def -->
 .
