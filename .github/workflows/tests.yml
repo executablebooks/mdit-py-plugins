@@ -61,10 +61,10 @@ jobs:
     steps:
     - name: Checkout source
       uses: actions/checkout@v2
-    - name: Set up Python 3.7
+    - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: 3.7
+        python-version: 3.8
     - name: Build package
       run: |
         pip install wheel
