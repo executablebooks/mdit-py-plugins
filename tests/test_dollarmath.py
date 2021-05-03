@@ -88,9 +88,9 @@ def test_plugin_parse(data_regression):
 )
 def test_dollarmath_fixturess(line, title, input, expected):
     md = MarkdownIt("commonmark").use(
-        dollarmath_plugin, allow_space=False, allow_digits=False
+        dollarmath_plugin, allow_space=False, allow_digits=False, double_inline=True
     )
-    md.options["xhtmlOut"] = False
+    md.options.xhtmlOut = False
     text = md.render(input)
     print(text)
     assert text.rstrip() == expected.rstrip()

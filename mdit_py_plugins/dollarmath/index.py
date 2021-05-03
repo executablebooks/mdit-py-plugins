@@ -1,4 +1,5 @@
 import re
+from typing import Callable
 
 from markdown_it import MarkdownIt
 from markdown_it.rules_inline import StateInline
@@ -7,9 +8,14 @@ from markdown_it.common.utils import isWhiteSpace
 
 
 def dollarmath_plugin(
-    md: MarkdownIt, allow_labels=True, allow_space=True, allow_digits=True
-):
-    """Plugin for parsing dollar enclosed math, e.g. ``$a=1$``.
+    md: MarkdownIt,
+    allow_labels: bool = True,
+    allow_space: bool = True,
+    allow_digits: bool = True,
+    double_inline: bool = False,
+) -> None:
+    """Plugin for parsing dollar enclosed math,
+    e.g. inline: ``$a=1$``, block: ``$$b=2$$``
 
     This is an improved version of ``texmath``; it is more performant,
     and handles ``\\`` escaping properly and allows for more configuration.
@@ -20,10 +26,14 @@ def dollarmath_plugin(
     :param allow_digits: Parse inline math when there is a digit
         before/after the opening/closing ``$``, e.g. ``1$`` or ``$2``.
         This is useful when also using currency.
+    :param double_inline: Search for double-dollar math within inline contexts
+
     """
 
     md.inline.ruler.before(
-        "escape", "math_inline", math_inline_dollar(allow_space, allow_digits)
+        "escape",
+        "math_inline",
+        math_inline_dollar(allow_space, allow_digits, double_inline),
     )
     md.add_render_rule("math_inline", render_math_inline)
 
@@ -33,7 +43,9 @@ def dollarmath_plugin(
 
 
 def render_math_inline(self, tokens, idx, options, env):
-    return "<eq>{0}</eq>".format(tokens[idx].content)
+    return "<{0}>{1}</{0}>".format(
+        "eqn" if tokens[idx].markup == "$$" else "eq", tokens[idx].content
+    )
 
 
 def render_math_block(self, tokens, idx, options, env):
@@ -66,12 +78,38 @@ def is_escaped(state: StateInline, back_pos: int, mod: int = 0):
     return False
 
 
-def math_inline_dollar(allow_space=True, allow_digits=True):
-    def _math_inline_dollar(state: StateInline, silent: bool):
+def math_inline_dollar(
+    allow_space: bool = True, allow_digits: bool = True, allow_double: bool = False
+) -> Callable[[StateInline, bool], bool]:
+    """Generate inline dollar rule.
+
+    :param allow_space: Parse inline math when there is space
+        after/before the opening/closing ``$``, e.g. ``$ a $``
+    :param allow_digits: Parse inline math when there is a digit
+        before/after the opening/closing ``$``, e.g. ``1$`` or ``$2``.
+        This is useful when also using currency.
+    :param allow_double: Search for double-dollar math within inline contexts
+
+    """
+
+    def _math_inline_dollar(state: StateInline, silent: bool) -> bool:
+        """Inline dollar rule.
+
+        - Initial check:
+            - check if first character is a $
+            - check if the first character is escaped
+            - check if the next character is a space (if not allow_space)
+            - check if the next character is a digit (if not allow_digits)
+        - Advance one, if allow_double
+        - Find closing (advance one, if allow_double)
+        - Check closing:
+            - check if the previous character is a space (if not allow_space)
+            - check if the next character is a digit (if not allow_digits)
+        - Check empty content
+        """
 
         # TODO options:
         # even/odd backslash escaping
-        # allow $$ blocks
 
         if state.srcCharCode[state.pos] != 0x24:  # /* $ */
             return False
@@ -95,8 +133,13 @@ def math_inline_dollar(allow_space=True, allow_digits=True):
         if is_escaped(state, state.pos):
             return False
 
+        try:
+            is_double = allow_double and state.srcCharCode[state.pos + 1] == 0x24
+        except IndexError:
+            return False
+
         # find closing $
-        pos = state.pos + 1
+        pos = state.pos + 1 + (1 if is_double else 0)
         found_closing = False
         while True:
             try:
@@ -106,9 +149,20 @@ def math_inline_dollar(allow_space=True, allow_digits=True):
 
             if is_escaped(state, end):
                 pos = end + 1
-            else:
-                found_closing = True
-                break
+                continue
+
+            try:
+                if is_double and not state.srcCharCode[end + 1] == 0x24:
+                    pos = end + 1
+                    continue
+            except IndexError:
+                return False
+
+            if is_double:
+                end += 1
+
+            found_closing = True
+            break
 
         if not found_closing:
             return False
@@ -129,7 +183,11 @@ def math_inline_dollar(allow_space=True, allow_digits=True):
             except IndexError:
                 pass
 
-        text = state.src[state.pos + 1 : end]
+        text = (
+            state.src[state.pos + 2 : end - 1]
+            if is_double
+            else state.src[state.pos + 1 : end]
+        )
 
         # ignore empty
         if not text:
@@ -138,7 +196,7 @@ def math_inline_dollar(allow_space=True, allow_digits=True):
         if not silent:
             token = state.push("math_inline", "math", 0)
             token.content = text
-            token.markup = "$"
+            token.markup = "$$" if is_double else "$"
 
         state.pos = end + 1
 
