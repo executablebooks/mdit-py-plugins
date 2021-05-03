@@ -1,5 +1,14 @@
 # Change Log
 
+## 0.2.7 - 2021-05-03
+
+- ⬆️ UPDATE: markdown-it-py~=1.0
+- ✨ NEW: Add `wordcount_plugin`
+- 👌 IMPROVE: `dollarmath`: Allow inline double-dollar
+- 👌 IMPROVE: `myst_blocks`: Parse multiline comments
+- 👌 IMPROVE: Replace use of `env` as an `AttrDict`
+- 🐛 FIX: `front_matter`: don't duplicate content storage in `Token.meta`
+
 ## 0.2.6 - 2021-03-17
 
 👌 IMPROVE: Remove direct use of `Token.attrs`
