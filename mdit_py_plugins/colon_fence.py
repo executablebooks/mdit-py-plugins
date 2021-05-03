@@ -1,5 +1,5 @@
 from markdown_it import MarkdownIt
-from markdown_it.common.utils import unescapeAll, escapeHtml, stripEscape
+from markdown_it.common.utils import escapeHtml, stripEscape, unescapeAll
 from markdown_it.rules_block import StateBlock
 
 

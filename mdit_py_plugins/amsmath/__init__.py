@@ -2,8 +2,8 @@
 import re
 
 from markdown_it import MarkdownIt
-from markdown_it.rules_block import StateBlock
 from markdown_it.common.utils import escapeHtml
+from markdown_it.rules_block import StateBlock
 
 # Taken from amsmath version 2.1
 # http://anorien.csc.warwick.ac.uk/mirrors/CTAN/macros/latex/required/amsmath/amsldoc.pdf
