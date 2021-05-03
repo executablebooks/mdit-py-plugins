@@ -106,7 +106,7 @@ html_string = md.render("some *Markdown*")
 
 Use the `mdit_py_plugins` as a guide to write your own, following the [markdown-it design principles](markdown_it:architecture).
 
-There are many other plugins which could easily be ported from the JS versions (and hopefully will be):
+There are many other plugins which could easily be ported from the JS versions (and hopefully will):
 
 - [subscript](https://github.com/markdown-it/markdown-it-sub)
 - [superscript](https://github.com/markdown-it/markdown-it-sup)
