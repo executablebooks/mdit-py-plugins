@@ -1,5 +1,5 @@
-import re
 import itertools
+import re
 
 from markdown_it import MarkdownIt
 from markdown_it.common.utils import escapeHtml, isSpace
