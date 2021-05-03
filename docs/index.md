@@ -1,4 +1,4 @@
-# `markdown-it-py` plugin extensions
+# Markdown-It-Py Plugin Extensions
 
 ## Built-in
 
@@ -25,7 +25,7 @@ md = MarkdownIt("gfm-like")
 See [](markdown_it:using)
 ```
 
-## `mdit_py_plugins` package
+## mdit-py-plugins package
 
 The [`mdit_py_plugins`](https://github.com/executablebooks/mdit-py-plugins), contains a number of common plugins.
 They can be chained and loaded *via*:
