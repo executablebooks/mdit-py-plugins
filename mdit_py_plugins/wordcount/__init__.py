@@ -53,6 +53,6 @@ def wordcount_plugin(
             data["text"] += text
         data.setdefault("words", 0)
         data["words"] += words
-        data["minutes"] = int(round(words / per_minute))
+        data["minutes"] = int(round(data["words"] / per_minute))
 
     md.core.ruler.push("wordcount", _word_count_rule)
