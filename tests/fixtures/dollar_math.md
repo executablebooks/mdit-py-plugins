@@ -1,3 +1,17 @@
+single dollar
+.
+$
+.
+<p>$</p>
+.
+
+double-dollar
+.
+$$
+.
+<p>$$</p>
+.
+
 single character inline equation. (valid=True)
 .
 $a$
