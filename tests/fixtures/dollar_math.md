@@ -1,3 +1,17 @@
+single dollar
+.
+$
+.
+<p>$</p>
+.
+
+double-dollar
+.
+$$
+.
+<p>$$</p>
+.
+
 single character inline equation. (valid=True)
 .
 $a$
@@ -496,4 +510,47 @@ math-escaping: double-escaped end $:
 $p_2 = \\$a
 .
 <p><eq>p_2 = \\</eq>a</p>
+.
+
+Inline double-dollar start:
+.
+$$a=1$$ b
+.
+<p><eqn>a=1</eqn> b</p>
+.
+
+Inline double-dollar end:
+.
+a $$a=1$$
+.
+<p>a <eqn>a=1</eqn></p>
+.
+
+Inline double-dollar enclosed:
+.
+a $$a=1$$ (1) b
+.
+<p>a <eqn>a=1</eqn> (1) b</p>
+.
+
+Inline double-dollar, escaped:
+.
+a \$$a=1$$ b
+.
+<p>a $<eq>a=1</eq>$ b</p>
+.
+
+Inline mixed single/double dollars:
+.
+Hence, for $\alpha \in (0, 1)$,
+$$
+  \mathbb P (\alpha \bar{X} \ge \mu) \le \alpha;
+$$
+i.e., $[\alpha \bar{X}, \infty)$ is a lower 1-sided $1-\alpha$ confidence bound for $\mu$.
+.
+<p>Hence, for <eq>\alpha \in (0, 1)</eq>,
+<eqn>
+  \mathbb P (\alpha \bar{X} \ge \mu) \le \alpha;
+</eqn>
+i.e., <eq>[\alpha \bar{X}, \infty)</eq> is a lower 1-sided <eq>1-\alpha</eq> confidence bound for <eq>\mu</eq>.</p>
 .
