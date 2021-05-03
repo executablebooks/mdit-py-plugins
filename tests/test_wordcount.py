@@ -2,10 +2,10 @@ import json
 from pathlib import Path
 
 import pytest
-
 from markdown_it import MarkdownIt
-from mdit_py_plugins.wordcount import wordcount_plugin
 from markdown_it.utils import read_fixture_file
+
+from mdit_py_plugins.wordcount import wordcount_plugin
 
 FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures", "wordcount.md")
 

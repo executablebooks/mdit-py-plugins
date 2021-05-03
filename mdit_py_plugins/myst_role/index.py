@@ -1,9 +1,8 @@
 import re
 
 from markdown_it import MarkdownIt
-from markdown_it.rules_inline import StateInline
 from markdown_it.common.utils import escapeHtml
-
+from markdown_it.rules_inline import StateInline
 
 PATTERN = re.compile(r"^\{([a-zA-Z0-9\_\-\+\:]{1,36})\}(`+)(?!`)(.+?)(?<!`)\2(?!`)")
 

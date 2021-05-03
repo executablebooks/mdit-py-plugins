@@ -1,9 +1,8 @@
 import re
 
 from markdown_it import MarkdownIt
+from markdown_it.common.utils import escapeHtml, isSpace
 from markdown_it.rules_block import StateBlock
-from markdown_it.common.utils import isSpace, escapeHtml
-
 
 TARGET_PATTERN = re.compile(r"^\(([a-zA-Z0-9\|\@\<\>\*\.\/\_\-\+\:]{1,100})\)\=\s*$")
 

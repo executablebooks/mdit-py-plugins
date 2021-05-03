@@ -1,10 +1,10 @@
 from pathlib import Path
 
 import pytest
-
 from markdown_it import MarkdownIt
-from mdit_py_plugins.anchors import anchors_plugin
 from markdown_it.utils import read_fixture_file
+
+from mdit_py_plugins.anchors import anchors_plugin
 
 FIXTURE_PATH = Path(__file__).parent
 

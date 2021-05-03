@@ -2,9 +2,9 @@ from pathlib import Path
 from textwrap import dedent
 
 import pytest
-
 from markdown_it import MarkdownIt
 from markdown_it.utils import read_fixture_file
+
 from mdit_py_plugins.container import container_plugin
 
 
