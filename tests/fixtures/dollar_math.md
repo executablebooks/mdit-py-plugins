@@ -498,7 +498,21 @@ $p_2 = \\$a
 <p><eq>p_2 = \\</eq>a</p>
 .
 
-Inline double-dollar:
+Inline double-dollar start:
+.
+$$a=1$$ b
+.
+<p><eqn>a=1</eqn> b</p>
+.
+
+Inline double-dollar end:
+.
+a $$a=1$$
+.
+<p>a <eqn>a=1</eqn></p>
+.
+
+Inline double-dollar enclosed:
 .
 a $$a=1$$ (1) b
 .
