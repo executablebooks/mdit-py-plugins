@@ -8,6 +8,7 @@ PATTERN = re.compile(r"^\{([a-zA-Z0-9\_\-\+\:]{1,36})\}(`+)(?!`)(.+?)(?<!`)\2(?!
 
 
 def myst_role_plugin(md: MarkdownIt):
+    """Parse ``{role-name}`content```"""
     md.inline.ruler.before("backticks", "myst_role", myst_role)
     md.add_render_rule("myst_role", render_myst_role)
 

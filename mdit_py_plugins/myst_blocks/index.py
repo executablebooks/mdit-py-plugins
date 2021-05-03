@@ -8,6 +8,7 @@ TARGET_PATTERN = re.compile(r"^\(([a-zA-Z0-9\|\@\<\>\*\.\/\_\-\+\:]{1,100})\)\=\
 
 
 def myst_block_plugin(md: MarkdownIt):
+    """Parse MyST targets (``(name)=``), blockquotes (``% comment``) and block breaks (``+++``)."""
     md.block.ruler.before(
         "blockquote",
         "myst_line_comment",
