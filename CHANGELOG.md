@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.2.8 - 2021-05-03
+
+🐛 FIX: `wordcount` update of minutes
+
 ## 0.2.7 - 2021-05-03
 
 - ⬆️ UPDATE: markdown-it-py~=1.0
