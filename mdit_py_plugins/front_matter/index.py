@@ -2,8 +2,8 @@
 from math import floor
 
 from markdown_it import MarkdownIt
-from markdown_it.rules_block import StateBlock
 from markdown_it.common.utils import charCodeAt
+from markdown_it.rules_block import StateBlock
 
 
 def front_matter_plugin(md: MarkdownIt):

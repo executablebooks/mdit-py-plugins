@@ -1,11 +1,11 @@
 from pathlib import Path
 
 import pytest
-
 from markdown_it import MarkdownIt
 from markdown_it.token import Token
-from mdit_py_plugins.myst_role import myst_role_plugin
 from markdown_it.utils import read_fixture_file
+
+from mdit_py_plugins.myst_role import myst_role_plugin
 
 FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures", "myst_role.md")
 

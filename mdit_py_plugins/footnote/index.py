@@ -4,11 +4,11 @@
 from typing import List, Optional
 
 from markdown_it import MarkdownIt
-from markdown_it.token import Token
-from markdown_it.rules_inline import StateInline
-from markdown_it.rules_block import StateBlock
-from markdown_it.helpers import parseLinkLabel
 from markdown_it.common.utils import isSpace
+from markdown_it.helpers import parseLinkLabel
+from markdown_it.rules_block import StateBlock
+from markdown_it.rules_inline import StateInline
+from markdown_it.token import Token
 
 
 def footnote_plugin(md: MarkdownIt):

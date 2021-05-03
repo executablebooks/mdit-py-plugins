@@ -2,9 +2,9 @@ import re
 from typing import Callable
 
 from markdown_it import MarkdownIt
-from markdown_it.rules_inline import StateInline
-from markdown_it.rules_block import StateBlock
 from markdown_it.common.utils import isWhiteSpace
+from markdown_it.rules_block import StateBlock
+from markdown_it.rules_inline import StateInline
 
 
 def dollarmath_plugin(

@@ -20,7 +20,6 @@ from typing import List
 from uuid import uuid4
 
 from markdown_it import MarkdownIt
-
 from markdown_it.token import Token
 
 

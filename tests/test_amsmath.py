@@ -2,10 +2,10 @@ from pathlib import Path
 from textwrap import dedent
 
 import pytest
-
 from markdown_it import MarkdownIt
-from mdit_py_plugins.amsmath import amsmath_plugin
 from markdown_it.utils import read_fixture_file
+
+from mdit_py_plugins.amsmath import amsmath_plugin
 
 FIXTURE_PATH = Path(__file__).parent
 
