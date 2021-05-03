@@ -35,7 +35,7 @@ def test_token():
             content="a: 1",
             markup="---",
             info="",
-            meta="a: 1",
+            meta={},
             block=True,
             hidden=True,
         )
