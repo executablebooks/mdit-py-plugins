@@ -42,23 +42,28 @@ def dollarmath_plugin(
     md.add_render_rule("math_block_eqno", render_math_block_eqno)
 
 
-def render_math_inline(self, tokens, idx, options, env):
+# TODO the current render rules are really just for testing
+# would be good to allow "proper" math rendering, e.g. https://github.com/roniemartinez/latex2mathml
+
+
+def render_math_inline(self, tokens, idx, options, env) -> str:
     return "<{0}>{1}</{0}>".format(
         "eqn" if tokens[idx].markup == "$$" else "eq", tokens[idx].content
     )
 
 
-def render_math_block(self, tokens, idx, options, env):
+def render_math_block(self, tokens, idx, options, env) -> str:
     return "<section>\n<eqn>{0}</eqn>\n</section>\n".format(tokens[idx].content)
 
 
-def render_math_block_eqno(self, tokens, idx, options, env):
+def render_math_block_eqno(self, tokens, idx, options, env) -> str:
     return '<section>\n<eqn>{0}</eqn>\n<span class="eqno">({1})</span>\n</section>\n'.format(
         tokens[idx].content, tokens[idx].info
     )
 
 
-def is_escaped(state: StateInline, back_pos: int, mod: int = 0):
+def is_escaped(state: StateInline, back_pos: int, mod: int = 0) -> bool:
+    """Test if dollar is escaped."""
     # count how many \ are before the current position
     backslashes = 0
     while back_pos >= 0:
@@ -69,7 +74,7 @@ def is_escaped(state: StateInline, back_pos: int, mod: int = 0):
             break
 
     if not backslashes:
-        return
+        return False
 
     # if an odd number of \ then ignore
     if (backslashes % 2) != mod:
@@ -209,10 +214,14 @@ def math_inline_dollar(
 DOLLAR_EQNO_REV = re.compile(r"^\s*\)([^)$\r\n]+?)\(\s*\${2}")
 
 
-def math_block_dollar(allow_labels=True):
+def math_block_dollar(
+    allow_labels: bool = True,
+) -> Callable[[StateBlock, int, int, bool], bool]:
+    """Generate block dollar rule."""
+
     def _math_block_dollar(
         state: StateBlock, startLine: int, endLine: int, silent: bool
-    ):
+    ) -> bool:
 
         # TODO internal backslash escaping
 
