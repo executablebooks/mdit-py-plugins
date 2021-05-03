@@ -1,3 +1,4 @@
+import itertools
 import re
 
 from markdown_it import MarkdownIt
@@ -40,23 +41,30 @@ def line_comment(state: StateBlock, startLine: int, endLine: int, silent: bool):
     if state.sCount[startLine] - state.blkIndent >= 4:
         return False
 
-    marker = state.srcCharCode[pos]
-    pos += 1
-
-    # Check block marker /* % */
-    if marker != 0x25:
+    if state.src[pos] != "%":
         return False
 
     if silent:
         return True
 
-    state.line = startLine + 1
-
     token = state.push("myst_line_comment", "", 0)
     token.attrSet("class", "myst-line-comment")
-    token.content = state.src[pos:maximum].rstrip()
-    token.map = [startLine, state.line]
-    token.markup = chr(marker)
+    token.content = state.src[pos + 1 : maximum].rstrip()
+    token.markup = "%"
+
+    # search end of block while appending lines to `token.content`
+    for nextLine in itertools.count(startLine + 1):
+        if nextLine >= endLine:
+            break
+        pos = state.bMarks[nextLine] + state.tShift[nextLine]
+        maximum = state.eMarks[nextLine]
+
+        if state.src[pos] != "%":
+            break
+        token.content += "\n" + state.src[pos + 1 : maximum].rstrip()
+
+    state.line = nextLine
+    token.map = [startLine, nextLine]
 
     return True
 
@@ -140,5 +148,6 @@ def render_myst_target(self, tokens, idx, options, env):
 
 
 def render_myst_line_comment(self, tokens, idx, options, env):
-    content = tokens[idx].content.lstrip()
-    return f"<!--- {escapeHtml(content)} --->"
+    # Strip leading whitespace from all lines
+    content = "\n".join(line.lstrip() for line in tokens[idx].content.split("\n"))
+    return f"<!-- {escapeHtml(content)} -->"

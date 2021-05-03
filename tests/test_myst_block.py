@@ -60,15 +60,15 @@ def test_block_token():
 
 def test_comment_token():
     md = MarkdownIt("commonmark").use(myst_block_plugin)
-    tokens = md.parse("\n\n% abc")
+    tokens = md.parse("\n\n% abc \n%def")
     expected_token = Token(
         type="myst_line_comment",
         tag="",
         nesting=0,
-        map=[2, 3],
+        map=[2, 4],
         level=0,
         children=None,
-        content=" abc",
+        content=" abc\ndef",
         markup="%",
         info="",
         meta={},
