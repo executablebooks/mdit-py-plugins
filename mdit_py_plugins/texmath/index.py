@@ -3,7 +3,6 @@ from typing import Optional
 
 from markdown_it import MarkdownIt
 from markdown_it.common.utils import charCodeAt
-from markdown_it.utils import AttrDict
 
 
 def texmath_plugin(md: MarkdownIt, delimiters="dollars", macros: Optional[dict] = None):
@@ -152,163 +151,157 @@ def render(tex, displayMode, macros):
 # All regexes areg global (g) and sticky (y), see:
 # https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/sticky
 
-rules = AttrDict(
-    {
-        "brackets": {
-            "inline": [
-                {
-                    "name": "math_inline",
-                    "rex": re.compile(r"^\\\((.+?)\\\)", re.DOTALL),
-                    "tmpl": "<eq>{0}</eq>",
-                    "tag": "\\(",
-                }
-            ],
-            "block": [
-                {
-                    "name": "math_block_eqno",
-                    "rex": re.compile(
-                        r"^\\\[(((?!\\\]|\\\[)[\s\S])+?)\\\]\s*?\(([^)$\r\n]+?)\)", re.M
-                    ),
-                    "tmpl": '<section class="eqno"><eqn>{0}</eqn><span>({1})</span></section>',
-                    "tag": "\\[",
-                },
-                {
-                    "name": "math_block",
-                    "rex": re.compile(r"^\\\[([\s\S]+?)\\\]", re.M),
-                    "tmpl": "<section>\n<eqn>{0}</eqn>\n</section>\n",
-                    "tag": "\\[",
-                },
-            ],
-        },
-        "gitlab": {
-            "inline": [
-                {
-                    "name": "math_inline",
-                    "rex": re.compile(r"^\$`(.+?)`\$"),
-                    "tmpl": "<eq>{0}</eq>",
-                    "tag": "$`",
-                }
-            ],
-            "block": [
-                {
-                    "name": "math_block_eqno",
-                    "rex": re.compile(
-                        r"^`{3}math\s+?([^`]+?)\s+?`{3}\s*?\(([^)$\r\n]+?)\)", re.M
-                    ),
-                    "tmpl": '<section class="eqno">\n<eqn>{0}</eqn><span>({1})</span>\n</section>\n',  # noqa: E501
-                    "tag": "```math",
-                },
-                {
-                    "name": "math_block",
-                    "rex": re.compile(r"^`{3}math\s+?([^`]+?)\s+?`{3}", re.M),
-                    "tmpl": "<section>\n<eqn>{0}</eqn>\n</section>\n",
-                    "tag": "```math",
-                },
-            ],
-        },
-        "julia": {
-            "inline": [
-                {
-                    "name": "math_inline",
-                    "rex": re.compile(r"^`{2}([^`]+?)`{2}"),
-                    "tmpl": "<eq>{0}</eq>",
-                    "tag": "``",
-                },
-                {
-                    "name": "math_inline",
-                    "rex": re.compile(r"^\$(\S[^$\r\n]*?[^\s\\]{1}?)\$"),
-                    "tmpl": "<eq>{0}</eq>",
-                    "tag": "$",
-                    "pre": dollar_pre,
-                    "post": dollar_post,
-                },
-                {
-                    "name": "math_single",
-                    "rex": re.compile(r"^\$([^$\s\\]{1}?)\$"),
-                    "tmpl": "<eq>{0}</eq>",
-                    "tag": "$",
-                    "pre": dollar_pre,
-                    "post": dollar_post,
-                },
-            ],
-            "block": [
-                {
-                    "name": "math_block_eqno",
-                    "rex": re.compile(
-                        r"^`{3}math\s+?([^`]+?)\s+?`{3}\s*?\(([^)$\r\n]+?)\)", re.M
-                    ),
-                    "tmpl": '<section class="eqno"><eqn>{0}</eqn><span>({1})</span></section>',
-                    "tag": "```math",
-                },
-                {
-                    "name": "math_block",
-                    "rex": re.compile(r"^`{3}math\s+?([^`]+?)\s+?`{3}", re.M),
-                    "tmpl": "<section><eqn>{0}</eqn></section>",
-                    "tag": "```math",
-                },
-            ],
-        },
-        "kramdown": {
-            "inline": [
-                {
-                    "name": "math_inline",
-                    "rex": re.compile(r"^\${2}([^$\r\n]*?)\${2}"),
-                    "tmpl": "<eq>{0}</eq>",
-                    "tag": "$$",
-                }
-            ],
-            "block": [
-                {
-                    "name": "math_block_eqno",
-                    "rex": re.compile(
-                        r"^\${2}([^$]*?)\${2}\s*?\(([^)$\r\n]+?)\)", re.M
-                    ),
-                    "tmpl": '<section class="eqno"><eqn>{0}</eqn><span>({1})</span></section>',
-                    "tag": "$$",
-                },
-                {
-                    "name": "math_block",
-                    "rex": re.compile(r"^\${2}([^$]*?)\${2}", re.M),
-                    "tmpl": "<section><eqn>{0}</eqn></section>",
-                    "tag": "$$",
-                },
-            ],
-        },
-        "dollars": {
-            "inline": [
-                {
-                    "name": "math_inline",
-                    "rex": re.compile(r"^\$(\S[^$]*?[^\s\\]{1}?)\$"),
-                    "tmpl": "<eq>{0}</eq>",
-                    "tag": "$",
-                    "pre": dollar_pre,
-                    "post": dollar_post,
-                },
-                {
-                    "name": "math_single",
-                    "rex": re.compile(r"^\$([^$\s\\]{1}?)\$"),
-                    "tmpl": "<eq>{0}</eq>",
-                    "tag": "$",
-                    "pre": dollar_pre,
-                    "post": dollar_post,
-                },
-            ],
-            "block": [
-                {
-                    "name": "math_block_eqno",
-                    "rex": re.compile(
-                        r"^\${2}([^$]*?)\${2}\s*?\(([^)$\r\n]+?)\)", re.M
-                    ),
-                    "tmpl": '<section class="eqno">\n<eqn>{0}</eqn><span>({1})</span>\n</section>\n',  # noqa: E501
-                    "tag": "$$",
-                },
-                {
-                    "name": "math_block",
-                    "rex": re.compile(r"^\${2}([^$]*?)\${2}", re.M),
-                    "tmpl": "<section>\n<eqn>{0}</eqn>\n</section>\n",
-                    "tag": "$$",
-                },
-            ],
-        },
-    }
-)
+rules: dict = {
+    "brackets": {
+        "inline": [
+            {
+                "name": "math_inline",
+                "rex": re.compile(r"^\\\((.+?)\\\)", re.DOTALL),
+                "tmpl": "<eq>{0}</eq>",
+                "tag": "\\(",
+            }
+        ],
+        "block": [
+            {
+                "name": "math_block_eqno",
+                "rex": re.compile(
+                    r"^\\\[(((?!\\\]|\\\[)[\s\S])+?)\\\]\s*?\(([^)$\r\n]+?)\)", re.M
+                ),
+                "tmpl": '<section class="eqno"><eqn>{0}</eqn><span>({1})</span></section>',
+                "tag": "\\[",
+            },
+            {
+                "name": "math_block",
+                "rex": re.compile(r"^\\\[([\s\S]+?)\\\]", re.M),
+                "tmpl": "<section>\n<eqn>{0}</eqn>\n</section>\n",
+                "tag": "\\[",
+            },
+        ],
+    },
+    "gitlab": {
+        "inline": [
+            {
+                "name": "math_inline",
+                "rex": re.compile(r"^\$`(.+?)`\$"),
+                "tmpl": "<eq>{0}</eq>",
+                "tag": "$`",
+            }
+        ],
+        "block": [
+            {
+                "name": "math_block_eqno",
+                "rex": re.compile(
+                    r"^`{3}math\s+?([^`]+?)\s+?`{3}\s*?\(([^)$\r\n]+?)\)", re.M
+                ),
+                "tmpl": '<section class="eqno">\n<eqn>{0}</eqn><span>({1})</span>\n</section>\n',  # noqa: E501
+                "tag": "```math",
+            },
+            {
+                "name": "math_block",
+                "rex": re.compile(r"^`{3}math\s+?([^`]+?)\s+?`{3}", re.M),
+                "tmpl": "<section>\n<eqn>{0}</eqn>\n</section>\n",
+                "tag": "```math",
+            },
+        ],
+    },
+    "julia": {
+        "inline": [
+            {
+                "name": "math_inline",
+                "rex": re.compile(r"^`{2}([^`]+?)`{2}"),
+                "tmpl": "<eq>{0}</eq>",
+                "tag": "``",
+            },
+            {
+                "name": "math_inline",
+                "rex": re.compile(r"^\$(\S[^$\r\n]*?[^\s\\]{1}?)\$"),
+                "tmpl": "<eq>{0}</eq>",
+                "tag": "$",
+                "pre": dollar_pre,
+                "post": dollar_post,
+            },
+            {
+                "name": "math_single",
+                "rex": re.compile(r"^\$([^$\s\\]{1}?)\$"),
+                "tmpl": "<eq>{0}</eq>",
+                "tag": "$",
+                "pre": dollar_pre,
+                "post": dollar_post,
+            },
+        ],
+        "block": [
+            {
+                "name": "math_block_eqno",
+                "rex": re.compile(
+                    r"^`{3}math\s+?([^`]+?)\s+?`{3}\s*?\(([^)$\r\n]+?)\)", re.M
+                ),
+                "tmpl": '<section class="eqno"><eqn>{0}</eqn><span>({1})</span></section>',
+                "tag": "```math",
+            },
+            {
+                "name": "math_block",
+                "rex": re.compile(r"^`{3}math\s+?([^`]+?)\s+?`{3}", re.M),
+                "tmpl": "<section><eqn>{0}</eqn></section>",
+                "tag": "```math",
+            },
+        ],
+    },
+    "kramdown": {
+        "inline": [
+            {
+                "name": "math_inline",
+                "rex": re.compile(r"^\${2}([^$\r\n]*?)\${2}"),
+                "tmpl": "<eq>{0}</eq>",
+                "tag": "$$",
+            }
+        ],
+        "block": [
+            {
+                "name": "math_block_eqno",
+                "rex": re.compile(r"^\${2}([^$]*?)\${2}\s*?\(([^)$\r\n]+?)\)", re.M),
+                "tmpl": '<section class="eqno"><eqn>{0}</eqn><span>({1})</span></section>',
+                "tag": "$$",
+            },
+            {
+                "name": "math_block",
+                "rex": re.compile(r"^\${2}([^$]*?)\${2}", re.M),
+                "tmpl": "<section><eqn>{0}</eqn></section>",
+                "tag": "$$",
+            },
+        ],
+    },
+    "dollars": {
+        "inline": [
+            {
+                "name": "math_inline",
+                "rex": re.compile(r"^\$(\S[^$]*?[^\s\\]{1}?)\$"),
+                "tmpl": "<eq>{0}</eq>",
+                "tag": "$",
+                "pre": dollar_pre,
+                "post": dollar_post,
+            },
+            {
+                "name": "math_single",
+                "rex": re.compile(r"^\$([^$\s\\]{1}?)\$"),
+                "tmpl": "<eq>{0}</eq>",
+                "tag": "$",
+                "pre": dollar_pre,
+                "post": dollar_post,
+            },
+        ],
+        "block": [
+            {
+                "name": "math_block_eqno",
+                "rex": re.compile(r"^\${2}([^$]*?)\${2}\s*?\(([^)$\r\n]+?)\)", re.M),
+                "tmpl": '<section class="eqno">\n<eqn>{0}</eqn><span>({1})</span>\n</section>\n',  # noqa: E501
+                "tag": "$$",
+            },
+            {
+                "name": "math_block",
+                "rex": re.compile(r"^\${2}([^$]*?)\${2}", re.M),
+                "tmpl": "<section>\n<eqn>{0}</eqn>\n</section>\n",
+                "tag": "$$",
+            },
+        ],
+    },
+}
