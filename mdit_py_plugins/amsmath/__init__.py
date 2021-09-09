@@ -115,7 +115,4 @@ def amsmath_block(state: StateBlock, startLine: int, endLine: int, silent: bool)
 
 def render_amsmath_block(self, tokens, idx, options, env):
     token = tokens[idx]
-    return (
-        '<section class="amsmath">\n<eqn>\n'
-        f"{escapeHtml(token.content)}\n</eqn>\n</section>\n"
-    )
+    return f'<div class="math amsmath">\n{escapeHtml(token.content)}\n</div>\n'
