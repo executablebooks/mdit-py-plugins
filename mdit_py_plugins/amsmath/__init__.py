@@ -1,5 +1,6 @@
 """An extension to capture amsmath latex environments."""
 import re
+from typing import Callable, Optional
 
 from markdown_it import MarkdownIt
 from markdown_it.common.utils import escapeHtml
@@ -46,7 +47,7 @@ ENVIRONMENTS = [
 RE_OPEN = re.compile(r"\\begin\{(" + "|".join(ENVIRONMENTS) + r")([\*]?)\}")
 
 
-def amsmath_plugin(md: MarkdownIt):
+def amsmath_plugin(md: MarkdownIt, *, renderer: Optional[Callable[[str], str]] = None):
     """Parses TeX math equations, without any surrounding delimiters,
     only for top-level `amsmath <https://ctan.org/pkg/amsmath>`__ environments:
 
@@ -57,6 +58,8 @@ def amsmath_plugin(md: MarkdownIt):
         a_2=b_2+c_2-d_2+e_2
         \\end{gather*}
 
+    :param renderer: Function to render content, by default escapes HTML
+
     """
     md.block.ruler.before(
         "blockquote",
@@ -64,6 +67,16 @@ def amsmath_plugin(md: MarkdownIt):
         amsmath_block,
         {"alt": ["paragraph", "reference", "blockquote", "list", "footnote_def"]},
     )
+
+    if renderer is None:
+        _renderer = lambda content: escapeHtml(content)
+    else:
+        _renderer = renderer
+
+    def render_amsmath_block(self, tokens, idx, options, env):
+        content = _renderer(str(tokens[idx].content))
+        return f'<div class="math amsmath">\n{content}\n</div>\n'
+
     md.add_render_rule("amsmath", render_amsmath_block)
 
 
@@ -111,8 +124,3 @@ def amsmath_block(state: StateBlock, startLine: int, endLine: int, silent: bool)
         token.map = [startLine, line]
 
     return True
-
-
-def render_amsmath_block(self, tokens, idx, options, env):
-    token = tokens[idx]
-    return f'<div class="math amsmath">\n{escapeHtml(token.content)}\n</div>\n'
