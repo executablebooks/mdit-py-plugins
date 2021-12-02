@@ -18,7 +18,7 @@
   meta: {}
   nesting: 0
   tag: math
-  type: math_block_eqno
+  type: math_block_label
 - attrs: null
   block: true
   children: null
