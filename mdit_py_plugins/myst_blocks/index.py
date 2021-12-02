@@ -142,8 +142,7 @@ def target(state: StateBlock, startLine: int, endLine: int, silent: bool):
 def render_myst_target(self, tokens, idx, options, env):
     content = tokens[idx].content
     return (
-        '<div class=" admonition myst-target">'
-        f"target = <code>{escapeHtml(content)}</code></div>"
+        '<div class="myst-target">' f"target = <code>{escapeHtml(content)}</code></div>"
     )
 
 

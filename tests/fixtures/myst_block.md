@@ -46,7 +46,7 @@ Target:
 .
 (a)=
 .
-<div class=" admonition myst-target">target = <code>a</code></div>
+<div class="myst-target">target = <code>a</code></div>
 .
 
 
@@ -60,13 +60,13 @@ a
 (a)=
 .
 <p>a</p>
-<div class=" admonition myst-target">target = <code>a</code></div><ul>
+<div class="myst-target">target = <code>a</code></div><ul>
 <li>b</li>
 </ul>
-<div class=" admonition myst-target">target = <code>a</code></div><blockquote>
+<div class="myst-target">target = <code>a</code></div><blockquote>
 <p>c</p>
 </blockquote>
-<div class=" admonition myst-target">target = <code>a</code></div>
+<div class="myst-target">target = <code>a</code></div>
 .
 
 Comment:
