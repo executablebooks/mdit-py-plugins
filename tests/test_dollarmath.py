@@ -49,7 +49,7 @@ def test_block_func():
     block_func(state, 0, 10, False)
     print(tokens[0].as_dict())
     assert tokens[0].as_dict() == {
-        "type": "math_block_eqno",
+        "type": "math_block_label",
         "tag": "math",
         "nesting": 0,
         "attrs": None,
@@ -86,7 +86,7 @@ def test_plugin_parse(data_regression):
     "line,title,input,expected",
     read_fixture_file(FIXTURE_PATH.joinpath("dollar_math.md")),
 )
-def test_dollarmath_fixturess(line, title, input, expected):
+def test_dollarmath_fixtures(line, title, input, expected):
     md = MarkdownIt("commonmark").use(
         dollarmath_plugin, allow_space=False, allow_digits=False, double_inline=True
     )

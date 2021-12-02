@@ -1,18 +1,22 @@
 import re
-from typing import Callable
+from typing import Any, Callable, Dict, Optional
 
 from markdown_it import MarkdownIt
-from markdown_it.common.utils import isWhiteSpace
+from markdown_it.common.utils import escapeHtml, isWhiteSpace
 from markdown_it.rules_block import StateBlock
 from markdown_it.rules_inline import StateInline
 
 
 def dollarmath_plugin(
     md: MarkdownIt,
+    *,
     allow_labels: bool = True,
     allow_space: bool = True,
     allow_digits: bool = True,
     double_inline: bool = False,
+    label_normalizer: Optional[Callable[[str], str]] = None,
+    renderer: Optional[Callable[[str, Dict[str, Any]], str]] = None,
+    label_renderer: Optional[Callable[[str], str]] = None,
 ) -> None:
     """Plugin for parsing dollar enclosed math,
     e.g. inline: ``$a=1$``, block: ``$$b=2$$``
@@ -27,39 +31,64 @@ def dollarmath_plugin(
         before/after the opening/closing ``$``, e.g. ``1$`` or ``$2``.
         This is useful when also using currency.
     :param double_inline: Search for double-dollar math within inline contexts
+    :param label_normalizer: Function to normalize the label,
+        by default replaces whitespace with `-`
+    :param renderer: Function to render content: `(str, {"display_mode": bool}) -> str`,
+        by default escapes HTML
+    :param label_renderer: Function to render labels, by default creates anchor
 
     """
+    if label_normalizer is None:
+        label_normalizer = lambda label: re.sub(r"\s+", "-", label)
 
     md.inline.ruler.before(
         "escape",
         "math_inline",
         math_inline_dollar(allow_space, allow_digits, double_inline),
     )
+    md.block.ruler.before(
+        "fence", "math_block", math_block_dollar(allow_labels, label_normalizer)
+    )
+
+    # TODO the current render rules are really just for testing
+    # would be good to allow "proper" math rendering,
+    # e.g. https://github.com/roniemartinez/latex2mathml
+
+    if renderer is None:
+        _renderer = lambda content, _: escapeHtml(content)
+    else:
+        _renderer = renderer
+
+    if label_renderer is None:
+        _label_renderer = (
+            lambda label: f'<a href="#{label}" class="mathlabel" title="Permalink to this equation">¶</a>'  # noqa: E501
+        )
+    else:
+        _label_renderer = label_renderer
+
+    def render_math_inline(self, tokens, idx, options, env) -> str:
+        content = _renderer(str(tokens[idx].content).strip(), {"display_mode": False})
+        return f'<span class="math inline">{content}</span>'
+
+    def render_math_inline_double(self, tokens, idx, options, env) -> str:
+        content = _renderer(str(tokens[idx].content).strip(), {"display_mode": True})
+        return f'<div class="math inline">{content}</div>'
+
+    def render_math_block(self, tokens, idx, options, env) -> str:
+        content = _renderer(str(tokens[idx].content).strip(), {"display_mode": True})
+        return f'<div class="math block">\n{content}\n</div>\n'
+
+    def render_math_block_label(self, tokens, idx, options, env) -> str:
+        content = _renderer(str(tokens[idx].content).strip(), {"display_mode": True})
+        _id = tokens[idx].info
+        label = _label_renderer(tokens[idx].info)
+        return f'<div id="{_id}" class="math block">\n{label}\n{content}\n</div>\n'
+
     md.add_render_rule("math_inline", render_math_inline)
+    md.add_render_rule("math_inline_double", render_math_inline_double)
 
-    md.block.ruler.before("fence", "math_block", math_block_dollar(allow_labels))
     md.add_render_rule("math_block", render_math_block)
-    md.add_render_rule("math_block_eqno", render_math_block_eqno)
-
-
-# TODO the current render rules are really just for testing
-# would be good to allow "proper" math rendering, e.g. https://github.com/roniemartinez/latex2mathml
-
-
-def render_math_inline(self, tokens, idx, options, env) -> str:
-    return "<{0}>{1}</{0}>".format(
-        "eqn" if tokens[idx].markup == "$$" else "eq", tokens[idx].content
-    )
-
-
-def render_math_block(self, tokens, idx, options, env) -> str:
-    return "<section>\n<eqn>{0}</eqn>\n</section>\n".format(tokens[idx].content)
-
-
-def render_math_block_eqno(self, tokens, idx, options, env) -> str:
-    return '<section>\n<eqn>{0}</eqn>\n<span class="eqno">({1})</span>\n</section>\n'.format(
-        tokens[idx].content, tokens[idx].info
-    )
+    md.add_render_rule("math_block_label", render_math_block_label)
 
 
 def is_escaped(state: StateInline, back_pos: int, mod: int = 0) -> bool:
@@ -146,7 +175,7 @@ def math_inline_dollar(
         # find closing $
         pos = state.pos + 1 + (1 if is_double else 0)
         found_closing = False
-        while True:
+        while not found_closing:
             try:
                 end = state.srcCharCode.index(0x24, pos)
             except ValueError:
@@ -167,7 +196,6 @@ def math_inline_dollar(
                 end += 1
 
             found_closing = True
-            break
 
         if not found_closing:
             return False
@@ -199,7 +227,9 @@ def math_inline_dollar(
             return False
 
         if not silent:
-            token = state.push("math_inline", "math", 0)
+            token = state.push(
+                "math_inline_double" if is_double else "math_inline", "math", 0
+            )
             token.content = text
             token.markup = "$$" if is_double else "$"
 
@@ -216,6 +246,7 @@ DOLLAR_EQNO_REV = re.compile(r"^\s*\)([^)$\r\n]+?)\(\s*\${2}")
 
 def math_block_dollar(
     allow_labels: bool = True,
+    label_normalizer: Optional[Callable[[str], str]] = None,
 ) -> Callable[[StateBlock, int, int, bool], bool]:
     """Generate block dollar rule."""
 
@@ -249,7 +280,7 @@ def math_block_dollar(
         # search for end of block on same line
         lineText = state.src[startPos:end]
         if len(lineText.strip()) > 3:
-            lineText = state.src[startPos:end]
+
             if lineText.strip().endswith("$$"):
                 haveEndMarker = True
                 end = end - 2 - (len(lineText) - len(lineText.strip()))
@@ -295,13 +326,13 @@ def math_block_dollar(
 
         state.line = nextLine + (1 if haveEndMarker else 0)
 
-        token = state.push("math_block_eqno" if label else "math_block", "math", 0)
+        token = state.push("math_block_label" if label else "math_block", "math", 0)
         token.block = True
         token.content = state.src[startPos + 2 : end]
         token.markup = "$$"
         token.map = [startLine, state.line]
         if label:
-            token.info = label
+            token.info = label if label_normalizer is None else label_normalizer(label)
 
         return True
 
