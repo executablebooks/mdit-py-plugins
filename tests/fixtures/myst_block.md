@@ -41,32 +41,58 @@ a
 <hr class="myst-block">
 .
 
-
 Target:
 .
 (a)=
 .
-<div class="myst-target">target = <code>a</code></div>
+<div class="myst-target"><a href="#a">(a)=</a></div>
 .
 
+Target characters:
+.
+(a bc   |@<>*./_-+:)=
+.
+<div class="myst-target"><a href="#a bc   |@<>*./_-+:">(a bc   |@<>*./_-+:)=</a></div>
+.
+
+Empty target:
+.
+()=
+.
+<p>()=</p>
+.
+
+Escaped target:
+.
+\(a)=
+.
+<p>(a)=</p>
+.
+
+Indented target:
+.
+  (a)= 
+.
+<div class="myst-target"><a href="#a">(a)=</a></div>
+.
 
 Target terminates other blocks:
 .
 a
-(a)=
+(a-b)=
 - b
-(a)=
+(a b)=
 > c
 (a)=
 .
 <p>a</p>
-<div class="myst-target">target = <code>a</code></div><ul>
+<div class="myst-target"><a href="#a-b">(a-b)=</a></div><ul>
 <li>b</li>
 </ul>
-<div class="myst-target">target = <code>a</code></div><blockquote>
+<div class="myst-target"><a href="#a b">(a b)=</a></div><blockquote>
 <p>c</p>
 </blockquote>
-<div class="myst-target">target = <code>a</code></div>
+<div class="myst-target"><a href="#a">(a)=</a></div>
 .
 
 Comment:

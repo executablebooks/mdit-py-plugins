@@ -1,11 +1,8 @@
 import itertools
-import re
 
 from markdown_it import MarkdownIt
 from markdown_it.common.utils import escapeHtml, isSpace
 from markdown_it.rules_block import StateBlock
-
-TARGET_PATTERN = re.compile(r"^\(([a-zA-Z0-9\|\@\<\>\*\.\/\_\-\+\:]{1,100})\)\=\s*$")
 
 
 def myst_block_plugin(md: MarkdownIt):
@@ -122,8 +119,12 @@ def target(state: StateBlock, startLine: int, endLine: int, silent: bool):
     if state.sCount[startLine] - state.blkIndent >= 4:
         return False
 
-    match = TARGET_PATTERN.match(state.src[pos:maximum])
-    if not match:
+    text = state.src[pos:maximum].strip()
+    if not text.startswith("("):
+        return False
+    if not text.endswith(")="):
+        return False
+    if not text[1:-2]:
         return False
 
     if silent:
@@ -133,17 +134,17 @@ def target(state: StateBlock, startLine: int, endLine: int, silent: bool):
 
     token = state.push("myst_target", "", 0)
     token.attrSet("class", "myst-target")
-    token.content = match.group(1)
+    token.content = text[1:-2]
     token.map = [startLine, state.line]
 
     return True
 
 
 def render_myst_target(self, tokens, idx, options, env):
-    content = tokens[idx].content
-    return (
-        '<div class="myst-target">' f"target = <code>{escapeHtml(content)}</code></div>"
-    )
+    label = tokens[idx].content
+    class_name = "myst-target"
+    target = f'<a href="#{label}">({label})=</a>'
+    return f'<div class="{class_name}">{target}</div>'
 
 
 def render_myst_line_comment(self, tokens, idx, options, env):
