@@ -1,3 +1,5 @@
+exclude docs
+recursive-exclude docs *
 exclude tests
 recursive-exclude tests *
 

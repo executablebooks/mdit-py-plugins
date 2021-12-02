@@ -1,10 +1,10 @@
 from pathlib import Path
 
 import pytest
-
 from markdown_it import MarkdownIt
 from markdown_it.token import Token
 from markdown_it.utils import read_fixture_file
+
 from mdit_py_plugins.myst_blocks import myst_block_plugin
 
 FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures", "myst_block.md")
@@ -60,15 +60,15 @@ def test_block_token():
 
 def test_comment_token():
     md = MarkdownIt("commonmark").use(myst_block_plugin)
-    tokens = md.parse("\n\n% abc")
+    tokens = md.parse("\n\n% abc \n%def")
     expected_token = Token(
         type="myst_line_comment",
         tag="",
         nesting=0,
-        map=[2, 3],
+        map=[2, 4],
         level=0,
         children=None,
-        content="abc",
+        content=" abc\ndef",
         markup="%",
         info="",
         meta={},

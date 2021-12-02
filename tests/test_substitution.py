@@ -2,12 +2,11 @@ from pathlib import Path
 from textwrap import dedent
 
 import pytest
-
 from markdown_it import MarkdownIt
+from markdown_it.utils import read_fixture_file
 
 # from markdown_it.token import Token
 from mdit_py_plugins.substitution import substitution_plugin
-from markdown_it.utils import read_fixture_file
 
 FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures", "substitution.md")
 

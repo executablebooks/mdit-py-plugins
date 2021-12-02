@@ -2,8 +2,8 @@
 import re
 
 from markdown_it import MarkdownIt
-from markdown_it.rules_block import StateBlock
 from markdown_it.common.utils import escapeHtml
+from markdown_it.rules_block import StateBlock
 
 # Taken from amsmath version 2.1
 # http://anorien.csc.warwick.ac.uk/mirrors/CTAN/macros/latex/required/amsmath/amsldoc.pdf
@@ -115,7 +115,4 @@ def amsmath_block(state: StateBlock, startLine: int, endLine: int, silent: bool)
 
 def render_amsmath_block(self, tokens, idx, options, env):
     token = tokens[idx]
-    return (
-        '<section class="amsmath">\n<eqn>\n'
-        f"{escapeHtml(token.content)}\n</eqn>\n</section>\n"
-    )
+    return f'<div class="math amsmath">\n{escapeHtml(token.content)}\n</div>\n'
