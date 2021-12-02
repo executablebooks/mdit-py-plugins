@@ -1,5 +1,5 @@
 from markdown_it import MarkdownIt
-from markdown_it.common.utils import escapeHtml, stripEscape, unescapeAll
+from markdown_it.common.utils import escapeHtml, unescapeAll
 from markdown_it.rules_block import StateBlock
 
 
@@ -106,7 +106,7 @@ def _rule(state: StateBlock, startLine: int, endLine: int, silent: bool):
     state.line = nextLine + (1 if haveEndMarker else 0)
 
     token = state.push("colon_fence", "code", 0)
-    token.info = stripEscape(params)
+    token.info = params
     token.content = state.getLines(startLine + 1, nextLine, length, True)
     token.markup = markup
     token.map = [startLine, state.line]
