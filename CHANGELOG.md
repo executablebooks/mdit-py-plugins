@@ -1,5 +1,15 @@
 # Change Log
 
+## 0.3.0 - 2021-12-03
+
+- ⬆️ UPGRADE: Compatible with markdown-it-py `v2`.
+- ✨ NEW: Add field list plugin, Based on the [restructuredtext syntax](https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html#field-lists)
+- ♻️ REFACTOR: dollarmath plugin, `math_block_eqno` -> `math_block_label` token
+- ♻️ REFACTOR: Remove AttrDict usage from texmath
+- 👌 IMPROVE: Default HTML rendering for dollarmath and amsmath plugins
+- 👌 IMPROVE: Add render options for dollarmath and amsmath plugins
+- 👌 IMPROVE: MyST parsing of target blocks (allow whitespace) and roles (allow for new lines)
+
 ## 0.2.8 - 2021-05-03
 
 🐛 FIX: `wordcount` update of minutes
