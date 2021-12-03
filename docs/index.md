@@ -61,6 +61,12 @@ html_string = md.render("some *Markdown*")
 .. autofunction:: mdit_py_plugins.tasklists.tasklists_plugin
 ```
 
+## Field Lists
+
+```{eval-rst}
+.. autofunction:: mdit_py_plugins.field_list.fieldlist_plugin
+```
+
 ## Heading Anchors
 
 ```{eval-rst}
