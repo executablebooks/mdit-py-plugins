@@ -124,7 +124,8 @@ def target(state: StateBlock, startLine: int, endLine: int, silent: bool):
         return False
     if not text.endswith(")="):
         return False
-    if not text[1:-2]:
+    content = text[1:-2]
+    if not content or "\\" in content:
         return False
 
     if silent:
@@ -134,7 +135,7 @@ def target(state: StateBlock, startLine: int, endLine: int, silent: bool):
 
     token = state.push("myst_target", "", 0)
     token.attrSet("class", "myst-target")
-    token.content = text[1:-2]
+    token.content = content
     token.map = [startLine, state.line]
 
     return True
