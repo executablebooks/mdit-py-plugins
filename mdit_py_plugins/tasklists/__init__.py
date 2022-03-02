@@ -16,6 +16,7 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+import re
 from typing import List
 from uuid import uuid4
 
@@ -144,8 +145,4 @@ def tasklists_plugin(
 
     def starts_with_todo_markdown(token):
         # leading whitespace in a list item is already trimmed off by markdown-it
-        return (
-            token.content.startswith("[ ] ")
-            or token.content.startswith("[x] ")
-            or token.content.startswith("[X] ")
-        )
+        return re.match(r"\[[ xX]][ \t\n\v\f\r]+", token.content)

@@ -107,3 +107,25 @@ oedered.md:
 </ol>
 
 .
+
+Tab after task list item marker
+.
++ [x]	item 1
++ [ ]		item 2
+.
+<ul class="contains-task-list">
+<li class="task-list-item">	item 1</li>
+<li class="task-list-item">		item 2</li>
+</ul>
+.
+
+Form feed after task list item marker
+.
++ [x]item 1
++ [ ]item 2
+.
+<ul class="contains-task-list">
+<li class="task-list-item">item 1</li>
+<li class="task-list-item">item 2</li>
+</ul>
+.
