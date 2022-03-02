@@ -23,6 +23,11 @@ from uuid import uuid4
 from markdown_it import MarkdownIt
 from markdown_it.token import Token
 
+# Regex string to match a whitespace character, as specified in
+# https://github.github.com/gfm/#whitespace-character
+# (spec version 0.29-gfm (2019-04-06))
+_GFM_WHITESPACE_RE = r"[ \t\n\v\f\r]"
+
 
 def tasklists_plugin(
     md: MarkdownIt,
@@ -145,4 +150,4 @@ def tasklists_plugin(
 
     def starts_with_todo_markdown(token):
         # leading whitespace in a list item is already trimmed off by markdown-it
-        return re.match(r"\[[ xX]][ \t\n\v\f\r]+", token.content)
+        return re.match(rf"\[[ xX]]{_GFM_WHITESPACE_RE}+", token.content)
