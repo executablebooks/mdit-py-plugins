@@ -112,7 +112,7 @@ def _make_anchors_func(
                         ([Token("text", "", 0, content=" ")] if permalinkSpace else [])
                         + link_tokens
                     )
-
+        slugs.clear()
     return _anchor_func
 
 
