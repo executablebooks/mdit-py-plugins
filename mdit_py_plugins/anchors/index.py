@@ -65,9 +65,8 @@ def _make_anchors_func(
     permalinkBefore: bool,
     permalinkSpace: bool,
 ):
-    slugs: Set[str] = set()
-
     def _anchor_func(state: StateCore):
+        slugs: Set[str] = set()
         for (idx, token) in enumerate(state.tokens):
             if token.type != "heading_open":
                 continue
@@ -112,7 +111,7 @@ def _make_anchors_func(
                         ([Token("text", "", 0, content=" ")] if permalinkSpace else [])
                         + link_tokens
                     )
-        slugs.clear()
+
     return _anchor_func
 
 
