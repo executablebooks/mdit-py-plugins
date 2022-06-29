@@ -226,6 +226,18 @@ b = 2
 </div>
 .
 
+display equation with blank lines. (valid=False)
+.
+$$
+1+1=2
+
+$$
+.
+<p>$$
+1+1=2</p>
+<p>$$</p>
+.
+
 equation followed by a labelled equation (valid=True)
 .
 $$
@@ -539,14 +551,4 @@ i.e., $[\alpha \bar{X}, \infty)$ is a lower 1-sided $1-\alpha$ confidence bound 
 <p>Hence, for <span class="math inline">\alpha \in (0, 1)</span>,
 <div class="math inline">\mathbb P (\alpha \bar{X} \ge \mu) \le \alpha;</div>
 i.e., <span class="math inline">[\alpha \bar{X}, \infty)</span> is a lower 1-sided <span class="math inline">1-\alpha</span> confidence bound for <span class="math inline">\mu</span>.</p>
-.
-
-display equation with label containing whitespace. (valid=True)
-.
-$$1+1=2$$ (a b)
-.
-<div id="a-b" class="math block">
-<a href="#a-b" class="mathlabel" title="Permalink to this equation">¶</a>
-1+1=2
-</div>
 .
