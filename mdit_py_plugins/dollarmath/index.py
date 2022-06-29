@@ -302,15 +302,14 @@ def math_block_dollar(
                 start = state.bMarks[nextLine] + state.tShift[nextLine]
                 end = state.eMarks[nextLine]
 
-                if end - start < 2:
-                    continue
-
                 lineText = state.src[start:end]
 
                 if lineText.strip().endswith("$$"):
                     haveEndMarker = True
                     end = end - 2 - (len(lineText) - len(lineText.strip()))
                     break
+                if lineText.strip() == "":
+                    break  # blank lines are not allowed within $$
 
                 # reverse the line and match
                 if allow_labels:
