@@ -326,3 +326,21 @@ Some text
 </ol>
 </section>
 .
+
+
+Newline after footnote identifier
+.
+[^a]
+
+[^a]:
+b
+.
+<p><sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup></p>
+<p>b</p>
+<hr class="footnotes-sep">
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"> <a href="#fnref1" class="footnote-backref"><-</a></li>
+</ol>
+</section>
+.
