@@ -1,9 +1,9 @@
 from pathlib import Path
 from textwrap import dedent
 
-import pytest
 from markdown_it import MarkdownIt
 from markdown_it.utils import read_fixture_file
+import pytest
 
 from mdit_py_plugins.tasklists import tasklists_plugin
 
