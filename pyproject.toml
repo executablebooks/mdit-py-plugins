@@ -32,10 +32,10 @@ Homepage = "https://github.com/executablebooks/mdit-py-plugins"
 Documentation = "https://markdown-it-py.readthedocs.io"
 
 [project.optional-dependencies]
-code_style = ["pre-commit==2.6"]
+code_style = ["pre-commit"]
 testing = [
     "coverage",
-    "pytest>=3.6,<4",
+    "pytest",
     "pytest-cov",
     "pytest-regressions",
 ]
