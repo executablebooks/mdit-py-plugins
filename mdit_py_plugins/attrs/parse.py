@@ -21,8 +21,8 @@ quotedval <- '"' ([^"] | '\"') '"'
 """
 from __future__ import annotations
 
-import re
 from enum import Enum
+import re
 from typing import Callable
 
 
