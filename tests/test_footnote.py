@@ -1,12 +1,12 @@
 from pathlib import Path
 from textwrap import dedent
 
-import pytest
 from markdown_it import MarkdownIt
 from markdown_it.rules_block import StateBlock
 from markdown_it.rules_inline import StateInline
 from markdown_it.token import Token
 from markdown_it.utils import read_fixture_file
+import pytest
 
 from mdit_py_plugins.footnote import footnote_plugin, index
 
