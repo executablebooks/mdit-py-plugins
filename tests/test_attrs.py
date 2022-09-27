@@ -1,0 +1,18 @@
+from pathlib import Path
+
+from markdown_it import MarkdownIt
+from markdown_it.utils import read_fixture_file
+import pytest
+
+from mdit_py_plugins.attrs import attrs_plugin
+
+FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures", "attrs.md")
+
+
+@pytest.mark.parametrize("line,title,input,expected", read_fixture_file(FIXTURE_PATH))
+def test_fixture(line, title, input, expected):
+    md = MarkdownIt("commonmark").use(attrs_plugin)
+    md.options["xhtmlOut"] = False
+    text = md.render(input)
+    print(text)
+    assert text.rstrip() == expected.rstrip()
