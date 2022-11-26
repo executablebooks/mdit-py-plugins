@@ -1,7 +1,6 @@
 from pathlib import Path
 
 from markdown_it import MarkdownIt
-from markdown_it.token import Token
 from markdown_it.utils import read_fixture_file
 import pytest
 

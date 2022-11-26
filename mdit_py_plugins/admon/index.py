@@ -1,7 +1,8 @@
 # Process admonitions and pass to cb.
 
-from typing import Dict, Optional, Tuple
 import math
+from typing import Tuple
+
 from markdown_it import MarkdownIt
 from markdown_it.rules_block import StateBlock
 
@@ -142,7 +143,7 @@ def admonition(state: StateBlock, startLine: int, endLine: int, silent: bool):
     token.markup = markup
     token.block = True
     token.attrs = {"class": f"admonition {tag}"}
-    token.meta = tag
+    token.meta = {"tag": tag}
     token.content = title
     token.info = params
     token.map = [startLine, next_line]
@@ -179,7 +180,7 @@ def admonition(state: StateBlock, startLine: int, endLine: int, silent: bool):
 def admon_plugin(md: MarkdownIt) -> None:
     """Plugin ported from:
 
-    `markdown-it-admon <https://github.com/commenthol/markdown-it-admon/blob/9820ba89415c464a3cc18a780f222a0ceb3e18bd/index.js>`.
+    `markdown-it-admon <https://github.com/commenthol/markdown-it-admon>`.
 
     """
     md.block.ruler.before(
