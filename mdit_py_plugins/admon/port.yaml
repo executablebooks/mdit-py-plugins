@@ -1,0 +1,4 @@
+- package: markdown-it-admon
+  commit: 9820ba89415c464a3cc18a780f222a0ceb3e18bd
+  date: Nov 26, 2022
+  version: 1.0.0
