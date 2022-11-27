@@ -6,35 +6,36 @@ from typing import Tuple
 from markdown_it import MarkdownIt
 from markdown_it.rules_block import StateBlock
 
-ADMONITION_TAGS = [
-    "note",
-    "summary",
-    "abstract",
-    "tldr",
-    "info",
-    "todo",
-    "tip",
-    "hint",
-    "success",
-    "check",
-    "done",
-    "question",
-    "help",
-    "faq",
-    "warning",
-    "attention",
-    "caution",
-    "failure",
-    "fail",
-    "missing",
-    "danger",
-    "error",
-    "bug",
-    "example",
-    "snippet",
-    "quote",
-    "cite",
-]
+# FYI: The admonition tags are not used for validation
+# ADMONITION_TAGS = [
+#     "note",
+#     "summary",
+#     "abstract",
+#     "tldr",
+#     "info",
+#     "todo",
+#     "tip",
+#     "hint",
+#     "success",
+#     "check",
+#     "done",
+#     "question",
+#     "help",
+#     "faq",
+#     "warning",
+#     "attention",
+#     "caution",
+#     "failure",
+#     "fail",
+#     "missing",
+#     "danger",
+#     "error",
+#     "bug",
+#     "example",
+#     "snippet",
+#     "quote",
+#     "cite",
+# ]
 
 
 def get_tag(params: str) -> Tuple[str, str]:
@@ -54,7 +55,7 @@ def get_tag(params: str) -> Tuple[str, str]:
 
 def validate(params: str) -> bool:
     tag = params.strip().split(" ", 1)[-1] or ""
-    return tag.lower() in ADMONITION_TAGS
+    return bool(tag)
 
 
 def render_default(tokens, idx, _options, env, slf):
