@@ -58,10 +58,6 @@ def validate(params: str) -> bool:
     return bool(tag)
 
 
-def render_default(tokens, idx, _options, env, slf):
-    return slf.renderToken(tokens, idx, _options, env, slf)
-
-
 MIN_MARKERS = 3
 MARKER_STR = "!"
 MARKER_CHAR = ord(MARKER_STR)
