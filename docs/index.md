@@ -37,6 +37,12 @@ md = MarkdownIt().use(plugin1, keyword=value).use(plugin2, keyword=value)
 html_string = md.render("some *Markdown*")
 ```
 
+## Admonitions
+
+```{eval-rst}
+.. autofunction:: mdit_py_plugins.admon.admon_plugin
+```
+
 ## Front-Matter
 
 ```{eval-rst}
