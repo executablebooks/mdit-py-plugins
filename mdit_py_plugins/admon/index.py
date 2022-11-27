@@ -1,7 +1,7 @@
 # Process admonitions and pass to cb.
 
 import math
-from typing import Tuple
+from typing import Callable, Optional, Tuple
 
 from markdown_it import MarkdownIt
 from markdown_it.rules_block import StateBlock
@@ -174,12 +174,30 @@ def admonition(state: StateBlock, startLine: int, endLine: int, silent: bool):
     return True
 
 
-def admon_plugin(md: MarkdownIt) -> None:
+def admon_plugin(md: MarkdownIt, render: Optional[Callable] = None) -> None:
     """Plugin ported from:
 
     `markdown-it-admon <https://github.com/commenthol/markdown-it-admon>`.
 
+    Plugin for admonitions:
+
+    .. code-block:: md
+
+        !!! note
+            *content*
+
     """
+
+    def renderDefault(self, tokens, idx, _options, env):
+        return self.renderToken(tokens, idx, _options, env)
+
+    render = render or renderDefault
+
+    md.add_render_rule("admonition_open", render)
+    md.add_render_rule("admonition_close", render)
+    md.add_render_rule("admonition_title_open", render)
+    md.add_render_rule("admonition_title_close", render)
+
     md.block.ruler.before(
         "fence",
         "admonition",
