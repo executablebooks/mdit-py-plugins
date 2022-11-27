@@ -54,11 +54,7 @@ def get_tag(params: str) -> Tuple[str, str]:
 
 def validate(params: str) -> bool:
     tag = params.strip().split(" ", 1)[-1] or ""
-    if tag.lower() in ADMONITION_TAGS:
-        return True
-    # FIXME: Should this return False? Or better way to log warnings?
-    print(f"Warning: admonition tag {tag} is not one of: {ADMONITION_TAGS}")
-    return bool(tag)
+    return tag.lower() in ADMONITION_TAGS
 
 
 def render_default(tokens, idx, _options, env, slf):
