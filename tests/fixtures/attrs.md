@@ -1,3 +1,19 @@
+simple reference link
+.
+[text *emphasis*](a){#id .a}
+.
+<p><a href="a" id="id" class="a">text <em>emphasis</em></a></p>
+.
+
+simple definition link
+.
+[a][]{#id .b}
+
+[a]: /url
+.
+<p><a href="/url" id="id" class="b">a</a></p>
+.
+
 simple image
 .
 ![a](b){#id .a b=c}
