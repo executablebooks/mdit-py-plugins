@@ -7,7 +7,9 @@ from markdown_it.token import Token
 from .parse import ParseError, parse
 
 
-def attrs_plugin(md: MarkdownIt, *, after=("image", "code_inline", "link_close")):
+def attrs_plugin(
+    md: MarkdownIt, *, after=("image", "code_inline", "link_close", "span_close")
+):
     """Parse inline attributes that immediately follow certain inline elements::
 
         ![alt](https://image.com){#id .a b=c}
