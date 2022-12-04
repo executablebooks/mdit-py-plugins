@@ -12,6 +12,27 @@ space between brace and attrs
 <p>[a] {.b}</p>
 .
 
+escaped span start
+.
+\[a]{.b}
+.
+<p>[a]{.b}</p>
+.
+
+escaped span end
+.
+[a\]{.b}
+.
+<p>[a]{.b}</p>
+.
+
+escaped span attribute
+.
+[a]\{.b}
+.
+<p>[a]{.b}</p>
+.
+
 nested text syntax
 .
 [*a*]{.b}c
@@ -43,20 +64,29 @@ nested spans
 <p><span class="c"><span class="b">a</span></span></p>
 .
 
-span trumps short link
+short link takes precedence over span
 .
-[a] [a]{#id .b}
+[a]{#id .b}
 
 [a]: /url
 .
-<p><a href="/url">a</a> <span id="id" class="b">a</span></p>
+<p><a href="/url">a</a>{#id .b}</p>
 .
 
-long link trumps span
+long link takes precedence over span
 .
 [a][a]{#id .b}
 
 [a]: /url
 .
 <p><a href="/url">a</a>{#id .b}</p>
+.
+
+link inside span
+.
+[[a]]{#id .b}
+
+[a]: /url
+.
+<p><span id="id" class="b"><a href="/url">a</a></span></p>
 .

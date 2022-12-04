@@ -74,6 +74,12 @@ def span_plugin(md: MarkdownIt):
     .. code-block:: none
 
         [This is a span]{#id .a b=c}
+
+    This syntax is inspired by
+    `Djot spans <https://htmlpreview.github.io/?https://github.com/jgm/djot/blob/master/doc/syntax.html#span>`_.  # noqa: E501
+
+    Note Markdown link references take precedence over this syntax.
+
     """
 
     def span_rule(state: StateInline, silent: bool):
@@ -109,4 +115,4 @@ def span_plugin(md: MarkdownIt):
         state.posMax = maximum
         return True
 
-    md.inline.ruler.before("link", "span", span_rule)
+    md.inline.ruler.after("link", "span", span_rule)
