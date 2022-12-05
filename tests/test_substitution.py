@@ -1,9 +1,9 @@
 from pathlib import Path
 from textwrap import dedent
 
-import pytest
 from markdown_it import MarkdownIt
 from markdown_it.utils import read_fixture_file
+import pytest
 
 # from markdown_it.token import Token
 from mdit_py_plugins.substitution import substitution_plugin

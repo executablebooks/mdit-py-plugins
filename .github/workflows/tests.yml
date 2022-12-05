@@ -28,8 +28,9 @@ jobs:
 
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        python-version: [pypy3, 3.6, 3.7, 3.8, 3.9]
+        python-version: ['pypy-3.7', '3.7', '3.8', '3.9', '3.10']
 
     steps:
     - uses: actions/checkout@v2
@@ -64,13 +65,13 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: 3.8
-    - name: Build package
+        python-version: "3.8"
+    - name: install flit
       run: |
-        pip install build
-        python -m build
-    - name: Publish
-      uses: pypa/gh-action-pypi-publish@v1.1.0
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_KEY }}
+        pip install flit~=3.4
+    - name: Build and publish
+      run: |
+        flit publish
+      env:
+        FLIT_USERNAME: __token__
+        FLIT_PASSWORD: ${{ secrets.PYPI_KEY }}
