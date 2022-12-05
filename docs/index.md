@@ -85,6 +85,10 @@ html_string = md.render("some *Markdown*")
 .. autofunction:: mdit_py_plugins.container.container_plugin
 ```
 
+```{eval-rst}
+.. autofunction:: mdit_py_plugins.admon.admon_plugin
+```
+
 ## Inline Attributes
 
 ```{eval-rst}
