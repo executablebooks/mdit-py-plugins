@@ -1,5 +1,13 @@
 # Change Log
 
+## 0.3.1 - 2022-09-27
+
+- ⬆️ UPGRADE: Drop Python 3.6, support Python 3.10
+- 🐛 FIX: Parsing when newline is between footnote ID and first paragraph
+- 🐛 FIX: Anchor ids in separate renders no longer affect each other.
+- ✨ NEW: Add `attrs_plugin`
+- 🔧 MAINTAIN: Use flit PEP 621 package build
+
 ## 0.3.0 - 2021-12-03
 
 - ⬆️ UPGRADE: Compatible with markdown-it-py `v2`.

@@ -65,9 +65,8 @@ def _make_anchors_func(
     permalinkBefore: bool,
     permalinkSpace: bool,
 ):
-    slugs: Set[str] = set()
-
     def _anchor_func(state: StateCore):
+        slugs: Set[str] = set()
         for (idx, token) in enumerate(state.tokens):
             if token.type != "heading_open":
                 continue

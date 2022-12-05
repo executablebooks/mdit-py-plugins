@@ -1,11 +1,11 @@
 from pathlib import Path
 from textwrap import dedent
 
-import pytest
 from markdown_it import MarkdownIt
 from markdown_it.rules_block import StateBlock
 from markdown_it.rules_inline import StateInline
 from markdown_it.utils import read_fixture_file
+import pytest
 
 from mdit_py_plugins.dollarmath import dollarmath_plugin
 from mdit_py_plugins.dollarmath import index as main

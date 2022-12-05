@@ -80,7 +80,7 @@ def footnote_def(state: StateBlock, startLine: int, endLine: int, silent: bool):
     if pos == start + 2:  # no empty footnote labels
         return False
     pos += 1
-    if pos + 1 >= maximum or state.srcCharCode[pos] != 0x3A:  # /* : */
+    if pos >= maximum or state.srcCharCode[pos] != 0x3A:  # /* : */
         return False
     if silent:
         return True
