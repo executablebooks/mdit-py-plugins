@@ -16,11 +16,17 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+import re
 from typing import List
 from uuid import uuid4
 
 from markdown_it import MarkdownIt
 from markdown_it.token import Token
+
+# Regex string to match a whitespace character, as specified in
+# https://github.github.com/gfm/#whitespace-character
+# (spec version 0.29-gfm (2019-04-06))
+_GFM_WHITESPACE_RE = r"[ \t\n\v\f\r]"
 
 
 def tasklists_plugin(
@@ -144,8 +150,4 @@ def tasklists_plugin(
 
     def starts_with_todo_markdown(token):
         # leading whitespace in a list item is already trimmed off by markdown-it
-        return (
-            token.content.startswith("[ ] ")
-            or token.content.startswith("[x] ")
-            or token.content.startswith("[X] ")
-        )
+        return re.match(rf"\[[ xX]]{_GFM_WHITESPACE_RE}+", token.content)
