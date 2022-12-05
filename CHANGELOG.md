@@ -1,6 +1,6 @@
 # Change Log
 
-## 0.4.0 - 2022-12-05
+## 0.3.2 - 2022-12-05
 
 - ✨ NEW: Port `admon` plugin by @KyleKing ([#53](https://github.com/executablebooks/mdit-py-plugins/pull/53))
 - ✨ NEW: Add span parsing to inline attributes plugin by @chrisjsewell ([#55](https://github.com/executablebooks/mdit-py-plugins/pull/55))
