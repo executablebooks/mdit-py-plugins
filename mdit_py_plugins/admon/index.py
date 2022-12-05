@@ -64,7 +64,7 @@ MARKER_CHAR = ord(MARKER_STR)
 MARKER_LEN = len(MARKER_STR)
 
 
-def admonition(state: StateBlock, startLine: int, endLine: int, silent: bool):
+def admonition(state: StateBlock, startLine: int, endLine: int, silent: bool) -> bool:
     start = state.bMarks[startLine] + state.tShift[startLine]
     maximum = state.eMarks[startLine]
 
@@ -171,17 +171,18 @@ def admonition(state: StateBlock, startLine: int, endLine: int, silent: bool):
 
 
 def admon_plugin(md: MarkdownIt, render: Optional[Callable] = None) -> None:
-    """Plugin ported from:
-
-    `markdown-it-admon <https://github.com/commenthol/markdown-it-admon>`.
-
-    Plugin for admonitions:
+    """Plugin to use
+    `python-markdown style admonitions
+    <https://python-markdown.github.io/extensions/admonition>`_.
 
     .. code-block:: md
 
         !!! note
             *content*
 
+    Note, this is ported from
+    `markdown-it-admon 
+    <https://github.com/commenthol/markdown-it-admon>`_.
     """
 
     def renderDefault(self, tokens, idx, _options, env):
