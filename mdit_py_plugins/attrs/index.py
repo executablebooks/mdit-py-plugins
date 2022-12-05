@@ -11,7 +11,7 @@ def attrs_plugin(
     md: MarkdownIt,
     *,
     after=("image", "code_inline", "link_close", "span_close"),
-    spans=True,
+    spans=False,
 ):
     """Parse inline attributes that immediately follow certain inline elements::
 

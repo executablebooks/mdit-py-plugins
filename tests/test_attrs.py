@@ -13,7 +13,7 @@ FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
     "line,title,input,expected", read_fixture_file(FIXTURE_PATH / "attrs.md")
 )
 def test_attrs(line, title, input, expected):
-    md = MarkdownIt("commonmark").use(attrs_plugin)
+    md = MarkdownIt("commonmark").use(attrs_plugin, spans=True)
     md.options["xhtmlOut"] = False
     text = md.render(input)
     print(text)
