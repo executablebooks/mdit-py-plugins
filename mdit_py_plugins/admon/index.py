@@ -6,37 +6,6 @@ from typing import Callable, Optional, Tuple
 from markdown_it import MarkdownIt
 from markdown_it.rules_block import StateBlock
 
-# FYI: The admonition tags are not used for validation
-# ADMONITION_TAGS = [
-#     "note",
-#     "summary",
-#     "abstract",
-#     "tldr",
-#     "info",
-#     "todo",
-#     "tip",
-#     "hint",
-#     "success",
-#     "check",
-#     "done",
-#     "question",
-#     "help",
-#     "faq",
-#     "warning",
-#     "attention",
-#     "caution",
-#     "failure",
-#     "fail",
-#     "missing",
-#     "danger",
-#     "error",
-#     "bug",
-#     "example",
-#     "snippet",
-#     "quote",
-#     "cite",
-# ]
-
 
 def get_tag(params: str) -> Tuple[str, str]:
     if not params.strip():
@@ -181,7 +150,7 @@ def admon_plugin(md: MarkdownIt, render: Optional[Callable] = None) -> None:
             *content*
 
     Note, this is ported from
-    `markdown-it-admon 
+    `markdown-it-admon
     <https://github.com/commenthol/markdown-it-admon>`_.
     """
 
