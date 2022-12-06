@@ -68,6 +68,13 @@ spans: simple
 <p><span id="id" class="b">a</span>c</p>
 .
 
+spans: end of inline before attrs
+.
+[a]
+.
+<p>[a]</p>
+.
+
 spans: space between brace and attrs
 .
 [a] {.b}
