@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.3.3 - 2022-12-06
+
+🐛 FIX: span with end of inline before attrs
+
 ## 0.3.2 - 2022-12-05
 
 - ✨ NEW: Port `admon` plugin by @KyleKing ([#53](https://github.com/executablebooks/mdit-py-plugins/pull/53))
