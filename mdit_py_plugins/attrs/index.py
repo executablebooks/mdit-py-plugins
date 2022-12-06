@@ -12,6 +12,7 @@ def attrs_plugin(
     *,
     after=("image", "code_inline", "link_close", "span_close"),
     spans=False,
+    span_after="link",
 ):
     """Parse inline attributes that immediately follow certain inline elements::
 
@@ -42,7 +43,7 @@ def attrs_plugin(
         which all require post-parse processing.
     :param spans: If True, also parse attributes after spans of text, encapsulated by `[]`.
         Note Markdown link references take precedence over this syntax.
-
+    :param span_after: The name of an inline rule after which spans may be specified.
     """
 
     def _attr_rule(state: StateInline, silent: bool):
@@ -67,7 +68,7 @@ def attrs_plugin(
         return True
 
     if spans:
-        md.inline.ruler.after("link", "span", _span_rule)
+        md.inline.ruler.after(span_after, "span", _span_rule)
     md.inline.ruler.push("attr", _attr_rule)
 
 
@@ -97,6 +98,10 @@ def _span_rule(state: StateInline, silent: bool):
         return False
 
     pos = labelEnd + 1
+
+    # check not at end of inline
+    if pos >= maximum:
+        return False
 
     try:
         new_pos, attrs = parse(state.src[pos:])
