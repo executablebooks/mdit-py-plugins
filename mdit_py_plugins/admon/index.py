@@ -27,10 +27,8 @@ def validate(params: str) -> bool:
     return bool(tag)
 
 
-MIN_MARKERS = 3
-MARKER_STR = "!"
-MARKER_CHAR = ord(MARKER_STR)
-MARKER_LEN = len(MARKER_STR)
+MARKERS = ("!!!", "???", "???+", "..")
+MARKER_CHARS = {_m[0] for _m in MARKERS}
 
 
 def admonition(state: StateBlock, startLine: int, endLine: int, silent: bool) -> bool:
@@ -38,18 +36,14 @@ def admonition(state: StateBlock, startLine: int, endLine: int, silent: bool) ->
     maximum = state.eMarks[startLine]
 
     # Check out the first character quickly, which should filter out most of non-containers
-    if MARKER_CHAR != ord(state.src[start]):
+    if state.src[start] not in MARKER_CHARS:
         return False
-
     # Check out the rest of the marker string
-    pos = start + 1
-    while pos <= maximum and MARKER_STR[(pos - start) % MARKER_LEN] == state.src[pos]:
-        pos += 1
-
-    marker_count = math.floor((pos - start) / MARKER_LEN)
-    if marker_count < MIN_MARKERS:
+    marker = state.src[startLine:maximum].split(" ")[0]
+    if marker not in MARKERS:
         return False
-    marker_pos = pos - ((pos - start) % MARKER_LEN)
+
+    marker_pos = start + len(marker)
     params = state.src[marker_pos:maximum]
     markup = state.src[start:marker_pos]
 
@@ -64,7 +58,7 @@ def admonition(state: StateBlock, startLine: int, endLine: int, silent: bool) ->
     old_line_max = state.lineMax
     old_indent = state.blkIndent
 
-    blk_start = pos
+    blk_start = marker_pos
     while blk_start < maximum and state.src[blk_start] == " ":
         blk_start += 1
 
@@ -128,7 +122,7 @@ def admonition(state: StateBlock, startLine: int, endLine: int, silent: bool) ->
     state.md.block.tokenize(state, startLine + 1, next_line)
 
     token = state.push("admonition_close", "div", -1)
-    token.markup = state.src[start:pos]
+    token.markup = state.src[start:marker_pos]
     token.block = True
 
     state.parentType = old_parent
