@@ -43,7 +43,7 @@ def admonition(state: StateBlock, startLine: int, endLine: int, silent: bool) ->
     if marker not in MARKERS:
         return False
 
-    marker_pos = start + len(marker)
+    marker_pos = len(marker)
     params = state.src[marker_pos:maximum]
     markup = state.src[start:marker_pos]
 
