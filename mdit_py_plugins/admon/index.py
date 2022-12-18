@@ -1,6 +1,5 @@
 # Process admonitions and pass to cb.
 
-import math
 from typing import Callable, Optional, Tuple
 
 from markdown_it import MarkdownIt
@@ -29,6 +28,7 @@ def validate(params: str) -> bool:
 
 MARKERS = ("!!!", "???", "???+", "..")
 MARKER_CHARS = {_m[0] for _m in MARKERS}
+MAX_MARKER_LEN = max(len(_m) for _m in MARKERS)
 
 
 def admonition(state: StateBlock, startLine: int, endLine: int, silent: bool) -> bool:
@@ -38,14 +38,19 @@ def admonition(state: StateBlock, startLine: int, endLine: int, silent: bool) ->
     # Check out the first character quickly, which should filter out most of non-containers
     if state.src[start] not in MARKER_CHARS:
         return False
+
     # Check out the rest of the marker string
-    marker = state.src[startLine:maximum].split(" ")[0]
-    if marker not in MARKERS:
+    marker_len = MAX_MARKER_LEN
+    while marker_len > 0:
+        marker_pos = start + marker_len
+        markup = state.src[start:marker_pos]
+        if markup in MARKERS:
+            break
+        marker_len -= 1
+    else:
         return False
 
-    marker_pos = len(marker)
     params = state.src[marker_pos:maximum]
-    markup = state.src[start:marker_pos]
 
     if not validate(params):
         return False
