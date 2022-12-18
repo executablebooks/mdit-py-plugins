@@ -267,3 +267,32 @@ Does not render
 <p>!!!
 content</p>
 .
+
+
+
+MKdocs Closed Collapsible Sections
+.
+??? note
+    content
+.
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>content</p>
+</div>
+.
+
+
+MKdocs Open Collapsible Sections
+.
+???+ note
+     content
+.
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>content</p>
+</div>
+.
+
+
+
+

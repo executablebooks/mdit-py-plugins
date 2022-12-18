@@ -26,7 +26,7 @@ def validate(params: str) -> bool:
     return bool(tag)
 
 
-MARKERS = ("!!!", "???", "???+", "..")
+MARKERS = ("!!!", "???", "???+")
 MARKER_CHARS = {_m[0] for _m in MARKERS}
 MAX_MARKER_LEN = max(len(_m) for _m in MARKERS)
 
@@ -127,7 +127,7 @@ def admonition(state: StateBlock, startLine: int, endLine: int, silent: bool) ->
     state.md.block.tokenize(state, startLine + 1, next_line)
 
     token = state.push("admonition_close", "div", -1)
-    token.markup = state.src[start:marker_pos]
+    token.markup = markup
     token.block = True
 
     state.parentType = old_parent
