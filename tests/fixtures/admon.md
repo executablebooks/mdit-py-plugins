@@ -285,7 +285,7 @@ MKdocs Closed Collapsible Sections
 MKdocs Open Collapsible Sections
 .
 ???+ note
-     content
+    content
 .
 <div class="admonition note">
 <p class="admonition-title">Note</p>

@@ -26,6 +26,7 @@ def validate(params: str) -> bool:
     return bool(tag)
 
 
+MARKER_LEN = 3  # Regardless of extra characters, block indent stays the same
 MARKERS = ("!!!", "???", "???+")
 MARKER_CHARS = {_m[0] for _m in MARKERS}
 MAX_MARKER_LEN = max(len(_m) for _m in MARKERS)
@@ -40,11 +41,13 @@ def admonition(state: StateBlock, startLine: int, endLine: int, silent: bool) ->
         return False
 
     # Check out the rest of the marker string
+    marker = ""
     marker_len = MAX_MARKER_LEN
     while marker_len > 0:
         marker_pos = start + marker_len
         markup = state.src[start:marker_pos]
         if markup in MARKERS:
+            marker = markup
             break
         marker_len -= 1
     else:
@@ -68,7 +71,9 @@ def admonition(state: StateBlock, startLine: int, endLine: int, silent: bool) ->
         blk_start += 1
 
     state.parentType = "admonition"
-    state.blkIndent += blk_start - start
+    # Correct block indentation when extra marker characters are present
+    marker_alignment_correction = MARKER_LEN - len(marker)
+    state.blkIndent += blk_start - start + marker_alignment_correction
 
     was_empty = False
 
