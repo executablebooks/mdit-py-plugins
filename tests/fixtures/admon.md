@@ -292,7 +292,3 @@ MKdocs Open Collapsible Sections
 <p>content</p>
 </div>
 .
-
-
-
-
