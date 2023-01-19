@@ -68,21 +68,21 @@ def dollarmath_plugin(
 
     def render_math_inline(self, tokens, idx, options, env) -> str:
         content = _renderer(str(tokens[idx].content).strip(), {"display_mode": False})
-        return f'<span class="math inline">{content}</span>'
+        return f'<span class="math inline">${content}$</span>'
 
     def render_math_inline_double(self, tokens, idx, options, env) -> str:
         content = _renderer(str(tokens[idx].content).strip(), {"display_mode": True})
-        return f'<div class="math inline">{content}</div>'
+        return f'<div class="math inline">$${content}$$</div>'
 
     def render_math_block(self, tokens, idx, options, env) -> str:
         content = _renderer(str(tokens[idx].content).strip(), {"display_mode": True})
-        return f'<div class="math block">\n{content}\n</div>\n'
+        return f'<div class="math block">$$\n{content}\n$$</div>\n'
 
     def render_math_block_label(self, tokens, idx, options, env) -> str:
         content = _renderer(str(tokens[idx].content).strip(), {"display_mode": True})
         _id = tokens[idx].info
         label = _label_renderer(tokens[idx].info)
-        return f'<div id="{_id}" class="math block">\n{label}\n{content}\n</div>\n'
+        return f'<div id="{_id}" class="math block">$$\n{label}\n{content}\n$$</div>\n'
 
     md.add_render_rule("math_inline", render_math_inline)
     md.add_render_rule("math_inline_double", render_math_inline_double)
