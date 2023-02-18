@@ -24,7 +24,6 @@ def colon_fence_plugin(md: MarkdownIt):
 
 
 def _rule(state: StateBlock, startLine: int, endLine: int, silent: bool):
-
     haveEndMarker = False
     pos = state.bMarks[startLine] + state.tShift[startLine]
     maximum = state.eMarks[startLine]

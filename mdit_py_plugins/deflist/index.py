@@ -22,7 +22,7 @@ def deflist_plugin(md: MarkdownIt):
         ~ Definition 2b
 
     """
-    isSpace = md.utils.isSpace  # type: ignore
+    isSpace = md.utils.isSpace
 
     def skipMarker(state: StateBlock, line: int):
         """Search `[:~][\n ]`, returns next pos after marker on success or -1 on fail."""
@@ -51,7 +51,6 @@ def deflist_plugin(md: MarkdownIt):
         return start
 
     def markTightParagraphs(state: StateBlock, idx: int):
-
         level = state.level + 2
 
         i = idx + 2
@@ -67,7 +66,6 @@ def deflist_plugin(md: MarkdownIt):
             i += 1
 
     def deflist(state: StateBlock, startLine: int, endLine: int, silent: bool):
-
         if silent:
             # quirk: validation mode validates a dd block only, not a whole deflist
             if state.ddIndent < 0:

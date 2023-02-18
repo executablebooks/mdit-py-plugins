@@ -1,3 +1,47 @@
+Docutils example
+.
+:Date: 2001-08-16
+:Version: 1
+:Authors: - Me
+          - Myself
+          - I
+:Indentation: Since the field marker may be quite long, the second
+   and subsequent lines of the field body do not have to line up
+   with the first line, but they must be indented relative to the
+   field name marker, and they must line up with each other.
+:Parameter i: integer
+.
+<dl class="field-list">
+<dt>Date</dt>
+<dd>
+<p>2001-08-16</p>
+</dd>
+<dt>Version</dt>
+<dd>
+<p>1</p>
+</dd>
+<dt>Authors</dt>
+<dd>
+<ul>
+<li>Me</li>
+<li>Myself</li>
+<li>I</li>
+</ul>
+</dd>
+<dt>Indentation</dt>
+<dd>
+<p>Since the field marker may be quite long, the second
+and subsequent lines of the field body do not have to line up
+with the first line, but they must be indented relative to the
+field name marker, and they must line up with each other.</p>
+</dd>
+<dt>Parameter i</dt>
+<dd>
+<p>integer</p>
+</dd>
+</dl>
+.
+
 Body alignment:
 .
 :no body:
@@ -10,6 +54,12 @@ Body alignment:
               paragraph 2
                 
               paragraph 3
+
+:body less: paragraph 1
+
+    paragraph 2
+                
+    paragraph 3
 
 :body on 2nd line:
   paragraph 1
@@ -40,6 +90,12 @@ running onto new line</p>
 <p>paragraph 2</p>
 <p>paragraph 3</p>
 </dd>
+<dt>body less</dt>
+<dd>
+<p>paragraph 1</p>
+<p>paragraph 2</p>
+<p>paragraph 3</p>
+</dd>
 <dt>body on 2nd line</dt>
 <dd>
 <p>paragraph 1</p>
@@ -49,6 +105,24 @@ running onto new line</p>
 <dd>
 <p>paragraph 1</p>
 <p>paragraph 2</p>
+</dd>
+</dl>
+.
+
+choose smallest indent
+.
+:name: a
+
+     b
+
+   c
+.
+<dl class="field-list">
+<dt>name</dt>
+<dd>
+<p>a</p>
+<p>b</p>
+<p>c</p>
 </dd>
 </dl>
 .
@@ -118,7 +192,7 @@ Body list:
 Body code block
 .
 :name:
-      code
+      not code
 :name: body
 
            code
@@ -126,8 +200,7 @@ Body code block
 <dl class="field-list">
 <dt>name</dt>
 <dd>
-<pre><code>code
-</code></pre>
+<p>not code</p>
 </dd>
 <dt>name</dt>
 <dd>
@@ -190,6 +263,13 @@ Following blocks:
 ```python
 code
 ```
+:name: body
+    more
+
+   more
+trailing
+
+other
 .
 <dl class="field-list">
 <dt>name</dt>
@@ -217,6 +297,16 @@ code
 </dl>
 <pre><code class="language-python">code
 </code></pre>
+<dl class="field-list">
+<dt>name</dt>
+<dd>
+<p>body
+more</p>
+<p>more
+trailing</p>
+</dd>
+</dl>
+<p>other</p>
 .
 
 In list:
@@ -240,12 +330,35 @@ In list:
 In blockquote:
 .
 > :name: body
+> :name: body
+>   other
+> :name: body
+>
+>     other
+> :name: body
+>
+>          other
 .
 <blockquote>
 <dl class="field-list">
 <dt>name</dt>
 <dd>
 <p>body</p>
+</dd>
+<dt>name</dt>
+<dd>
+<p>body
+other</p>
+</dd>
+<dt>name</dt>
+<dd>
+<p>body</p>
+<p>other</p>
+</dd>
+<dt>name</dt>
+<dd>
+<p>body</p>
+<p>other</p>
 </dd>
 </dl>
 </blockquote>

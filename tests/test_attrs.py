@@ -4,7 +4,7 @@ from markdown_it import MarkdownIt
 from markdown_it.utils import read_fixture_file
 import pytest
 
-from mdit_py_plugins.attrs import attrs_plugin
+from mdit_py_plugins.attrs import attrs_block_plugin, attrs_plugin
 
 FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 
@@ -13,7 +13,7 @@ FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
     "line,title,input,expected", read_fixture_file(FIXTURE_PATH / "attrs.md")
 )
 def test_attrs(line, title, input, expected):
-    md = MarkdownIt("commonmark").use(attrs_plugin, spans=True)
+    md = MarkdownIt("commonmark").use(attrs_plugin, spans=True).use(attrs_block_plugin)
     md.options["xhtmlOut"] = False
     text = md.render(input)
     print(text)
