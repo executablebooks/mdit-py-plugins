@@ -47,7 +47,7 @@ def tasklists_plugin(
 
     :param enabled: True enables the rendered checkboxes
     :param label: True wraps the rendered list items in a <label> element for UX purposes,
-    :param label_after: True – adds the <label> element after the checkbox.
+    :param label_after: True adds the <label> element after the checkbox.
     """
     disable_checkboxes = not enabled
     use_label_wrapper = label
@@ -56,7 +56,6 @@ def tasklists_plugin(
     def fcn(state):
         tokens: List[Token] = state.tokens
         for i in range(2, len(tokens) - 1):
-
             if is_todo_item(tokens, i):
                 todoify(tokens[i], tokens[i].__class__)
                 tokens[i - 2].attrSet(

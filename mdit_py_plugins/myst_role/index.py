@@ -14,7 +14,6 @@ def myst_role_plugin(md: MarkdownIt):
 
 
 def myst_role(state: StateInline, silent: bool):
-
     # check name
     match = VALID_NAME_PATTERN.match(state.src[state.pos :])
     if not match:
@@ -60,6 +59,4 @@ def myst_role(state: StateInline, silent: bool):
 def render_myst_role(self, tokens, idx, options, env):
     token = tokens[idx]
     name = token.meta.get("name", "unknown")
-    return (
-        '<code class="myst role">' f"{{{name}}}[{escapeHtml(token.content)}]" "</code>"
-    )
+    return f'<code class="myst role">{{{name}}}[{escapeHtml(token.content)}]</code>'

@@ -114,9 +114,7 @@ def _fieldlist_rule(state: StateBlock, startLine: int, endLine: int, silent: boo
     nextLine = startLine
 
     with set_parent_type(state, "fieldlist"):
-
         while nextLine < endLine:
-
             # create name tokens
             token = state.push("fieldlist_name_open", "dt", 1)
             token.map = [startLine, startLine]
@@ -151,12 +149,9 @@ def _fieldlist_rule(state: StateBlock, startLine: int, endLine: int, silent: boo
             contentStart = pos
 
             # set indent for body text
-            if contentStart >= maximum:
-                # no body on first line, so use constant indentation
-                # TODO adapt to indentation of subsequent lines?
-                indent = 2
-            else:
-                indent = offset
+            # no body on first line, so use constant indentation
+            # TODO adapt to indentation of subsequent lines?
+            indent = 2 if contentStart >= maximum else offset
 
             # Run subparser on the field body
             token = state.push("fieldlist_body_open", "dd", 1)

@@ -265,7 +265,6 @@ def footnote_tail(state: StateBlock, *args, **kwargs):
     current: List[Token] = []
     tok_filter = []
     for tok in state.tokens:
-
         if tok.type == "footnote_reference_open":
             insideRef = True
             current = []
