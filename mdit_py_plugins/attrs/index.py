@@ -1,6 +1,9 @@
 from typing import List, Optional
 
 from markdown_it import MarkdownIt
+from markdown_it.common.utils import isSpace
+from markdown_it.rules_block import StateBlock
+from markdown_it.rules_core import StateCore
 from markdown_it.rules_inline import StateInline
 from markdown_it.token import Token
 
@@ -46,7 +49,7 @@ def attrs_plugin(
     :param span_after: The name of an inline rule after which spans may be specified.
     """
 
-    def _attr_rule(state: StateInline, silent: bool):
+    def _attr_inline_rule(state: StateInline, silent: bool):
         if state.pending or not state.tokens:
             return False
         token = state.tokens[-1]
@@ -69,7 +72,29 @@ def attrs_plugin(
 
     if spans:
         md.inline.ruler.after(span_after, "span", _span_rule)
-    md.inline.ruler.push("attr", _attr_rule)
+    if after:
+        md.inline.ruler.push("attr", _attr_inline_rule)
+
+
+def attrs_block_plugin(md: MarkdownIt):
+    """Parse block attributes.
+
+    Block attributes are attributes on a single line, with no other content.
+    They attach the specified attributes to the block below them::
+
+        {.a #b c=1}
+        A paragraph, that will be assigned the class ``a`` and the identifier ``b``.
+
+    Attributes can be stacked, with classes accumulating and lower attributes overriding higher::
+
+        {#a .a c=1}
+        {#b .b c=2}
+        A paragraph, that will be assigned the class ``a b c``, and the identifier ``b``.
+
+    This syntax is inspired by Djot block attributes.
+    """
+    md.block.ruler.before("fence", "attr", _attr_block_rule)
+    md.core.ruler.after("block", "attr", _attr_resolve_block_rule)
 
 
 def _find_opening(tokens: List[Token], index: int) -> Optional[int]:
@@ -121,3 +146,83 @@ def _span_rule(state: StateInline, silent: bool):
     state.pos = pos
     state.posMax = maximum
     return True
+
+
+def _attr_block_rule(
+    state: StateBlock, startLine: int, endLine: int, silent: bool
+) -> bool:
+    """Find a block of attributes.
+
+    The block must be a single line that begins with a `{`, after three or less spaces,
+    and end with a `}` followed by any number if spaces.
+    """
+    # if it's indented more than 3 spaces, it should be a code block
+    if state.sCount[startLine] - state.blkIndent >= 4:
+        return False
+
+    pos = state.bMarks[startLine] + state.tShift[startLine]
+    maximum = state.eMarks[startLine]
+
+    # if it doesn't start with a {, it's not an attribute block
+    if state.srcCharCode[pos] != 0x7B:  # /* { */
+        return False
+
+    # find first non-space character from the right
+    while maximum > pos and isSpace(state.srcCharCode[maximum - 1]):
+        maximum -= 1
+    # if it doesn't end with a }, it's not an attribute block
+    if maximum <= pos:
+        return False
+    if state.srcCharCode[maximum - 1] != 0x7D:  # /* } */
+        return False
+
+    try:
+        new_pos, attrs = parse(state.src[pos:maximum])
+    except ParseError:
+        return False
+
+    # if the block was resolved earlier than expected, it's not an attribute block
+    # TODO this was not working in some instances, so I disabled it
+    # if (maximum - 1) != new_pos:
+    #     return False
+
+    if silent:
+        return True
+
+    token = state.push("attrs_block", "", 0)
+    token.attrs = attrs  # type: ignore
+    token.map = [startLine, startLine + 1]
+
+    state.line = startLine + 1
+    return True
+
+
+def _attr_resolve_block_rule(state: StateCore):
+    """Find attribute block then move its attributes to the next block."""
+    i = 0
+    len_tokens = len(state.tokens)
+    while i < len_tokens:
+        if state.tokens[i].type != "attrs_block":
+            i += 1
+            continue
+
+        if i + 1 < len_tokens:
+            next_token = state.tokens[i + 1]
+
+            # classes are appended
+            if "class" in state.tokens[i].attrs and "class" in next_token.attrs:
+                state.tokens[i].attrs[
+                    "class"
+                ] = f"{state.tokens[i].attrs['class']} {next_token.attrs['class']}"
+
+            if next_token.type == "attrs_block":
+                # subsequent attribute blocks take precedence, when merging
+                for key, value in state.tokens[i].attrs.items():
+                    if key == "class" or key not in next_token.attrs:
+                        next_token.attrs[key] = value
+            else:
+                # attribute block takes precedence over attributes in other blocks
+                next_token.attrs.update(state.tokens[i].attrs)
+
+        state.tokens.pop(i)
+        len_tokens -= 1
