@@ -1,5 +1,13 @@
 # Change Log
 
+## 0.3.4 - 2023-02-18
+
+- ✨ NEW: Add attrs_block_plugin by @chrisjsewell in [#66](https://github.com/executablebooks/mdit-py-plugins/pull/66)
+- 👌 Improve field lists by @chrisjsewell in [#65](https://github.com/executablebooks/mdit-py-plugins/pull/65)
+- 🔧 Update pre-commit by @chrisjsewell in [#64](https://github.com/executablebooks/mdit-py-plugins/pull/64) (moving from flake8 to ruff)
+
+**Full Changelog**: [v0.3.3...v0.3.](https://github.com/executablebooks/mdit-py-plugins/compare/v0.3.3...v0.3.4)
+
 ## 0.3.3 - 2022-12-06
 
 🐛 FIX: span with end of inline before attrs
