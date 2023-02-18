@@ -14,7 +14,6 @@ FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 
 
 def test_inline_func():
-
     inline_func = main.make_inline_func(main.rules["dollars"]["inline"][0])
 
     md = MarkdownIt()
