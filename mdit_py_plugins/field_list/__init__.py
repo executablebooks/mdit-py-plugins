@@ -117,9 +117,7 @@ def _fieldlist_rule(state: StateBlock, startLine: int, endLine: int, silent: boo
     nextLine = startLine
 
     with set_parent_type(state, "fieldlist"):
-
         while nextLine < endLine:
-
             # create name tokens
             token = state.push("fieldlist_name_open", "dt", 1)
             token.map = [startLine, startLine]
@@ -175,7 +173,7 @@ def _fieldlist_rule(state: StateBlock, startLine: int, endLine: int, silent: boo
 
             has_first_line = contentStart < maximum
             if block_indent is None:  # no body content
-                if not has_first_line:
+                if not has_first_line:  # noqa SIM108
                     # no body or first line, so just use default
                     block_indent = 2
                 else:
@@ -189,7 +187,6 @@ def _fieldlist_rule(state: StateBlock, startLine: int, endLine: int, silent: boo
             token.map = [startLine, startLine]
 
             with temp_state_changes(state, startLine):
-
                 diff = 0
                 if has_first_line and block_indent < first_line_body_indent:
                     # this is a hack to get the first line to render correctly

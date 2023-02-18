@@ -27,7 +27,7 @@ def texmath_plugin(md: MarkdownIt, delimiters="dollars", macros: Optional[dict] 
             )
 
             def render_math_inline(self, tokens, idx, options, env):
-                return rule_inline["tmpl"].format(
+                return rule_inline["tmpl"].format(  # noqa: B023
                     render(tokens[idx].content, False, macros)
                 )
 
@@ -39,7 +39,7 @@ def texmath_plugin(md: MarkdownIt, delimiters="dollars", macros: Optional[dict] 
             )
 
             def render_math_block(self, tokens, idx, options, env):
-                return rule_block["tmpl"].format(
+                return rule_block["tmpl"].format(  # noqa: B023
                     render(tokens[idx].content, True, macros), tokens[idx].info
                 )
 
@@ -47,7 +47,6 @@ def texmath_plugin(md: MarkdownIt, delimiters="dollars", macros: Optional[dict] 
 
 
 def applyRule(rule, string: str, begin, inBlockquote):
-
     if not (
         string.startswith(rule["tag"], begin)
         and (rule["pre"](string, begin) if "pre" in rule else True)
@@ -60,13 +59,12 @@ def applyRule(rule, string: str, begin, inBlockquote):
         return False
 
     lastIndex = match.end() + begin - 1
-    if "post" in rule:
-        if not (
-            rule["post"](string, lastIndex)  # valid post-condition
-            # remove evil blockquote bug (https:#github.com/goessner/mdmath/issues/50)
-            and (not inBlockquote or "\n" not in match.group(1))
-        ):
-            return False
+    if "post" in rule and not (
+        rule["post"](string, lastIndex)  # valid post-condition
+        # remove evil blockquote bug (https:#github.com/goessner/mdmath/issues/50)
+        and (not inBlockquote or "\n" not in match.group(1))
+    ):
+        return False
     return match
 
 

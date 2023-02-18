@@ -38,7 +38,7 @@ def admonition(state: StateBlock, startLine: int, endLine: int, silent: bool) ->
     maximum = state.eMarks[startLine]
 
     # Check out the first character quickly, which should filter out most of non-containers
-    if MARKER_CHAR != ord(state.src[start]):
+    if ord(state.src[start]) != MARKER_CHAR:
         return False
 
     # Check out the rest of the marker string
