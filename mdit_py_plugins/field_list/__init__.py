@@ -177,7 +177,7 @@ def _fieldlist_rule(state: StateBlock, startLine: int, endLine: int, silent: boo
                     # no body or first line, so just use default
                     block_indent = 2
                 else:
-                    # only a first line, so use its indent
+                    # only a first line, so use it's indent
                     block_indent = first_line_body_indent
             else:
                 block_indent = min(block_indent, first_line_body_indent)
