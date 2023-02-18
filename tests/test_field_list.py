@@ -23,7 +23,14 @@ def test_plugin_parse(data_regression):
     data_regression.check([t.as_dict() for t in tokens])
 
 
-@pytest.mark.parametrize("line,title,input,expected", read_fixture_file(FIXTURE_PATH))
+fixtures = read_fixture_file(FIXTURE_PATH)
+
+
+@pytest.mark.parametrize(
+    "line,title,input,expected",
+    fixtures,
+    ids=[f"{f[0]}-{f[1].replace(' ', '_')}" for f in fixtures],
+)
 def test_all(line, title, input, expected):
     md = MarkdownIt("commonmark").use(fieldlist_plugin)
     md.options["xhtmlOut"] = False
