@@ -27,6 +27,23 @@ def test_plugin_parse(data_regression):
     data_regression.check([t.as_dict() for t in tokens])
 
 
+def test_custom_renderer(data_regression):
+    md = MarkdownIt().use(amsmath_plugin, renderer=lambda x: x + "!")
+    output = md.render("\\begin{equation}\na\n\\end{equation}")
+    assert (
+        output.strip()
+        == dedent(
+            """\
+        <div class="math amsmath">
+        \\begin{equation}
+        a
+        \\end{equation}!
+        </div>
+        """
+        ).strip()
+    )
+
+
 @pytest.mark.parametrize(
     "line,title,input,expected",
     read_fixture_file(FIXTURE_PATH.joinpath("fixtures", "amsmath.md")),
