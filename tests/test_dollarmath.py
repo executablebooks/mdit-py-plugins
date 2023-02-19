@@ -83,7 +83,7 @@ def test_plugin_parse(data_regression):
 
 def test_custom_renderer(data_regression):
     md = MarkdownIt().use(dollarmath_plugin, renderer=lambda x, y: x)
-    assert md.render("$x$") == '<p><span class="math inline">x</span></p>'
+    assert md.render("$x$").strip() == '<p><span class="math inline">x</span></p>'
 
 
 @pytest.mark.parametrize(
