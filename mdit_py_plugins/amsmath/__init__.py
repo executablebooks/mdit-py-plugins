@@ -68,7 +68,7 @@ def amsmath_plugin(md: MarkdownIt, *, renderer: Optional[Callable[[str], str]] =
         {"alt": ["paragraph", "reference", "blockquote", "list", "footnote_def"]},
     )
 
-    _renderer = lambda content: escapeHtml(content) if renderer is None else renderer
+    _renderer = (lambda content: escapeHtml(content)) if renderer is None else renderer
 
     def render_amsmath_block(self, tokens, idx, options, env):
         content = _renderer(str(tokens[idx].content))
