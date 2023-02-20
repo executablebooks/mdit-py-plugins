@@ -1,15 +1,15 @@
 - attrs:
-    - - class
-      - admonition note
+  - - class
+    - admonition note
   block: true
   children: null
   content: Note
   hidden: false
-  info: " note"
+  info: ' note'
   level: 0
   map:
-    - 0
-    - 2
+  - 0
+  - 2
   markup: ???
   meta:
     tag: note
@@ -17,17 +17,17 @@
   tag: div
   type: admonition_open
 - attrs:
-    - - class
-      - admonition-title
+  - - class
+    - admonition-title
   block: true
   children: null
-  content: ""
+  content: ''
   hidden: false
-  info: ""
+  info: ''
   level: 1
   map:
-    - 0
-    - 1
+  - 0
+  - 1
   markup: ??? note
   meta: {}
   nesting: 1
@@ -36,37 +36,37 @@
 - attrs: null
   block: true
   children:
-    - attrs: null
-      block: false
-      children: null
-      content: Note
-      hidden: false
-      info: ""
-      level: 0
-      map: null
-      markup: ""
-      meta: {}
-      nesting: 0
-      tag: ""
-      type: text
+  - attrs: null
+    block: false
+    children: null
+    content: Note
+    hidden: false
+    info: ''
+    level: 0
+    map: null
+    markup: ''
+    meta: {}
+    nesting: 0
+    tag: ''
+    type: text
   content: Note
   hidden: false
-  info: ""
+  info: ''
   level: 2
   map:
-    - 0
-    - 1
-  markup: ""
+  - 0
+  - 1
+  markup: ''
   meta: {}
   nesting: 0
-  tag: ""
+  tag: ''
   type: inline
 - attrs: null
   block: true
   children: null
-  content: ""
+  content: ''
   hidden: false
-  info: ""
+  info: ''
   level: 1
   map: null
   markup: ??? note
@@ -77,14 +77,14 @@
 - attrs: null
   block: true
   children: null
-  content: ""
+  content: ''
   hidden: false
-  info: ""
+  info: ''
   level: 1
   map:
-    - 1
-    - 2
-  markup: ""
+  - 1
+  - 2
+  markup: ''
   meta: {}
   nesting: 1
   tag: p
@@ -92,40 +92,40 @@
 - attrs: null
   block: true
   children:
-    - attrs: null
-      block: false
-      children: null
-      content: content
-      hidden: false
-      info: ""
-      level: 0
-      map: null
-      markup: ""
-      meta: {}
-      nesting: 0
-      tag: ""
-      type: text
+  - attrs: null
+    block: false
+    children: null
+    content: content
+    hidden: false
+    info: ''
+    level: 0
+    map: null
+    markup: ''
+    meta: {}
+    nesting: 0
+    tag: ''
+    type: text
   content: content
   hidden: false
-  info: ""
+  info: ''
   level: 2
   map:
-    - 1
-    - 2
-  markup: ""
+  - 1
+  - 2
+  markup: ''
   meta: {}
   nesting: 0
-  tag: ""
+  tag: ''
   type: inline
 - attrs: null
   block: true
   children: null
-  content: ""
+  content: ''
   hidden: false
-  info: ""
+  info: ''
   level: 1
   map: null
-  markup: ""
+  markup: ''
   meta: {}
   nesting: -1
   tag: p
@@ -133,9 +133,9 @@
 - attrs: null
   block: true
   children: null
-  content: ""
+  content: ''
   hidden: false
-  info: ""
+  info: ''
   level: 0
   map: null
   markup: ???

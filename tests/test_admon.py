@@ -23,7 +23,6 @@ def test_all(line, title, input, expected):
 
 
 def test_plugin_parse(data_regression):
-    breakpoint()
     md = MarkdownIt().use(admon_plugin)
     tokens = md.parse(dedent("??? note\n    content"))
     data_regression.check([t.as_dict() for t in tokens])
