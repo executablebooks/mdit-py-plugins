@@ -153,6 +153,14 @@ def admon_plugin(md: MarkdownIt, render: Optional[Callable] = None) -> None:
         !!! note
             *content*
 
+    `And mkdocs-style collapsible blocks
+    <https://squidfunk.github.io/mkdocs-material/reference/admonitions/#collapsible-blocks>`_.
+
+    .. code-block:: md
+
+        ???+ note
+            *content*
+
     Note, this is ported from
     `markdown-it-admon
     <https://github.com/commenthol/markdown-it-admon>`_.
