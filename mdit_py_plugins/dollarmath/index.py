@@ -54,7 +54,9 @@ def dollarmath_plugin(
     # would be good to allow "proper" math rendering,
     # e.g. https://github.com/roniemartinez/latex2mathml
 
-    _renderer = lambda content, _: escapeHtml(content) if renderer is None else renderer
+    _renderer = (
+        (lambda content, _: escapeHtml(content)) if renderer is None else renderer
+    )
 
     if label_renderer is None:
         _label_renderer = (

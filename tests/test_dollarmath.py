@@ -81,6 +81,11 @@ def test_plugin_parse(data_regression):
     data_regression.check([t.as_dict() for t in tokens])
 
 
+def test_custom_renderer(data_regression):
+    md = MarkdownIt().use(dollarmath_plugin, renderer=lambda x, y: x)
+    assert md.render("$x$").strip() == '<p><span class="math inline">x</span></p>'
+
+
 @pytest.mark.parametrize(
     "line,title,input,expected",
     read_fixture_file(FIXTURE_PATH.joinpath("dollar_math.md")),
