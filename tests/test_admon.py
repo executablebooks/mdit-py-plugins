@@ -22,7 +22,13 @@ def test_all(line, title, input, expected):
     assert text.rstrip() == expected.rstrip()
 
 
-def test_plugin_parse(data_regression):
+@pytest.mark.parametrize("text_idx", (0, 1, 2))
+def test_plugin_parse(data_regression, text_idx):
+    texts = [
+        "!!! note\n    content 1",
+        "??? note\n    content 2",
+        "???+ note\n    content 3",
+    ]
     md = MarkdownIt().use(admon_plugin)
-    tokens = md.parse(dedent("??? note\n    content"))
+    tokens = md.parse(dedent(texts[text_idx]))
     data_regression.check([t.as_dict() for t in tokens])

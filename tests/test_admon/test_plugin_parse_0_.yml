@@ -10,7 +10,7 @@
   map:
   - 0
   - 2
-  markup: ???
+  markup: '!!!'
   meta:
     tag: note
   nesting: 1
@@ -28,7 +28,7 @@
   map:
   - 0
   - 1
-  markup: ??? note
+  markup: '!!! note'
   meta: {}
   nesting: 1
   tag: p
@@ -69,7 +69,7 @@
   info: ''
   level: 1
   map: null
-  markup: ??? note
+  markup: '!!! note'
   meta: {}
   nesting: -1
   tag: p
@@ -95,7 +95,7 @@
   - attrs: null
     block: false
     children: null
-    content: content
+    content: content 1
     hidden: false
     info: ''
     level: 0
@@ -105,7 +105,7 @@
     nesting: 0
     tag: ''
     type: text
-  content: content
+  content: content 1
   hidden: false
   info: ''
   level: 2
@@ -138,7 +138,7 @@
   info: ''
   level: 0
   map: null
-  markup: ???
+  markup: "!!! note\n    "
   meta: {}
   nesting: -1
   tag: div
