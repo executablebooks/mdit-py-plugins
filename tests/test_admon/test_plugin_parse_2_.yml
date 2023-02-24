@@ -1,25 +1,45 @@
-- attrs: null
+- attrs:
+  - - class
+    - admonition note
+  block: true
+  children: null
+  content: Note
+  hidden: false
+  info: ' note'
+  level: 0
+  map:
+  - 0
+  - 2
+  markup: ???+
+  meta:
+    tag: note
+  nesting: 1
+  tag: div
+  type: admonition_open
+- attrs:
+  - - class
+    - admonition-title
   block: true
   children: null
   content: ''
   hidden: false
   info: ''
-  level: 0
+  level: 1
   map:
   - 0
-  - 2
-  markup: ''
+  - 1
+  markup: ???+ note
   meta: {}
   nesting: 1
   tag: p
-  type: paragraph_open
+  type: admonition_title_open
 - attrs: null
   block: true
   children:
   - attrs: null
     block: false
     children: null
-    content: ???+ note
+    content: Note
     hidden: false
     info: ''
     level: 0
@@ -29,19 +49,49 @@
     nesting: 0
     tag: ''
     type: text
-  - attrs: null
-    block: false
-    children: null
-    content: ''
-    hidden: false
-    info: ''
-    level: 0
-    map: null
-    markup: ''
-    meta: {}
-    nesting: 0
-    tag: br
-    type: softbreak
+  content: Note
+  hidden: false
+  info: ''
+  level: 2
+  map:
+  - 0
+  - 1
+  markup: ''
+  meta: {}
+  nesting: 0
+  tag: ''
+  type: inline
+- attrs: null
+  block: true
+  children: null
+  content: ''
+  hidden: false
+  info: ''
+  level: 1
+  map: null
+  markup: ???+ note
+  meta: {}
+  nesting: -1
+  tag: p
+  type: admonition_title_close
+- attrs: null
+  block: true
+  children: null
+  content: ''
+  hidden: false
+  info: ''
+  level: 1
+  map:
+  - 1
+  - 2
+  markup: ''
+  meta: {}
+  nesting: 1
+  tag: p
+  type: paragraph_open
+- attrs: null
+  block: true
+  children:
   - attrs: null
     block: false
     children: null
@@ -55,12 +105,12 @@
     nesting: 0
     tag: ''
     type: text
-  content: "???+ note\n    content 3"
+  content: content 3
   hidden: false
   info: ''
-  level: 1
+  level: 2
   map:
-  - 0
+  - 1
   - 2
   markup: ''
   meta: {}
@@ -73,10 +123,23 @@
   content: ''
   hidden: false
   info: ''
-  level: 0
+  level: 1
   map: null
   markup: ''
   meta: {}
   nesting: -1
   tag: p
   type: paragraph_close
+- attrs: null
+  block: true
+  children: null
+  content: ''
+  hidden: false
+  info: ''
+  level: 0
+  map: null
+  markup: ???+
+  meta: {}
+  nesting: -1
+  tag: div
+  type: admonition_close

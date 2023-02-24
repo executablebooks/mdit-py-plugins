@@ -138,7 +138,7 @@
   info: ''
   level: 0
   map: null
-  markup: "!!! note\n    "
+  markup: '!!!'
   meta: {}
   nesting: -1
   tag: div
