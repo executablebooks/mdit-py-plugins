@@ -13,7 +13,7 @@ def dollarmath_plugin(
     allow_labels: bool = True,
     allow_space: bool = True,
     allow_digits: bool = True,
-    allow_blank_lines: bool = False,
+    allow_blank_lines: bool = True,
     double_inline: bool = False,
     label_normalizer: Optional[Callable[[str], str]] = None,
     renderer: Optional[Callable[[str, Dict[str, Any]], str]] = None,
@@ -32,8 +32,9 @@ def dollarmath_plugin(
         before/after the opening/closing ``$``, e.g. ``1$`` or ``$2``.
         This is useful when also using currency.
     :param allow_blank_lines: Allow blank lines inside ``$$``. Note that blank lines are
-        not allowed in LaTeX nor executablebooks/markdown-it-dollarmath, but have special
-        semantics if used within Sphinx `..math` admonitions.
+        not allowed in LaTeX, executablebooks/markdown-it-dollarmath, or the Github or
+        StackExchange markdown dialects. Hoever, they have special semantics if used
+        within Sphinx `..math` admonitions, so are allowed for backwards-compatibility.
     :param double_inline: Search for double-dollar math within inline contexts
     :param label_normalizer: Function to normalize the label,
         by default replaces whitespace with `-`
