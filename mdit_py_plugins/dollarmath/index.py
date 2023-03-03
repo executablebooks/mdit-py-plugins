@@ -51,7 +51,9 @@ def dollarmath_plugin(
         math_inline_dollar(allow_space, allow_digits, double_inline),
     )
     md.block.ruler.before(
-        "fence", "math_block", math_block_dollar(allow_labels, label_normalizer, allow_blank_lines)
+        "fence",
+        "math_block",
+        math_block_dollar(allow_labels, label_normalizer, allow_blank_lines),
     )
 
     # TODO the current render rules are really just for testing
