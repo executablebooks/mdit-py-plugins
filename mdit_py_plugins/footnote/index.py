@@ -80,7 +80,7 @@ def footnote_def(state: StateBlock, startLine: int, endLine: int, silent: bool):
     if pos == start + 2:  # no empty footnote labels
         return False
     pos += 1
-    if pos + 1 >= maximum or state.srcCharCode[pos] != 0x3A:  # /* : */
+    if pos >= maximum or state.srcCharCode[pos] != 0x3A:  # /* : */
         return False
     if silent:
         return True
@@ -265,7 +265,6 @@ def footnote_tail(state: StateBlock, *args, **kwargs):
     current: List[Token] = []
     tok_filter = []
     for tok in state.tokens:
-
         if tok.type == "footnote_reference_open":
             insideRef = True
             current = []

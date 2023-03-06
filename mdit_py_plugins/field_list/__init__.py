@@ -1,6 +1,6 @@
 """Field list plugin"""
 from contextlib import contextmanager
-from typing import Tuple
+from typing import Optional, Tuple
 
 from markdown_it import MarkdownIt
 from markdown_it.rules_block import StateBlock
@@ -28,8 +28,11 @@ def fieldlist_plugin(md: MarkdownIt):
 
     The field name is followed by whitespace and the field body.
     The field body may be empty or contain multiple body elements.
-    The field body is aligned either by the start of the body on the first line or,
-    if no body content is on the first line, by 2 spaces.
+
+    Since the field marker may be quite long,
+    the second and subsequent lines of the field body do not have to
+    line up with the first line, but they must be indented relative to the
+    field name marker, and they must line up with each other.
     """
     md.block.ruler.before(
         "paragraph",
@@ -114,9 +117,7 @@ def _fieldlist_rule(state: StateBlock, startLine: int, endLine: int, silent: boo
     nextLine = startLine
 
     with set_parent_type(state, "fieldlist"):
-
         while nextLine < endLine:
-
             # create name tokens
             token = state.push("fieldlist_name_open", "dt", 1)
             token.map = [startLine, startLine]
@@ -128,8 +129,8 @@ def _fieldlist_rule(state: StateBlock, startLine: int, endLine: int, silent: boo
 
             # set indent positions
             pos = posAfterName
-            maximum = state.eMarks[nextLine]
-            offset = (
+            maximum: int = state.eMarks[nextLine]
+            first_line_body_indent = (
                 state.sCount[nextLine]
                 + posAfterName
                 - (state.bMarks[startLine] + state.tShift[startLine])
@@ -140,9 +141,11 @@ def _fieldlist_rule(state: StateBlock, startLine: int, endLine: int, silent: boo
                 ch = state.srcCharCode[pos]
 
                 if ch == 0x09:  # \t
-                    offset += 4 - (offset + state.bsCount[nextLine]) % 4
+                    first_line_body_indent += (
+                        4 - (first_line_body_indent + state.bsCount[nextLine]) % 4
+                    )
                 elif ch == 0x20:  # \s
-                    offset += 1
+                    first_line_body_indent += 1
                 else:
                     break
 
@@ -150,37 +153,69 @@ def _fieldlist_rule(state: StateBlock, startLine: int, endLine: int, silent: boo
 
             contentStart = pos
 
-            # set indent for body text
-            if contentStart >= maximum:
-                # no body on first line, so use constant indentation
-                # TODO adapt to indentation of subsequent lines?
-                indent = 2
+            # to figure out the indent of the body,
+            # we look at all non-empty, indented lines and find the minimum indent
+            block_indent: Optional[int] = None
+            _line = startLine + 1
+            while _line < endLine:
+                # if start_of_content < end_of_content, then non-empty line
+                if (state.bMarks[_line] + state.tShift[_line]) < state.eMarks[_line]:
+                    if state.tShift[_line] <= 0:
+                        # the line has no indent, so it's the end of the field
+                        break
+                    block_indent = (
+                        state.tShift[_line]
+                        if block_indent is None
+                        else min(block_indent, state.tShift[_line])
+                    )
+
+                _line += 1
+
+            has_first_line = contentStart < maximum
+            if block_indent is None:  # no body content
+                if not has_first_line:  # noqa SIM108
+                    # no body or first line, so just use default
+                    block_indent = 2
+                else:
+                    # only a first line, so use it's indent
+                    block_indent = first_line_body_indent
             else:
-                indent = offset
+                block_indent = min(block_indent, first_line_body_indent)
 
             # Run subparser on the field body
             token = state.push("fieldlist_body_open", "dd", 1)
-            token.map = itemLines = [startLine, 0]
+            token.map = [startLine, startLine]
 
-            # change current state, then restore it after parser subcall
-            oldTShift = state.tShift[startLine]
-            oldSCount = state.sCount[startLine]
-            oldBlkIndent = state.blkIndent
+            with temp_state_changes(state, startLine):
+                diff = 0
+                if has_first_line and block_indent < first_line_body_indent:
+                    # this is a hack to get the first line to render correctly
+                    # we temporarily "shift" it to the left by the difference
+                    # between the first line indent and the block indent
+                    # and replace the "hole" left with space,
+                    # so that src indexes still match
+                    diff = first_line_body_indent - block_indent
+                    state._src = (
+                        state.src[: contentStart - diff]
+                        + " " * diff
+                        + state.src[contentStart:]
+                    )
+                    state.srcCharCode = (
+                        state.srcCharCode[: contentStart - diff]
+                        + tuple([0x20] * diff)
+                        + state.srcCharCode[contentStart:]
+                    )
 
-            state.tShift[startLine] = contentStart - state.bMarks[startLine]
-            state.sCount[startLine] = offset
-            state.blkIndent = indent
+                state.tShift[startLine] = contentStart - diff - state.bMarks[startLine]
+                state.sCount[startLine] = first_line_body_indent - diff
+                state.blkIndent = block_indent
 
-            state.md.block.tokenize(state, startLine, endLine)
+                state.md.block.tokenize(state, startLine, endLine)
 
-            state.blkIndent = oldBlkIndent
-            state.tShift[startLine] = oldTShift
-            state.sCount[startLine] = oldSCount
-
-            token = state.push("fieldlist_body_close", "dd", -1)
+            state.push("fieldlist_body_close", "dd", -1)
 
             nextLine = startLine = state.line
-            itemLines[1] = nextLine
+            token.map[1] = nextLine
 
             if nextLine >= endLine:
                 break
@@ -206,3 +241,19 @@ def _fieldlist_rule(state: StateBlock, startLine: int, endLine: int, silent: boo
         state.line = nextLine
 
     return True
+
+
+@contextmanager
+def temp_state_changes(state: StateBlock, startLine: int):
+    """Allow temporarily changing certain state attributes."""
+    oldTShift = state.tShift[startLine]
+    oldSCount = state.sCount[startLine]
+    oldBlkIndent = state.blkIndent
+    oldSrc = state._src
+    oldSrcCharCode = state.srcCharCode
+    yield
+    state.blkIndent = oldBlkIndent
+    state.tShift[startLine] = oldTShift
+    state.sCount[startLine] = oldSCount
+    state._src = oldSrc
+    state.srcCharCode = oldSrcCharCode

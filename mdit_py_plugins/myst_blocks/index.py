@@ -30,7 +30,6 @@ def myst_block_plugin(md: MarkdownIt):
 
 
 def line_comment(state: StateBlock, startLine: int, endLine: int, silent: bool):
-
     pos = state.bMarks[startLine] + state.tShift[startLine]
     maximum = state.eMarks[startLine]
 
@@ -67,7 +66,6 @@ def line_comment(state: StateBlock, startLine: int, endLine: int, silent: bool):
 
 
 def block_break(state: StateBlock, startLine: int, endLine: int, silent: bool):
-
     pos = state.bMarks[startLine] + state.tShift[startLine]
     maximum = state.eMarks[startLine]
 
@@ -111,7 +109,6 @@ def block_break(state: StateBlock, startLine: int, endLine: int, silent: bool):
 
 
 def target(state: StateBlock, startLine: int, endLine: int, silent: bool):
-
     pos = state.bMarks[startLine] + state.tShift[startLine]
     maximum = state.eMarks[startLine]
 

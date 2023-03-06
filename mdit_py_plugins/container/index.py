@@ -52,7 +52,6 @@ def container_plugin(
     render = render or renderDefault
 
     def container_func(state: StateBlock, startLine: int, endLine: int, silent: bool):
-
         auto_closed = False
         start = state.bMarks[startLine] + state.tShift[startLine]
         maximum = state.eMarks[startLine]

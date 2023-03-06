@@ -61,10 +61,9 @@ def dollarmath_plugin(
     # would be good to allow "proper" math rendering,
     # e.g. https://github.com/roniemartinez/latex2mathml
 
-    if renderer is None:
-        _renderer = lambda content, _: escapeHtml(content)
-    else:
-        _renderer = renderer
+    _renderer = (
+        (lambda content, _: escapeHtml(content)) if renderer is None else renderer
+    )
 
     if label_renderer is None:
         _label_renderer = (
@@ -193,7 +192,7 @@ def math_inline_dollar(
                 continue
 
             try:
-                if is_double and not state.srcCharCode[end + 1] == 0x24:
+                if is_double and state.srcCharCode[end + 1] != 0x24:
                     pos = end + 1
                     continue
             except IndexError:
@@ -261,7 +260,6 @@ def math_block_dollar(
     def _math_block_dollar(
         state: StateBlock, startLine: int, endLine: int, silent: bool
     ) -> bool:
-
         # TODO internal backslash escaping
 
         haveEndMarker = False
@@ -288,7 +286,6 @@ def math_block_dollar(
         # search for end of block on same line
         lineText = state.src[startPos:end]
         if len(lineText.strip()) > 3:
-
             if lineText.strip().endswith("$$"):
                 haveEndMarker = True
                 end = end - 2 - (len(lineText) - len(lineText.strip()))

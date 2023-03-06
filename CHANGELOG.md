@@ -1,5 +1,39 @@
 # Change Log
 
+## 0.3.5 - 2023-03-02
+
+- 🐛 FIX: Regression in dollarmath by @chrisjsewell in [#69](https://github.com/executablebooks/mdit-py-plugins/pull/69)
+- 🐛 Fix regression in amsmath by @chrisjsewell in [#70](https://github.com/executablebooks/mdit-py-plugins/pull/70)
+- 🔧 Correct project documentation link by @andersk in [#73](https://github.com/executablebooks/mdit-py-plugins/pull/73)
+
+## 0.3.4 - 2023-02-18
+
+- ✨ NEW: Add attrs_block_plugin by @chrisjsewell in [#66](https://github.com/executablebooks/mdit-py-plugins/pull/66)
+- 👌 Improve field lists by @chrisjsewell in [#65](https://github.com/executablebooks/mdit-py-plugins/pull/65)
+- 🔧 Update pre-commit by @chrisjsewell in [#64](https://github.com/executablebooks/mdit-py-plugins/pull/64) (moving from flake8 to ruff)
+
+**Full Changelog**: [v0.3.3...v0.3.](https://github.com/executablebooks/mdit-py-plugins/compare/v0.3.3...v0.3.4)
+
+## 0.3.3 - 2022-12-06
+
+🐛 FIX: span with end of inline before attrs
+
+## 0.3.2 - 2022-12-05
+
+- ✨ NEW: Port `admon` plugin by @KyleKing ([#53](https://github.com/executablebooks/mdit-py-plugins/pull/53))
+- ✨ NEW: Add span parsing to inline attributes plugin by @chrisjsewell ([#55](https://github.com/executablebooks/mdit-py-plugins/pull/55))
+- 🐛 FIX: Task list item marker can be followed by any GFM whitespace by @hukkin in ([#42](https://github.com/executablebooks/mdit-py-plugins/pull/42))
+
+**Full Changelog**: [v0.3.1...v0.4.0](https://github.com/executablebooks/mdit-py-plugins/compare/v0.3.1...v0.4.0)
+
+## 0.3.1 - 2022-09-27
+
+- ⬆️ UPGRADE: Drop Python 3.6, support Python 3.10
+- 🐛 FIX: Parsing when newline is between footnote ID and first paragraph
+- 🐛 FIX: Anchor ids in separate renders no longer affect each other.
+- ✨ NEW: Add `attrs_plugin`
+- 🔧 MAINTAIN: Use flit PEP 621 package build
+
 ## 0.3.0 - 2021-12-03
 
 - ⬆️ UPGRADE: Compatible with markdown-it-py `v2`.

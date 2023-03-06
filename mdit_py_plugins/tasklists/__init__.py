@@ -16,11 +16,17 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+import re
 from typing import List
 from uuid import uuid4
 
 from markdown_it import MarkdownIt
 from markdown_it.token import Token
+
+# Regex string to match a whitespace character, as specified in
+# https://github.github.com/gfm/#whitespace-character
+# (spec version 0.29-gfm (2019-04-06))
+_GFM_WHITESPACE_RE = r"[ \t\n\v\f\r]"
 
 
 def tasklists_plugin(
@@ -41,7 +47,7 @@ def tasklists_plugin(
 
     :param enabled: True enables the rendered checkboxes
     :param label: True wraps the rendered list items in a <label> element for UX purposes,
-    :param label_after: True – adds the <label> element after the checkbox.
+    :param label_after: True adds the <label> element after the checkbox.
     """
     disable_checkboxes = not enabled
     use_label_wrapper = label
@@ -50,7 +56,6 @@ def tasklists_plugin(
     def fcn(state):
         tokens: List[Token] = state.tokens
         for i in range(2, len(tokens) - 1):
-
             if is_todo_item(tokens, i):
                 todoify(tokens[i], tokens[i].__class__)
                 tokens[i - 2].attrSet(
@@ -144,8 +149,4 @@ def tasklists_plugin(
 
     def starts_with_todo_markdown(token):
         # leading whitespace in a list item is already trimmed off by markdown-it
-        return (
-            token.content.startswith("[ ] ")
-            or token.content.startswith("[x] ")
-            or token.content.startswith("[X] ")
-        )
+        return re.match(rf"\[[ xX]]{_GFM_WHITESPACE_RE}+", token.content)

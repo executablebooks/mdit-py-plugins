@@ -11,7 +11,7 @@ from markdown_it.rules_block import StateBlock
 ENVIRONMENTS = [
     # 3.2 single equation with an automatically gen-erated number
     "equation",
-    # 3.3 variation equation, used for equations that don’t fit on a single line
+    # 3.3 variation equation, used for equations that dont fit on a single line
     "multline",
     # 3.5 a group of consecutive equations when there is no alignment desired among them
     "gather",
@@ -68,10 +68,7 @@ def amsmath_plugin(md: MarkdownIt, *, renderer: Optional[Callable[[str], str]] =
         {"alt": ["paragraph", "reference", "blockquote", "list", "footnote_def"]},
     )
 
-    if renderer is None:
-        _renderer = lambda content: escapeHtml(content)
-    else:
-        _renderer = renderer
+    _renderer = (lambda content: escapeHtml(content)) if renderer is None else renderer
 
     def render_amsmath_block(self, tokens, idx, options, env):
         content = _renderer(str(tokens[idx].content))
@@ -95,7 +92,6 @@ def match_environment(string):
 
 
 def amsmath_block(state: StateBlock, startLine: int, endLine: int, silent: bool):
-
     # if it's indented more than 3 spaces, it should be a code block
     if state.sCount[startLine] - state.blkIndent >= 4:
         return False

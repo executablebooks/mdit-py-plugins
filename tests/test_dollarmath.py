@@ -1,11 +1,11 @@
 from pathlib import Path
 from textwrap import dedent
 
-import pytest
 from markdown_it import MarkdownIt
 from markdown_it.rules_block import StateBlock
 from markdown_it.rules_inline import StateInline
 from markdown_it.utils import read_fixture_file
+import pytest
 
 from mdit_py_plugins.dollarmath import dollarmath_plugin
 from mdit_py_plugins.dollarmath import index as main
@@ -14,7 +14,6 @@ FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 
 
 def test_inline_func():
-
     inline_func = main.math_inline_dollar()
 
     md = MarkdownIt()
@@ -80,6 +79,11 @@ def test_plugin_parse(data_regression):
         )
     )
     data_regression.check([t.as_dict() for t in tokens])
+
+
+def test_custom_renderer(data_regression):
+    md = MarkdownIt().use(dollarmath_plugin, renderer=lambda x, y: x)
+    assert md.render("$x$").strip() == '<p><span class="math inline">x</span></p>'
 
 
 @pytest.mark.parametrize(

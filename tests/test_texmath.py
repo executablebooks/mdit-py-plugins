@@ -1,11 +1,11 @@
 from pathlib import Path
 from textwrap import dedent
 
-import pytest
 from markdown_it import MarkdownIt
 from markdown_it.rules_block import StateBlock
 from markdown_it.rules_inline import StateInline
 from markdown_it.utils import read_fixture_file
+import pytest
 
 from mdit_py_plugins.texmath import index as main
 from mdit_py_plugins.texmath import texmath_plugin
@@ -14,7 +14,6 @@ FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 
 
 def test_inline_func():
-
     inline_func = main.make_inline_func(main.rules["dollars"]["inline"][0])
 
     md = MarkdownIt()

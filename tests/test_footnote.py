@@ -1,12 +1,12 @@
 from pathlib import Path
 from textwrap import dedent
 
-import pytest
 from markdown_it import MarkdownIt
 from markdown_it.rules_block import StateBlock
 from markdown_it.rules_inline import StateInline
 from markdown_it.token import Token
 from markdown_it.utils import read_fixture_file
+import pytest
 
 from mdit_py_plugins.footnote import footnote_plugin, index
 
@@ -14,7 +14,6 @@ FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures", "footnote.md")
 
 
 def test_footnote_def():
-
     md = MarkdownIt()
     src = r"[^a]: xyz"
     tokens = []
@@ -101,7 +100,6 @@ def test_footnote_def():
 
 
 def test_footnote_ref():
-
     md = MarkdownIt()
     src = r"[^a]"
     tokens = []
@@ -132,7 +130,6 @@ def test_footnote_ref():
 
 
 def test_footnote_inline():
-
     md = MarkdownIt().use(footnote_plugin)
     src = r"^[a]"
     tokens = []
