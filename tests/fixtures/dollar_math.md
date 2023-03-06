@@ -226,6 +226,18 @@ b = 2
 </div>
 .
 
+display equation with blank lines. (valid=False)
+.
+$$
+1+1=2
+
+$$
+.
+<p>$$
+1+1=2</p>
+<p>$$</p>
+.
+
 equation followed by a labelled equation (valid=True)
 .
 $$
