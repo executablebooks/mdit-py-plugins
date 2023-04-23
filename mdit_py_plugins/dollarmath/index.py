@@ -13,6 +13,7 @@ def dollarmath_plugin(
     allow_labels: bool = True,
     allow_space: bool = True,
     allow_digits: bool = True,
+    allow_blank_lines: bool = True,
     double_inline: bool = False,
     label_normalizer: Optional[Callable[[str], str]] = None,
     renderer: Optional[Callable[[str, Dict[str, Any]], str]] = None,
@@ -30,6 +31,10 @@ def dollarmath_plugin(
     :param allow_digits: Parse inline math when there is a digit
         before/after the opening/closing ``$``, e.g. ``1$`` or ``$2``.
         This is useful when also using currency.
+    :param allow_blank_lines: Allow blank lines inside ``$$``. Note that blank lines are
+        not allowed in LaTeX, executablebooks/markdown-it-dollarmath, or the Github or
+        StackExchange markdown dialects. Hoever, they have special semantics if used
+        within Sphinx `..math` admonitions, so are allowed for backwards-compatibility.
     :param double_inline: Search for double-dollar math within inline contexts
     :param label_normalizer: Function to normalize the label,
         by default replaces whitespace with `-`
@@ -47,7 +52,9 @@ def dollarmath_plugin(
         math_inline_dollar(allow_space, allow_digits, double_inline),
     )
     md.block.ruler.before(
-        "fence", "math_block", math_block_dollar(allow_labels, label_normalizer)
+        "fence",
+        "math_block",
+        math_block_dollar(allow_labels, label_normalizer, allow_blank_lines),
     )
 
     # TODO the current render rules are really just for testing
@@ -246,6 +253,7 @@ DOLLAR_EQNO_REV = re.compile(r"^\s*\)([^)$\r\n]+?)\(\s*\${2}")
 def math_block_dollar(
     allow_labels: bool = True,
     label_normalizer: Optional[Callable[[str], str]] = None,
+    allow_blank_lines: bool = False,
 ) -> Callable[[StateBlock, int, int, bool], bool]:
     """Generate block dollar rule."""
 
@@ -299,15 +307,14 @@ def math_block_dollar(
                 start = state.bMarks[nextLine] + state.tShift[nextLine]
                 end = state.eMarks[nextLine]
 
-                if end - start < 2:
-                    continue
-
                 lineText = state.src[start:end]
 
                 if lineText.strip().endswith("$$"):
                     haveEndMarker = True
                     end = end - 2 - (len(lineText) - len(lineText.strip()))
                     break
+                if lineText.strip() == "" and not allow_blank_lines:
+                    break  # blank lines are not allowed within $$
 
                 # reverse the line and match
                 if allow_labels:

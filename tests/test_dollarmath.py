@@ -92,7 +92,11 @@ def test_custom_renderer(data_regression):
 )
 def test_dollarmath_fixtures(line, title, input, expected):
     md = MarkdownIt("commonmark").use(
-        dollarmath_plugin, allow_space=False, allow_digits=False, double_inline=True
+        dollarmath_plugin,
+        allow_space=False,
+        allow_digits=False,
+        double_inline=True,
+        allow_blank_lines=False,
     )
     md.options.xhtmlOut = False
     text = md.render(input)

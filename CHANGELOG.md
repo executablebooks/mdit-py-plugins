@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.3.5 - 2023-03-02
+
+- 🐛 FIX: Regression in dollarmath by @chrisjsewell in [#69](https://github.com/executablebooks/mdit-py-plugins/pull/69)
+- 🐛 Fix regression in amsmath by @chrisjsewell in [#70](https://github.com/executablebooks/mdit-py-plugins/pull/70)
+- 🔧 Correct project documentation link by @andersk in [#73](https://github.com/executablebooks/mdit-py-plugins/pull/73)
+
 ## 0.3.4 - 2023-02-18
 
 - ✨ NEW: Add attrs_block_plugin by @chrisjsewell in [#66](https://github.com/executablebooks/mdit-py-plugins/pull/66)

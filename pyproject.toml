@@ -29,7 +29,7 @@ dependencies = ["markdown-it-py>=1.0.0,<3.0.0"]
 
 [project.urls]
 Homepage = "https://github.com/executablebooks/mdit-py-plugins"
-Documentation = "https://markdown-it-py.readthedocs.io"
+Documentation = "https://mdit-py-plugins.readthedocs.io"
 
 [project.optional-dependencies]
 code_style = ["pre-commit"]
