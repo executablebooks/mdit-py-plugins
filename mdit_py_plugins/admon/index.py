@@ -127,7 +127,6 @@ def admonition(state: StateBlock, startLine: int, endLine: int, silent: bool) ->
         token.children = []
 
         token = state.push("admonition_title_close", "p", -1)
-        token.markup = title_markup
 
     state.md.block.tokenize(state, startLine + 1, next_line)
 

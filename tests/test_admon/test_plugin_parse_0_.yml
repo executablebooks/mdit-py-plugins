@@ -69,7 +69,7 @@
   info: ''
   level: 1
   map: null
-  markup: '!!! note'
+  markup: ''
   meta: {}
   nesting: -1
   tag: p
