@@ -6,7 +6,8 @@ from markdown_it import MarkdownIt
 from markdown_it.rules_block import StateBlock
 
 
-def get_tag(params: str) -> Tuple[str, str]:
+def _get_tag(params: str) -> Tuple[str, str]:
+    """Separate the tag name from the admonition title."""
     if not params.strip():
         return "", ""
 
@@ -21,7 +22,8 @@ def get_tag(params: str) -> Tuple[str, str]:
     return tag.lower(), title
 
 
-def validate(params: str) -> bool:
+def _validate(params: str) -> bool:
+    """Validate the presence of the tag name after the marker."""
     tag = params.strip().split(" ", 1)[-1] or ""
     return bool(tag)
 
@@ -55,7 +57,7 @@ def admonition(state: StateBlock, startLine: int, endLine: int, silent: bool) ->
 
     params = state.src[marker_pos:maximum]
 
-    if not validate(params):
+    if not _validate(params):
         return False
 
     # Since start is found, we can report success here in validation mode
@@ -103,7 +105,7 @@ def admonition(state: StateBlock, startLine: int, endLine: int, silent: bool) ->
     # this will prevent lazy continuations from ever going past our end marker
     state.lineMax = next_line
 
-    tag, title = get_tag(params)
+    tag, title = _get_tag(params)
 
     token = state.push("admonition_open", "div", 1)
     token.markup = markup
