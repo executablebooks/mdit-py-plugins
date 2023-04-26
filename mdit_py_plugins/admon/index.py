@@ -1,6 +1,6 @@
 # Process admonitions and pass to cb.
 
-from typing import Callable, Optional, Tuple
+from typing import Callable, List, Optional, Tuple
 
 from markdown_it import MarkdownIt
 from markdown_it.rules_block import StateBlock
@@ -32,6 +32,15 @@ MARKER_LEN = 3  # Regardless of extra characters, block indent stays the same
 MARKERS = ("!!!", "???", "???+")
 MARKER_CHARS = {_m[0] for _m in MARKERS}
 MAX_MARKER_LEN = max(len(_m) for _m in MARKERS)
+
+
+def _extra_classes(markup: str) -> List[str]:
+    """Return the list of additional classes based on the markup."""
+    if markup.startswith("?"):
+        if markup.endswith("+"):
+            return ["collapsible-open"]
+        return ["collapsible-closed"]
+    return []
 
 
 def admonition(state: StateBlock, startLine: int, endLine: int, silent: bool) -> bool:
@@ -110,7 +119,7 @@ def admonition(state: StateBlock, startLine: int, endLine: int, silent: bool) ->
     token = state.push("admonition_open", "div", 1)
     token.markup = markup
     token.block = True
-    token.attrs = {"class": f"admonition {tag}"}
+    token.attrs = {"class": " ".join(["admonition", tag, *_extra_classes(markup)])}
     token.meta = {"tag": tag}
     token.content = title
     token.info = params
