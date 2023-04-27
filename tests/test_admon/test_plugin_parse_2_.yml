@@ -1,6 +1,6 @@
 - attrs:
   - - class
-    - admonition note collapsible-open
+    - admonition note is-collapsible collapsible-open
   block: true
   children: null
   content: Note
