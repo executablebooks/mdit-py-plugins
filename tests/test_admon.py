@@ -1,4 +1,5 @@
 from pathlib import Path
+from textwrap import dedent
 
 from markdown_it import MarkdownIt
 from markdown_it.utils import read_fixture_file
@@ -19,3 +20,15 @@ def test_all(line, title, input, expected):
     text = md.render(input)
     print(text)
     assert text.rstrip() == expected.rstrip()
+
+
+@pytest.mark.parametrize("text_idx", (0, 1, 2))
+def test_plugin_parse(data_regression, text_idx):
+    texts = [
+        "!!! note\n    content 1",
+        "??? note\n    content 2",
+        "???+ note\n    content 3",
+    ]
+    md = MarkdownIt().use(admon_plugin)
+    tokens = md.parse(dedent(texts[text_idx]))
+    data_regression.check([t.as_dict() for t in tokens])
