@@ -195,15 +195,10 @@ def _fieldlist_rule(state: StateBlock, startLine: int, endLine: int, silent: boo
                     # and replace the "hole" left with space,
                     # so that src indexes still match
                     diff = first_line_body_indent - block_indent
-                    state._src = (
+                    state.src = (
                         state.src[: contentStart - diff]
                         + " " * diff
                         + state.src[contentStart:]
-                    )
-                    state.srcCharCode = (
-                        state.srcCharCode[: contentStart - diff]
-                        + tuple([0x20] * diff)
-                        + state.srcCharCode[contentStart:]
                     )
 
                 state.tShift[startLine] = contentStart - diff - state.bMarks[startLine]
@@ -249,11 +244,9 @@ def temp_state_changes(state: StateBlock, startLine: int):
     oldTShift = state.tShift[startLine]
     oldSCount = state.sCount[startLine]
     oldBlkIndent = state.blkIndent
-    oldSrc = state._src
-    oldSrcCharCode = state.srcCharCode
+    oldSrc = state.src
     yield
     state.blkIndent = oldBlkIndent
     state.tShift[startLine] = oldTShift
     state.sCount[startLine] = oldSCount
-    state._src = oldSrc
-    state.srcCharCode = oldSrcCharCode
+    state.src = oldSrc
