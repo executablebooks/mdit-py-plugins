@@ -46,7 +46,7 @@ jobs:
       run: |
         pytest --cov=mdit_py_plugins --cov-report=xml --cov-report=term-missing
     - name: Upload to Codecov
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v3
       with:
         name: mdit-py-plugins-pytests
         flags: pytests
