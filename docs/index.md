@@ -22,7 +22,7 @@ md = MarkdownIt("gfm-like")
 ```
 
 ```{seealso}
-See [](markdown_it:using)
+See <inv:markdown_it#using>
 ```
 
 ## mdit-py-plugins package
@@ -124,7 +124,7 @@ html_string = md.render("some *Markdown*")
 
 ## Write your own
 
-Use the `mdit_py_plugins` as a guide to write your own, following the [markdown-it design principles](markdown_it:architecture).
+Use the `mdit_py_plugins` as a guide to write your own, following the [markdown-it design principles](inv:markdown_it#architecture).
 
 There are many other plugins which could easily be ported from the JS versions (and hopefully will):
 
