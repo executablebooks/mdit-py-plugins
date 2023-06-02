@@ -53,6 +53,14 @@ jobs:
         file: ./coverage.xml
         fail_ci_if_error: true
 
+  allgood:
+    runs-on: ubuntu-latest
+    needs:
+    - pre-commit
+    - tests
+    steps:
+    - run: echo "Great success!"
+
   publish:
 
     name: Publish to PyPi
