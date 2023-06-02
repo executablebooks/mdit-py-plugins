@@ -131,7 +131,7 @@ def footnote_def(state: StateBlock, startLine: int, endLine: int, silent: bool):
     if state.sCount[startLine] < state.blkIndent:
         state.sCount[startLine] += state.blkIndent
 
-    state.md.block.tokenize(state, startLine, endLine, True)
+    state.md.block.tokenize(state, startLine, endLine)
 
     state.parentType = oldParentType
     state.blkIndent -= 4
