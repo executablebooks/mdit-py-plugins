@@ -160,7 +160,7 @@ def deflist_plugin(md: MarkdownIt):
                 state.tight = True
                 state.parentType = "deflist"
 
-                state.md.block.tokenize(state, ddLine, endLine, True)
+                state.md.block.tokenize(state, ddLine, endLine)
 
                 # If any of list item is tight, mark list as tight
                 if not state.tight or prevEmptyEnd:
