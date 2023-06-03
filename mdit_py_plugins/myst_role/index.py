@@ -22,7 +22,7 @@ def myst_role(state: StateInline, silent: bool):
 
     # check for starting backslash escape
     try:
-        if state.srcCharCode[state.pos - 1] == 0x5C:  # /* \ */
+        if state.src[state.pos - 1] == "\\":
             # escaped (this could be improved in the case of edge case '\\{')
             return False
     except IndexError:

@@ -20,14 +20,11 @@ def substitution_plugin(
 
     """
 
-    start_char = ord(start_delimiter)
-    end_char = ord(end_delimiter)
-
     def _substitution_inline(state: StateInline, silent: bool):
         try:
             if (
-                state.srcCharCode[state.pos] != start_char
-                or state.srcCharCode[state.pos + 1] != start_char
+                state.src[state.pos] != start_delimiter
+                or state.src[state.pos + 1] != start_delimiter
             ):
                 return False
         except IndexError:
@@ -37,11 +34,11 @@ def substitution_plugin(
         found_closing = False
         while True:
             try:
-                end = state.srcCharCode.index(end_char, pos)
+                end = state.src.index(end_delimiter, pos)
             except ValueError:
                 return False
             try:
-                if state.srcCharCode[end + 1] == end_char:
+                if state.src[end + 1] == end_delimiter:
                     found_closing = True
                     break
             except IndexError:

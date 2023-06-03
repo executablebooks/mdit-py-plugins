@@ -2,7 +2,6 @@
 from math import floor
 
 from markdown_it import MarkdownIt
-from markdown_it.common.utils import charCodeAt
 from markdown_it.rules_block import StateBlock
 
 from mdit_py_plugins.utils import is_code_block
@@ -33,7 +32,7 @@ def front_matter_plugin(md: MarkdownIt):
 def make_front_matter_rule():
     min_markers = 3
     marker_str = "-"
-    marker_char = charCodeAt(marker_str, 0)
+    marker_char = marker_str[0]
     marker_len = len(marker_str)
 
     def frontMatter(state: StateBlock, startLine: int, endLine: int, silent: bool):
@@ -44,7 +43,7 @@ def make_front_matter_rule():
 
         # Check out the first character of the first line quickly,
         # this should filter out non-front matter
-        if startLine != 0 or marker_char != state.srcCharCode[0]:
+        if startLine != 0 or marker_char != state.src[0]:
             return False
 
         # Check out the rest of the marker string
@@ -87,7 +86,7 @@ def make_front_matter_rule():
                 #  test
                 break
 
-            if marker_char != state.srcCharCode[start]:
+            if marker_char != state.src[start]:
                 continue
 
             if is_code_block(state, nextLine):

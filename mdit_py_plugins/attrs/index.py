@@ -1,7 +1,6 @@
 from typing import List, Optional
 
 from markdown_it import MarkdownIt
-from markdown_it.common.utils import isSpace
 from markdown_it.rules_block import StateBlock
 from markdown_it.rules_core import StateCore
 from markdown_it.rules_inline import StateInline
@@ -113,7 +112,7 @@ def _find_opening(tokens: List[Token], index: int) -> Optional[int]:
 
 
 def _span_rule(state: StateInline, silent: bool):
-    if state.srcCharCode[state.pos] != 0x5B:  # /* [ */
+    if state.src[state.pos] != "[":
         return False
 
     maximum = state.posMax
@@ -165,16 +164,16 @@ def _attr_block_rule(
     maximum = state.eMarks[startLine]
 
     # if it doesn't start with a {, it's not an attribute block
-    if state.srcCharCode[pos] != 0x7B:  # /* { */
+    if state.src[pos] != "{":
         return False
 
     # find first non-space character from the right
-    while maximum > pos and isSpace(state.srcCharCode[maximum - 1]):
+    while maximum > pos and state.src[maximum - 1] in (" ", "\t"):
         maximum -= 1
     # if it doesn't end with a }, it's not an attribute block
     if maximum <= pos:
         return False
-    if state.srcCharCode[maximum - 1] != 0x7D:  # /* } */
+    if state.src[maximum - 1] != "}":
         return False
 
     try:

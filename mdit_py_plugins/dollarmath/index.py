@@ -105,7 +105,7 @@ def is_escaped(state: StateInline, back_pos: int, mod: int = 0) -> bool:
     backslashes = 0
     while back_pos >= 0:
         back_pos = back_pos - 1
-        if state.srcCharCode[back_pos] == 0x5C:  # /* \ */
+        if state.src[back_pos] == "\\":
             backslashes += 1
         else:
             break
@@ -153,13 +153,13 @@ def math_inline_dollar(
         # TODO options:
         # even/odd backslash escaping
 
-        if state.srcCharCode[state.pos] != 0x24:  # /* $ */
+        if state.src[state.pos] != "$":
             return False
 
         if not allow_space:
             # whitespace not allowed straight after opening $
             try:
-                if isWhiteSpace(state.srcCharCode[state.pos + 1]):
+                if isWhiteSpace(ord(state.src[state.pos + 1])):
                     return False
             except IndexError:
                 return False
@@ -176,7 +176,7 @@ def math_inline_dollar(
             return False
 
         try:
-            is_double = allow_double and state.srcCharCode[state.pos + 1] == 0x24
+            is_double = allow_double and state.src[state.pos + 1] == "$"
         except IndexError:
             return False
 
@@ -185,7 +185,7 @@ def math_inline_dollar(
         found_closing = False
         while not found_closing:
             try:
-                end = state.srcCharCode.index(0x24, pos)
+                end = state.src.index("$", pos)
             except ValueError:
                 return False
 
@@ -194,7 +194,7 @@ def math_inline_dollar(
                 continue
 
             try:
-                if is_double and state.srcCharCode[end + 1] != 0x24:
+                if is_double and state.src[end + 1] != "$":
                     pos = end + 1
                     continue
             except IndexError:
@@ -211,7 +211,7 @@ def math_inline_dollar(
         if not allow_space:
             # whitespace not allowed straight before closing $
             try:
-                if isWhiteSpace(state.srcCharCode[end - 1]):
+                if isWhiteSpace(ord(state.src[end - 1])):
                     return False
             except IndexError:
                 return False
@@ -274,10 +274,7 @@ def math_block_dollar(
         if startPos + 2 > end:
             return False
 
-        if (
-            state.srcCharCode[startPos] != 0x24
-            or state.srcCharCode[startPos + 1] != 0x24
-        ):  # /* $ */
+        if state.src[startPos] != "$" or state.src[startPos + 1] != "$":
             return False
 
         # search for end of block
