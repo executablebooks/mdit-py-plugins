@@ -4,6 +4,8 @@ from markdown_it import MarkdownIt
 from markdown_it.common.utils import escapeHtml, isSpace
 from markdown_it.rules_block import StateBlock
 
+from mdit_py_plugins.utils import is_code_block
+
 
 def myst_block_plugin(md: MarkdownIt):
     """Parse MyST targets (``(name)=``), blockquotes (``% comment``) and block breaks (``+++``)."""
@@ -30,12 +32,11 @@ def myst_block_plugin(md: MarkdownIt):
 
 
 def line_comment(state: StateBlock, startLine: int, endLine: int, silent: bool):
+    if is_code_block(state, startLine):
+        return False
+
     pos = state.bMarks[startLine] + state.tShift[startLine]
     maximum = state.eMarks[startLine]
-
-    # if it's indented more than 3 spaces, it should be a code block
-    if state.sCount[startLine] - state.blkIndent >= 4:
-        return False
 
     if state.src[pos] != "%":
         return False
@@ -66,12 +67,11 @@ def line_comment(state: StateBlock, startLine: int, endLine: int, silent: bool):
 
 
 def block_break(state: StateBlock, startLine: int, endLine: int, silent: bool):
+    if is_code_block(state, startLine):
+        return False
+
     pos = state.bMarks[startLine] + state.tShift[startLine]
     maximum = state.eMarks[startLine]
-
-    # if it's indented more than 3 spaces, it should be a code block
-    if state.sCount[startLine] - state.blkIndent >= 4:
-        return False
 
     marker = state.srcCharCode[pos]
     pos += 1
@@ -109,12 +109,11 @@ def block_break(state: StateBlock, startLine: int, endLine: int, silent: bool):
 
 
 def target(state: StateBlock, startLine: int, endLine: int, silent: bool):
+    if is_code_block(state, startLine):
+        return False
+
     pos = state.bMarks[startLine] + state.tShift[startLine]
     maximum = state.eMarks[startLine]
-
-    # if it's indented more than 3 spaces, it should be a code block
-    if state.sCount[startLine] - state.blkIndent >= 4:
-        return False
 
     text = state.src[pos:maximum].strip()
     if not text.startswith("("):

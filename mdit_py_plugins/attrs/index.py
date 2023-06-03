@@ -7,6 +7,8 @@ from markdown_it.rules_core import StateCore
 from markdown_it.rules_inline import StateInline
 from markdown_it.token import Token
 
+from mdit_py_plugins.utils import is_code_block
+
 from .parse import ParseError, parse
 
 
@@ -156,8 +158,7 @@ def _attr_block_rule(
     The block must be a single line that begins with a `{`, after three or less spaces,
     and end with a `}` followed by any number if spaces.
     """
-    # if it's indented more than 3 spaces, it should be a code block
-    if state.sCount[startLine] - state.blkIndent >= 4:
+    if is_code_block(state, startLine):
         return False
 
     pos = state.bMarks[startLine] + state.tShift[startLine]

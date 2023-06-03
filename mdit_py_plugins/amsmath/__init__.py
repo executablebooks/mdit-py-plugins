@@ -6,6 +6,8 @@ from markdown_it import MarkdownIt
 from markdown_it.common.utils import escapeHtml
 from markdown_it.rules_block import StateBlock
 
+from mdit_py_plugins.utils import is_code_block
+
 # Taken from amsmath version 2.1
 # http://anorien.csc.warwick.ac.uk/mirrors/CTAN/macros/latex/required/amsmath/amsldoc.pdf
 ENVIRONMENTS = [
@@ -92,8 +94,7 @@ def match_environment(string):
 
 
 def amsmath_block(state: StateBlock, startLine: int, endLine: int, silent: bool):
-    # if it's indented more than 3 spaces, it should be a code block
-    if state.sCount[startLine] - state.blkIndent >= 4:
+    if is_code_block(state, startLine):
         return False
 
     begin = state.bMarks[startLine] + state.tShift[startLine]

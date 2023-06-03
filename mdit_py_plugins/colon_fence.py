@@ -2,6 +2,8 @@ from markdown_it import MarkdownIt
 from markdown_it.common.utils import escapeHtml, unescapeAll
 from markdown_it.rules_block import StateBlock
 
+from mdit_py_plugins.utils import is_code_block
+
 
 def colon_fence_plugin(md: MarkdownIt):
     """This plugin directly mimics regular fences, but with `:` colons.
@@ -24,13 +26,12 @@ def colon_fence_plugin(md: MarkdownIt):
 
 
 def _rule(state: StateBlock, startLine: int, endLine: int, silent: bool):
+    if is_code_block(state, startLine):
+        return False
+
     haveEndMarker = False
     pos = state.bMarks[startLine] + state.tShift[startLine]
     maximum = state.eMarks[startLine]
-
-    # if it's indented more than 3 spaces, it should be a code block
-    if state.sCount[startLine] - state.blkIndent >= 4:
-        return False
 
     if pos + 3 > maximum:
         return False
@@ -79,8 +80,7 @@ def _rule(state: StateBlock, startLine: int, endLine: int, silent: bool):
         if state.srcCharCode[pos] != marker:
             continue
 
-        if state.sCount[nextLine] - state.blkIndent >= 4:
-            # closing fence should be indented less than 4 spaces
+        if is_code_block(state, nextLine):
             continue
 
         pos = state.skipChars(pos, marker)

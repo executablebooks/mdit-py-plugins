@@ -5,6 +5,8 @@ from typing import Callable, List, Optional, Tuple
 from markdown_it import MarkdownIt
 from markdown_it.rules_block import StateBlock
 
+from mdit_py_plugins.utils import is_code_block
+
 
 def _get_tag(params: str) -> Tuple[str, str]:
     """Separate the tag name from the admonition title."""
@@ -44,6 +46,9 @@ def _extra_classes(markup: str) -> List[str]:
 
 
 def admonition(state: StateBlock, startLine: int, endLine: int, silent: bool) -> bool:
+    if is_code_block(state, startLine):
+        return False
+
     start = state.bMarks[startLine] + state.tShift[startLine]
     maximum = state.eMarks[startLine]
 

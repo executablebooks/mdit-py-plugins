@@ -5,6 +5,8 @@ from typing import Optional, Tuple
 from markdown_it import MarkdownIt
 from markdown_it.rules_block import StateBlock
 
+from mdit_py_plugins.utils import is_code_block
+
 
 def fieldlist_plugin(md: MarkdownIt):
     """Field lists are mappings from field names to field bodies, based on the
@@ -96,8 +98,7 @@ def set_parent_type(state: StateBlock, name: str):
 def _fieldlist_rule(state: StateBlock, startLine: int, endLine: int, silent: bool):
     # adapted from markdown_it/rules_block/list.py::list_block
 
-    # if it's indented more than 3 spaces, it should be a code block
-    if state.sCount[startLine] - state.blkIndent >= 4:
+    if is_code_block(state, startLine):
         return False
 
     posAfterName, name_text = parseNameMarker(state, startLine)
@@ -221,8 +222,7 @@ def _fieldlist_rule(state: StateBlock, startLine: int, endLine: int, silent: boo
             if state.sCount[nextLine] < state.blkIndent:
                 break
 
-            # if it's indented more than 3 spaces, it should be a code block
-            if state.sCount[startLine] - state.blkIndent >= 4:
+            if is_code_block(state, startLine):
                 break
 
             # get next field item

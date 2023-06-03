@@ -2,6 +2,8 @@
 from markdown_it import MarkdownIt
 from markdown_it.rules_block import StateBlock
 
+from mdit_py_plugins.utils import is_code_block
+
 
 def deflist_plugin(md: MarkdownIt):
     """Plugin ported from
@@ -66,6 +68,9 @@ def deflist_plugin(md: MarkdownIt):
             i += 1
 
     def deflist(state: StateBlock, startLine: int, endLine: int, silent: bool):
+        if is_code_block(state, startLine):
+            return False
+
         if silent:
             # quirk: validation mode validates a dd block only, not a whole deflist
             if state.ddIndent < 0:

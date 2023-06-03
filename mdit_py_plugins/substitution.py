@@ -2,6 +2,8 @@ from markdown_it import MarkdownIt
 from markdown_it.rules_block import StateBlock
 from markdown_it.rules_inline import StateInline
 
+from mdit_py_plugins.utils import is_code_block
+
 
 def substitution_plugin(
     md: MarkdownIt, start_delimiter: str = "{", end_delimiter: str = "}"
@@ -67,12 +69,11 @@ def substitution_plugin(
     def _substitution_block(
         state: StateBlock, startLine: int, endLine: int, silent: bool
     ):
+        if is_code_block(state, startLine):
+            return False
+
         startPos = state.bMarks[startLine] + state.tShift[startLine]
         end = state.eMarks[startLine]
-
-        # if it's indented more than 3 spaces, it should be a code block
-        if state.sCount[startLine] - state.blkIndent >= 4:
-            return False
 
         lineText = state.src[startPos:end].strip()
 
