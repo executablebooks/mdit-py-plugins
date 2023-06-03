@@ -6,6 +6,8 @@ from markdown_it.common.utils import escapeHtml, isWhiteSpace
 from markdown_it.rules_block import StateBlock
 from markdown_it.rules_inline import StateInline
 
+from mdit_py_plugins.utils import is_code_block
+
 
 def dollarmath_plugin(
     md: MarkdownIt,
@@ -262,13 +264,12 @@ def math_block_dollar(
     ) -> bool:
         # TODO internal backslash escaping
 
+        if is_code_block(state, startLine):
+            return False
+
         haveEndMarker = False
         startPos = state.bMarks[startLine] + state.tShift[startLine]
         end = state.eMarks[startLine]
-
-        # if it's indented more than 3 spaces, it should be a code block
-        if state.sCount[startLine] - state.blkIndent >= 4:
-            return False
 
         if startPos + 2 > end:
             return False

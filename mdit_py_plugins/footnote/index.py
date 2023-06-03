@@ -10,6 +10,8 @@ from markdown_it.rules_block import StateBlock
 from markdown_it.rules_inline import StateInline
 from markdown_it.token import Token
 
+from mdit_py_plugins.utils import is_code_block
+
 
 def footnote_plugin(md: MarkdownIt):
     """Plugin ported from
@@ -56,6 +58,9 @@ def footnote_plugin(md: MarkdownIt):
 
 def footnote_def(state: StateBlock, startLine: int, endLine: int, silent: bool):
     """Process footnote block definition"""
+
+    if is_code_block(state, startLine):
+        return False
 
     start = state.bMarks[startLine] + state.tShift[startLine]
     maximum = state.eMarks[startLine]

@@ -6,6 +6,8 @@ from markdown_it import MarkdownIt
 from markdown_it.common.utils import charCodeAt
 from markdown_it.rules_block import StateBlock
 
+from mdit_py_plugins.utils import is_code_block
+
 
 def container_plugin(
     md: MarkdownIt,
@@ -52,6 +54,9 @@ def container_plugin(
     render = render or renderDefault
 
     def container_func(state: StateBlock, startLine: int, endLine: int, silent: bool):
+        if is_code_block(state, startLine):
+            return False
+
         auto_closed = False
         start = state.bMarks[startLine] + state.tShift[startLine]
         maximum = state.eMarks[startLine]
@@ -109,8 +114,7 @@ def container_plugin(
             if marker_char != state.srcCharCode[start]:
                 continue
 
-            if state.sCount[nextLine] - state.blkIndent >= 4:
-                # closing fence should be indented less than 4 spaces
+            if is_code_block(state, nextLine):
                 continue
 
             pos = start + 1
