@@ -140,7 +140,7 @@ def _span_rule(state: StateInline, silent: bool):
         state.pos = labelStart
         state.posMax = labelEnd
         token = state.push("span_open", "span", 1)
-        token.attrs = attrs
+        token.attrs = attrs  # type: ignore
         state.md.inline.tokenize(state)
         token = state.push("span_close", "span", -1)
 

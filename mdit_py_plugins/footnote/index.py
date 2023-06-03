@@ -6,6 +6,7 @@ from typing import List, Optional
 from markdown_it import MarkdownIt
 from markdown_it.helpers import parseLinkLabel
 from markdown_it.rules_block import StateBlock
+from markdown_it.rules_core import StateCore
 from markdown_it.rules_inline import StateInline
 from markdown_it.token import Token
 
@@ -253,7 +254,7 @@ def footnote_ref(state: StateInline, silent: bool):
     return True
 
 
-def footnote_tail(state: StateBlock, *args, **kwargs):
+def footnote_tail(state: StateCore) -> None:
     """Post-processing step, to move footnote tokens to end of the token stream.
 
     Also removes un-referenced tokens.
