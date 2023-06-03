@@ -4,7 +4,6 @@
 from typing import List, Optional
 
 from markdown_it import MarkdownIt
-from markdown_it.common.utils import isSpace
 from markdown_it.helpers import parseLinkLabel
 from markdown_it.rules_block import StateBlock
 from markdown_it.rules_inline import StateInline
@@ -69,23 +68,23 @@ def footnote_def(state: StateBlock, startLine: int, endLine: int, silent: bool):
     if start + 4 > maximum:
         return False
 
-    if state.srcCharCode[start] != 0x5B:  # /* [ */
+    if state.src[start] != "[":
         return False
-    if state.srcCharCode[start + 1] != 0x5E:  # /* ^ */
+    if state.src[start + 1] != "^":
         return False
 
     pos = start + 2
     while pos < maximum:
-        if state.srcCharCode[pos] == 0x20:
+        if state.src[pos] == " ":
             return False
-        if state.srcCharCode[pos] == 0x5D:  # /* ] */
+        if state.src[pos] == "]":
             break
         pos += 1
 
     if pos == start + 2:  # no empty footnote labels
         return False
     pos += 1
-    if pos >= maximum or state.srcCharCode[pos] != 0x3A:  # /* : */
+    if pos >= maximum or state.src[pos] != ":":
         return False
     if silent:
         return True
@@ -113,13 +112,12 @@ def footnote_def(state: StateBlock, startLine: int, endLine: int, silent: bool):
     )
 
     while pos < maximum:
-        ch = state.srcCharCode[pos]
+        ch = state.src[pos]
 
-        if isSpace(ch):
-            if ch == 0x09:
-                offset += 4 - offset % 4
-            else:
-                offset += 1
+        if ch == "\t":
+            offset += 4 - offset % 4
+        elif ch == " ":
+            offset += 1
 
         else:
             break
@@ -162,9 +160,9 @@ def footnote_inline(state: StateInline, silent: bool):
 
     if start + 2 >= maximum:
         return False
-    if state.srcCharCode[start] != 0x5E:  # /* ^ */
+    if state.src[start] != "^":
         return False
-    if state.srcCharCode[start + 1] != 0x5B:  # /* [ */
+    if state.src[start + 1] != "[":
         return False
 
     labelStart = start + 2
@@ -208,18 +206,18 @@ def footnote_ref(state: StateInline, silent: bool):
 
     if "footnotes" not in state.env or "refs" not in state.env["footnotes"]:
         return False
-    if state.srcCharCode[start] != 0x5B:  # /* [ */
+    if state.src[start] != "[":
         return False
-    if state.srcCharCode[start + 1] != 0x5E:  # /* ^ */
+    if state.src[start + 1] != "^":
         return False
 
     pos = start + 2
     while pos < maximum:
-        if state.srcCharCode[pos] == 0x20:
+        if state.src[pos] == " ":
             return False
-        if state.srcCharCode[pos] == 0x0A:
+        if state.src[pos] == "\n":
             return False
-        if state.srcCharCode[pos] == 0x5D:  # /* ] */
+        if state.src[pos] == "]":
             break
         pos += 1
 

@@ -3,7 +3,6 @@ from math import floor
 from typing import Callable, Optional
 
 from markdown_it import MarkdownIt
-from markdown_it.common.utils import charCodeAt
 from markdown_it.rules_block import StateBlock
 
 from mdit_py_plugins.utils import is_code_block
@@ -48,7 +47,7 @@ def container_plugin(
 
     min_markers = 3
     marker_str = marker
-    marker_char = charCodeAt(marker_str, 0)
+    marker_char = marker_str[0]
     marker_len = len(marker_str)
     validate = validate or validateDefault
     render = render or renderDefault
@@ -63,7 +62,7 @@ def container_plugin(
 
         # Check out the first character quickly,
         # this should filter out most of non-containers
-        if marker_char != state.srcCharCode[start]:
+        if marker_char != state.src[start]:
             return False
 
         # Check out the rest of the marker string
@@ -111,7 +110,7 @@ def container_plugin(
                 #  test
                 break
 
-            if marker_char != state.srcCharCode[start]:
+            if marker_char != state.src[start]:
                 continue
 
             if is_code_block(state, nextLine):

@@ -139,13 +139,13 @@ def _fieldlist_rule(state: StateBlock, startLine: int, endLine: int, silent: boo
 
             # find indent to start of body on first line
             while pos < maximum:
-                ch = state.srcCharCode[pos]
+                ch = state.src[pos]
 
-                if ch == 0x09:  # \t
+                if ch == "\t":
                     first_line_body_indent += (
                         4 - (first_line_body_indent + state.bsCount[nextLine]) % 4
                     )
-                elif ch == 0x20:  # \s
+                elif ch == " ":
                     first_line_body_indent += 1
                 else:
                     break

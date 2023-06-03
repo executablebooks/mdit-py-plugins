@@ -36,15 +36,14 @@ def _rule(state: StateBlock, startLine: int, endLine: int, silent: bool):
     if pos + 3 > maximum:
         return False
 
-    marker = state.srcCharCode[pos]
+    marker = state.src[pos]
 
-    # /* : */
-    if marker != 0x3A:
+    if marker != ":":
         return False
 
     # scan marker length
     mem = pos
-    pos = state.skipChars(pos, marker)
+    pos = _skipCharsStr(state, pos, marker)
 
     length = pos - mem
 
@@ -77,13 +76,13 @@ def _rule(state: StateBlock, startLine: int, endLine: int, silent: bool):
             #  test
             break
 
-        if state.srcCharCode[pos] != marker:
+        if state.src[pos] != marker:
             continue
 
         if is_code_block(state, nextLine):
             continue
 
-        pos = state.skipChars(pos, marker)
+        pos = _skipCharsStr(state, pos, marker)
 
         # closing code fence must be at least as long as the opening one
         if pos - mem < length:
@@ -111,6 +110,20 @@ def _rule(state: StateBlock, startLine: int, endLine: int, silent: bool):
     token.map = [startLine, state.line]
 
     return True
+
+
+def _skipCharsStr(state: StateBlock, pos: int, ch: str) -> int:
+    """Skip character string from given position."""
+    # TODO this can be replaced with StateBlock.skipCharsStr in markdown-it-py 3.0.0
+    while True:
+        try:
+            current = state.src[pos]
+        except IndexError:
+            break
+        if current != ch:
+            break
+        pos += 1
+    return pos
 
 
 def _render(self, tokens, idx, options, env):
