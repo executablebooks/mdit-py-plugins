@@ -292,3 +292,24 @@ MKdocs Open Collapsible Sections
 <p>content</p>
 </div>
 .
+
+Indented by 4 spaces
+.
+    ??? note
+        content
+.
+<pre><code>??? note
+    content
+</code></pre>
+.
+
+Indented by 4 spaces, DISABLE-CODEBLOCKS
+.
+    ??? note
+        content
+.
+<div class="admonition note is-collapsible collapsible-closed">
+<p class="admonition-title">Note</p>
+<p>content</p>
+</div>
+.

@@ -363,3 +363,28 @@ other</p>
 </dl>
 </blockquote>
 .
+
+
+Indented by 4 spaces
+.
+    :name: text
+        indented
+.
+<pre><code>:name: text
+    indented
+</code></pre>
+.
+
+Indented by 4 spaces, DISABLE-CODEBLOCKS
+.
+    :name: text
+        indented
+.
+<dl class="field-list">
+<dt>name</dt>
+<dd>
+<p>text
+indented</p>
+</dd>
+</dl>
+.

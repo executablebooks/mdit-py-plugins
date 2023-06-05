@@ -16,6 +16,8 @@ FIXTURE_PATH = Path(__file__).parent
 )
 def test_all(line, title, input, expected):
     md = MarkdownIt("commonmark").use(admon_plugin)
+    if "DISABLE-CODEBLOCKS" in title:
+        md.disable("code")
     md.options["xhtmlOut"] = False
     text = md.render(input)
     print(text)

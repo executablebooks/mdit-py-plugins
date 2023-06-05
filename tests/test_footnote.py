@@ -451,6 +451,8 @@ def test_plugin_render():
 @pytest.mark.parametrize("line,title,input,expected", read_fixture_file(FIXTURE_PATH))
 def test_all(line, title, input, expected):
     md = MarkdownIt("commonmark").use(footnote_plugin)
+    if "DISABLE-CODEBLOCKS" in title:
+        md.disable("code")
     md.options["xhtmlOut"] = False
     text = md.render(input)
     print(text)

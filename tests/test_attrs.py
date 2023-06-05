@@ -14,6 +14,8 @@ FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 )
 def test_attrs(line, title, input, expected):
     md = MarkdownIt("commonmark").use(attrs_plugin, spans=True).use(attrs_block_plugin)
+    if "DISABLE-CODEBLOCKS" in title:
+        md.disable("code")
     md.options["xhtmlOut"] = False
     text = md.render(input)
     print(text)

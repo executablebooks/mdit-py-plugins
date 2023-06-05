@@ -50,6 +50,8 @@ def test_custom_renderer(data_regression):
 )
 def test_fixtures(line, title, input, expected):
     md = MarkdownIt("commonmark").use(amsmath_plugin)
+    if "DISABLE-CODEBLOCKS" in title:
+        md.disable("code")
     md.options["xhtmlOut"] = False
     text = md.render(input)
     print(text)

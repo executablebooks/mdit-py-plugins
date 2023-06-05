@@ -562,3 +562,21 @@ $$1+1=2$$ (a b)
 1+1=2
 </div>
 .
+
+
+Indented by 4 spaces
+.
+    $$a$$
+.
+<pre><code>$$a$$
+</code></pre>
+.
+
+Indented by 4 spaces, DISABLE-CODEBLOCKS
+.
+    $$a$$
+.
+<div class="math block">
+a
+</div>
+.

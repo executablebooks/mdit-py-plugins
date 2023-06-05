@@ -385,3 +385,28 @@ display equation in blockquote. (valid=True)
 <p>in blockquote.</p>
 </blockquote>
 .
+
+Indented by 4 spaces
+.
+    \[
+    a = 1
+    \]
+.
+<pre><code>\[
+a = 1
+\]
+</code></pre>
+.
+
+Indented by 4 spaces, DISABLE-CODEBLOCKS
+.
+    \[
+    a = 1
+    \]
+.
+<section>
+<eqn>
+    a = 1
+    </eqn>
+</section>
+.

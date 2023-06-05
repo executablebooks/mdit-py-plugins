@@ -436,3 +436,21 @@ $x $
 $ x$
 $x $</p>
 .
+
+
+Indented by 4 spaces
+.
+    $$a$$
+.
+<pre><code>$$a$$
+</code></pre>
+.
+
+Indented by 4 spaces, DISABLE-CODEBLOCKS
+.
+    $$a$$
+.
+<section>
+<eqn>a</eqn>
+</section>
+.
