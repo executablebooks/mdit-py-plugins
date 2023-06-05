@@ -221,3 +221,28 @@ equation environment, in list:
 \end{alignat*}
 </div>
 .
+
+Indented by 4 spaces
+.
+    \begin{equation}
+    a = 1
+    \end{equation}
+.
+<pre><code>\begin{equation}
+a = 1
+\end{equation}
+</code></pre>
+.
+
+Indented by 4 spaces, DISABLE-CODEBLOCKS
+.
+    \begin{equation}
+    a = 1
+    \end{equation}
+.
+<div class="math amsmath">
+\begin{equation}
+    a = 1
+    \end{equation}
+</div>
+.

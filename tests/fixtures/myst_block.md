@@ -147,3 +147,32 @@ def --><blockquote>
 
 def -->
 .
+
+
+Indented by 4 spaces
+.
+    +++
+
+    % abc
+
+    (a)=
+.
+<pre><code>+++
+
+% abc
+
+(a)=
+</code></pre>
+.
+
+Indented by 4 spaces, DISABLE-CODEBLOCKS
+.
+    +++
+
+    % abc
+
+    (a)=
+.
+<hr class="myst-block">
+<!-- abc --><div class="myst-target"><a href="#a">(a)=</a></div>
+.

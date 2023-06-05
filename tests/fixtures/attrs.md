@@ -1,11 +1,3 @@
-block indented * 4 is not a block
-.
-    {#a .a b=c}
-.
-<pre><code>{#a .a b=c}
-</code></pre>
-.
-
 block with preceding text is not a block
 .
 {#a .a b=c} a
@@ -247,4 +239,22 @@ spans: merge attributes
 [a]{#a .a}{#b .a .b other=c}{other=d}
 .
 <p><span id="b" class="a b" other="d">a</span></p>
+.
+
+Indented by 4 spaces
+.
+    {#a .a b=c}
+    # head
+.
+<pre><code>{#a .a b=c}
+# head
+</code></pre>
+.
+
+Indented by 4 spaces, DISABLE-CODEBLOCKS
+.
+    {#a .a b=c}
+    # head
+.
+<h1 id="a" b="c" class="a">head</h1>
 .

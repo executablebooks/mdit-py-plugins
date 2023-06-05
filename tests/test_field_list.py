@@ -33,6 +33,8 @@ fixtures = read_fixture_file(FIXTURE_PATH)
 )
 def test_all(line, title, input, expected):
     md = MarkdownIt("commonmark").use(fieldlist_plugin)
+    if "DISABLE-CODEBLOCKS" in title:
+        md.disable("code")
     md.options["xhtmlOut"] = False
     text = md.render(input)
     print(text)

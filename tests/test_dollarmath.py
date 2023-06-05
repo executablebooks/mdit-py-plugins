@@ -98,6 +98,8 @@ def test_dollarmath_fixtures(line, title, input, expected):
         double_inline=True,
         allow_blank_lines=False,
     )
+    if "DISABLE-CODEBLOCKS" in title:
+        md.disable("code")
     md.options.xhtmlOut = False
     text = md.render(input)
     print(text)
