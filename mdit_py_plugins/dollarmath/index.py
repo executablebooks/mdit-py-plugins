@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import re
-from typing import Any, Callable, Dict, Optional
+from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Sequence
 
 from markdown_it import MarkdownIt
 from markdown_it.common.utils import escapeHtml, isWhiteSpace
@@ -7,6 +9,11 @@ from markdown_it.rules_block import StateBlock
 from markdown_it.rules_inline import StateInline
 
 from mdit_py_plugins.utils import is_code_block
+
+if TYPE_CHECKING:
+    from markdown_it.renderer import RendererProtocol
+    from markdown_it.token import Token
+    from markdown_it.utils import EnvType, OptionsDict
 
 
 def dollarmath_plugin(
@@ -67,6 +74,7 @@ def dollarmath_plugin(
         (lambda content, _: escapeHtml(content)) if renderer is None else renderer
     )
 
+    _label_renderer: Callable[[str], str]
     if label_renderer is None:
         _label_renderer = (
             lambda label: f'<a href="#{label}" class="mathlabel" title="Permalink to this equation">¶</a>'  # noqa: E501
@@ -74,19 +82,43 @@ def dollarmath_plugin(
     else:
         _label_renderer = label_renderer
 
-    def render_math_inline(self, tokens, idx, options, env) -> str:
+    def render_math_inline(
+        self: RendererProtocol,
+        tokens: Sequence[Token],
+        idx: int,
+        options: OptionsDict,
+        env: EnvType,
+    ) -> str:
         content = _renderer(str(tokens[idx].content).strip(), {"display_mode": False})
         return f'<span class="math inline">{content}</span>'
 
-    def render_math_inline_double(self, tokens, idx, options, env) -> str:
+    def render_math_inline_double(
+        self: RendererProtocol,
+        tokens: Sequence[Token],
+        idx: int,
+        options: OptionsDict,
+        env: EnvType,
+    ) -> str:
         content = _renderer(str(tokens[idx].content).strip(), {"display_mode": True})
         return f'<div class="math inline">{content}</div>'
 
-    def render_math_block(self, tokens, idx, options, env) -> str:
+    def render_math_block(
+        self: RendererProtocol,
+        tokens: Sequence[Token],
+        idx: int,
+        options: OptionsDict,
+        env: EnvType,
+    ) -> str:
         content = _renderer(str(tokens[idx].content).strip(), {"display_mode": True})
         return f'<div class="math block">\n{content}\n</div>\n'
 
-    def render_math_block_label(self, tokens, idx, options, env) -> str:
+    def render_math_block_label(
+        self: RendererProtocol,
+        tokens: Sequence[Token],
+        idx: int,
+        options: OptionsDict,
+        env: EnvType,
+    ) -> str:
         content = _renderer(str(tokens[idx].content).strip(), {"display_mode": True})
         _id = tokens[idx].info
         label = _label_renderer(tokens[idx].info)

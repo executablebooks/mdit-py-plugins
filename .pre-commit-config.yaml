@@ -39,3 +39,4 @@ repos:
     hooks:
     - id: mypy
       additional_dependencies: [markdown-it-py~=3.0]
+      exclude: ^tests/

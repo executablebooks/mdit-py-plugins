@@ -1,6 +1,6 @@
 """Field list plugin"""
 from contextlib import contextmanager
-from typing import Optional, Tuple
+from typing import Iterator, Optional, Tuple
 
 from markdown_it import MarkdownIt
 from markdown_it.rules_block import StateBlock
@@ -8,7 +8,7 @@ from markdown_it.rules_block import StateBlock
 from mdit_py_plugins.utils import is_code_block
 
 
-def fieldlist_plugin(md: MarkdownIt):
+def fieldlist_plugin(md: MarkdownIt) -> None:
     """Field lists are mappings from field names to field bodies, based on the
     `reStructureText syntax
     <https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html#field-lists>`_.
@@ -87,7 +87,7 @@ def parseNameMarker(state: StateBlock, startLine: int) -> Tuple[int, str]:
 
 
 @contextmanager
-def set_parent_type(state: StateBlock, name: str):
+def set_parent_type(state: StateBlock, name: str) -> Iterator[None]:
     """Temporarily set parent type to `name`"""
     oldParentType = state.parentType
     state.parentType = name
@@ -95,7 +95,9 @@ def set_parent_type(state: StateBlock, name: str):
     state.parentType = oldParentType
 
 
-def _fieldlist_rule(state: StateBlock, startLine: int, endLine: int, silent: bool):
+def _fieldlist_rule(
+    state: StateBlock, startLine: int, endLine: int, silent: bool
+) -> bool:
     # adapted from markdown_it/rules_block/list.py::list_block
 
     if is_code_block(state, startLine):
@@ -239,7 +241,7 @@ def _fieldlist_rule(state: StateBlock, startLine: int, endLine: int, silent: boo
 
 
 @contextmanager
-def temp_state_changes(state: StateBlock, startLine: int):
+def temp_state_changes(state: StateBlock, startLine: int) -> Iterator[None]:
     """Allow temporarily changing certain state attributes."""
     oldTShift = state.tShift[startLine]
     oldSCount = state.sCount[startLine]

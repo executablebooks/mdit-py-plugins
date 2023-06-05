@@ -15,12 +15,13 @@
 # WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+from __future__ import annotations
 
 import re
-from typing import List
 from uuid import uuid4
 
 from markdown_it import MarkdownIt
+from markdown_it.rules_core import StateCore
 from markdown_it.token import Token
 
 # Regex string to match a whitespace character, as specified in
@@ -34,7 +35,7 @@ def tasklists_plugin(
     enabled: bool = False,
     label: bool = False,
     label_after: bool = False,
-):
+) -> None:
     """Plugin for building task/todo lists out of markdown lists with items starting with [ ] or [x]
     .. Nothing else
 
@@ -53,11 +54,11 @@ def tasklists_plugin(
     use_label_wrapper = label
     use_label_after = label_after
 
-    def fcn(state):
-        tokens: List[Token] = state.tokens
+    def fcn(state: StateCore) -> None:
+        tokens = state.tokens
         for i in range(2, len(tokens) - 1):
             if is_todo_item(tokens, i):
-                todoify(tokens[i], tokens[i].__class__)
+                todoify(tokens[i])
                 tokens[i - 2].attrSet(
                     "class",
                     "task-list-item" + (" enabled" if not disable_checkboxes else ""),
@@ -68,14 +69,14 @@ def tasklists_plugin(
 
     md.core.ruler.after("inline", "github-tasklists", fcn)
 
-    def parent_token(tokens, index):
+    def parent_token(tokens: list[Token], index: int) -> int:
         target_level = tokens[index].level - 1
         for i in range(1, index + 1):
             if tokens[index - i].level == target_level:
                 return index - i
         return -1
 
-    def is_todo_item(tokens, index):
+    def is_todo_item(tokens: list[Token], index: int) -> bool:
         return (
             is_inline(tokens[index])
             and is_paragraph(tokens[index - 1])
@@ -83,9 +84,9 @@ def tasklists_plugin(
             and starts_with_todo_markdown(tokens[index])
         )
 
-    def todoify(token: Token, token_constructor):
+    def todoify(token: Token) -> None:
         assert token.children is not None
-        token.children.insert(0, make_checkbox(token, token_constructor))
+        token.children.insert(0, make_checkbox(token))
         token.children[1].content = token.children[1].content[3:]
         token.content = token.content[3:]
 
@@ -98,15 +99,13 @@ def tasklists_plugin(
                 token.children[0].content = (
                     token.children[0].content[0:-1] + f' id="{checklist_id}">'
                 )
-                token.children.append(
-                    after_label(token.content, checklist_id, token_constructor)
-                )
+                token.children.append(after_label(token.content, checklist_id))
             else:
-                token.children.insert(0, begin_label(token_constructor))
-                token.children.append(end_label(token_constructor))
+                token.children.insert(0, begin_label())
+                token.children.append(end_label())
 
-    def make_checkbox(token, token_constructor):
-        checkbox = token_constructor("html_inline", "", 0)
+    def make_checkbox(token: Token) -> Token:
+        checkbox = Token("html_inline", "", 0)
         disabled_attr = 'disabled="disabled"' if disable_checkboxes else ""
         if token.content.startswith("[ ] "):
             checkbox.content = (
@@ -120,33 +119,33 @@ def tasklists_plugin(
             )
         return checkbox
 
-    def begin_label(token_constructor):
-        token = token_constructor("html_inline", "", 0)
+    def begin_label() -> Token:
+        token = Token("html_inline", "", 0)
         token.content = "<label>"
         return token
 
-    def end_label(token_constructor):
-        token = token_constructor("html_inline", "", 0)
+    def end_label() -> Token:
+        token = Token("html_inline", "", 0)
         token.content = "</label>"
         return token
 
-    def after_label(content, checkbox_id, token_constructor):
-        token = token_constructor("html_inline", "", 0)
+    def after_label(content: str, checkbox_id: str) -> Token:
+        token = Token("html_inline", "", 0)
         token.content = (
             f'<label class="task-list-item-label" for="{checkbox_id}">{content}</label>'
         )
-        token.attrs = [{"for": checkbox_id}]
+        token.attrs = {"for": checkbox_id}
         return token
 
-    def is_inline(token):
+    def is_inline(token: Token) -> bool:
         return token.type == "inline"
 
-    def is_paragraph(token):
+    def is_paragraph(token: Token) -> bool:
         return token.type == "paragraph_open"
 
-    def is_list_item(token):
+    def is_list_item(token: Token) -> bool:
         return token.type == "list_item_open"
 
-    def starts_with_todo_markdown(token):
+    def starts_with_todo_markdown(token: Token) -> bool:
         # leading whitespace in a list item is already trimmed off by markdown-it
-        return re.match(rf"\[[ xX]]{_GFM_WHITESPACE_RE}+", token.content)
+        return re.match(rf"\[[ xX]]{_GFM_WHITESPACE_RE}+", token.content) is not None

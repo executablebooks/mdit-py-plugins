@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import itertools
+from typing import TYPE_CHECKING, Sequence
 
 from markdown_it import MarkdownIt
 from markdown_it.common.utils import escapeHtml
@@ -6,8 +9,13 @@ from markdown_it.rules_block import StateBlock
 
 from mdit_py_plugins.utils import is_code_block
 
+if TYPE_CHECKING:
+    from markdown_it.renderer import RendererProtocol
+    from markdown_it.token import Token
+    from markdown_it.utils import EnvType, OptionsDict
 
-def myst_block_plugin(md: MarkdownIt):
+
+def myst_block_plugin(md: MarkdownIt) -> None:
     """Parse MyST targets (``(name)=``), blockquotes (``% comment``) and block breaks (``+++``)."""
     md.block.ruler.before(
         "blockquote",
@@ -31,7 +39,7 @@ def myst_block_plugin(md: MarkdownIt):
     md.add_render_rule("myst_line_comment", render_myst_line_comment)
 
 
-def line_comment(state: StateBlock, startLine: int, endLine: int, silent: bool):
+def line_comment(state: StateBlock, startLine: int, endLine: int, silent: bool) -> bool:
     if is_code_block(state, startLine):
         return False
 
@@ -66,7 +74,7 @@ def line_comment(state: StateBlock, startLine: int, endLine: int, silent: bool):
     return True
 
 
-def block_break(state: StateBlock, startLine: int, endLine: int, silent: bool):
+def block_break(state: StateBlock, startLine: int, endLine: int, silent: bool) -> bool:
     if is_code_block(state, startLine):
         return False
 
@@ -108,7 +116,7 @@ def block_break(state: StateBlock, startLine: int, endLine: int, silent: bool):
     return True
 
 
-def target(state: StateBlock, startLine: int, endLine: int, silent: bool):
+def target(state: StateBlock, startLine: int, endLine: int, silent: bool) -> bool:
     if is_code_block(state, startLine):
         return False
 
@@ -136,14 +144,26 @@ def target(state: StateBlock, startLine: int, endLine: int, silent: bool):
     return True
 
 
-def render_myst_target(self, tokens, idx, options, env):
+def render_myst_target(
+    self: RendererProtocol,
+    tokens: Sequence[Token],
+    idx: int,
+    options: OptionsDict,
+    env: EnvType,
+) -> str:
     label = tokens[idx].content
     class_name = "myst-target"
     target = f'<a href="#{label}">({label})=</a>'
     return f'<div class="{class_name}">{target}</div>'
 
 
-def render_myst_line_comment(self, tokens, idx, options, env):
+def render_myst_line_comment(
+    self: RendererProtocol,
+    tokens: Sequence[Token],
+    idx: int,
+    options: OptionsDict,
+    env: EnvType,
+) -> str:
     # Strip leading whitespace from all lines
     content = "\n".join(line.lstrip() for line in tokens[idx].content.split("\n"))
     return f"<!-- {escapeHtml(content)} -->"
