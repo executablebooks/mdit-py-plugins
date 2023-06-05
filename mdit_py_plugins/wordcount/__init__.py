@@ -16,7 +16,7 @@ def wordcount_plugin(
     per_minute: int = 200,
     count_func: Callable[[str], int] = basic_count,
     store_text: bool = False,
-):
+) -> None:
     """Plugin for computing and storing the word count.
 
     Stores in the ``env`` e.g.::

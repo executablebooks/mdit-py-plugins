@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Sequence
 
 from markdown_it import MarkdownIt
 from markdown_it.rules_block import StateBlock
@@ -14,10 +14,10 @@ from .parse import ParseError, parse
 def attrs_plugin(
     md: MarkdownIt,
     *,
-    after=("image", "code_inline", "link_close", "span_close"),
-    spans=False,
-    span_after="link",
-):
+    after: Sequence[str] = ("image", "code_inline", "link_close", "span_close"),
+    spans: bool = False,
+    span_after: str = "link",
+) -> None:
     """Parse inline attributes that immediately follow certain inline elements::
 
         ![alt](https://image.com){#id .a b=c}
@@ -50,7 +50,7 @@ def attrs_plugin(
     :param span_after: The name of an inline rule after which spans may be specified.
     """
 
-    def _attr_inline_rule(state: StateInline, silent: bool):
+    def _attr_inline_rule(state: StateInline, silent: bool) -> bool:
         if state.pending or not state.tokens:
             return False
         token = state.tokens[-1]
@@ -77,7 +77,7 @@ def attrs_plugin(
         md.inline.ruler.push("attr", _attr_inline_rule)
 
 
-def attrs_block_plugin(md: MarkdownIt):
+def attrs_block_plugin(md: MarkdownIt) -> None:
     """Parse block attributes.
 
     Block attributes are attributes on a single line, with no other content.
@@ -111,7 +111,7 @@ def _find_opening(tokens: List[Token], index: int) -> Optional[int]:
     return None
 
 
-def _span_rule(state: StateInline, silent: bool):
+def _span_rule(state: StateInline, silent: bool) -> bool:
     if state.src[state.pos] != "[":
         return False
 
@@ -197,7 +197,7 @@ def _attr_block_rule(
     return True
 
 
-def _attr_resolve_block_rule(state: StateCore):
+def _attr_resolve_block_rule(state: StateCore) -> None:
     """Find attribute block then move its attributes to the next block."""
     i = 0
     len_tokens = len(state.tokens)

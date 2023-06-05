@@ -1,11 +1,20 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Sequence
+
 from markdown_it import MarkdownIt
 from markdown_it.common.utils import escapeHtml, unescapeAll
 from markdown_it.rules_block import StateBlock
 
 from mdit_py_plugins.utils import is_code_block
 
+if TYPE_CHECKING:
+    from markdown_it.renderer import RendererProtocol
+    from markdown_it.token import Token
+    from markdown_it.utils import EnvType, OptionsDict
 
-def colon_fence_plugin(md: MarkdownIt):
+
+def colon_fence_plugin(md: MarkdownIt) -> None:
     """This plugin directly mimics regular fences, but with `:` colons.
 
     Example::
@@ -25,7 +34,7 @@ def colon_fence_plugin(md: MarkdownIt):
     md.add_render_rule("colon_fence", _render)
 
 
-def _rule(state: StateBlock, startLine: int, endLine: int, silent: bool):
+def _rule(state: StateBlock, startLine: int, endLine: int, silent: bool) -> bool:
     if is_code_block(state, startLine):
         return False
 
@@ -126,7 +135,13 @@ def _skipCharsStr(state: StateBlock, pos: int, ch: str) -> int:
     return pos
 
 
-def _render(self, tokens, idx, options, env):
+def _render(
+    self: RendererProtocol,
+    tokens: Sequence[Token],
+    idx: int,
+    options: OptionsDict,
+    env: EnvType,
+) -> str:
     token = tokens[idx]
     info = unescapeAll(token.info).strip() if token.info else ""
     content = escapeHtml(token.content)

@@ -1,14 +1,20 @@
 # Process admonitions and pass to cb.
+from __future__ import annotations
 
-from typing import Callable, List, Optional, Tuple
+from typing import TYPE_CHECKING, Callable, Sequence
 
 from markdown_it import MarkdownIt
 from markdown_it.rules_block import StateBlock
 
 from mdit_py_plugins.utils import is_code_block
 
+if TYPE_CHECKING:
+    from markdown_it.renderer import RendererProtocol
+    from markdown_it.token import Token
+    from markdown_it.utils import EnvType, OptionsDict
 
-def _get_tag(params: str) -> Tuple[str, str]:
+
+def _get_tag(params: str) -> tuple[str, str]:
     """Separate the tag name from the admonition title."""
     if not params.strip():
         return "", ""
@@ -36,7 +42,7 @@ MARKER_CHARS = {_m[0] for _m in MARKERS}
 MAX_MARKER_LEN = max(len(_m) for _m in MARKERS)
 
 
-def _extra_classes(markup: str) -> List[str]:
+def _extra_classes(markup: str) -> list[str]:
     """Return the list of additional classes based on the markup."""
     if markup.startswith("?"):
         if markup.endswith("+"):
@@ -158,7 +164,7 @@ def admonition(state: StateBlock, startLine: int, endLine: int, silent: bool) ->
     return True
 
 
-def admon_plugin(md: MarkdownIt, render: Optional[Callable] = None) -> None:
+def admon_plugin(md: MarkdownIt, render: None | Callable[..., str] = None) -> None:
     """Plugin to use
     `python-markdown style admonitions
     <https://python-markdown.github.io/extensions/admonition>`_.
@@ -181,8 +187,14 @@ def admon_plugin(md: MarkdownIt, render: Optional[Callable] = None) -> None:
     <https://github.com/commenthol/markdown-it-admon>`_.
     """
 
-    def renderDefault(self, tokens, idx, _options, env):
-        return self.renderToken(tokens, idx, _options, env)
+    def renderDefault(
+        self: RendererProtocol,
+        tokens: Sequence[Token],
+        idx: int,
+        _options: OptionsDict,
+        env: EnvType,
+    ) -> str:
+        return self.renderToken(tokens, idx, _options, env)  # type: ignore
 
     render = render or renderDefault
 

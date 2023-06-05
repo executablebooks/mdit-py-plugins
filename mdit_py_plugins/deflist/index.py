@@ -5,7 +5,7 @@ from markdown_it.rules_block import StateBlock
 from mdit_py_plugins.utils import is_code_block
 
 
-def deflist_plugin(md: MarkdownIt):
+def deflist_plugin(md: MarkdownIt) -> None:
     """Plugin ported from
     `markdown-it-deflist <https://github.com/markdown-it/markdown-it-deflist>`__.
 
@@ -25,7 +25,7 @@ def deflist_plugin(md: MarkdownIt):
 
     """
 
-    def skipMarker(state: StateBlock, line: int):
+    def skipMarker(state: StateBlock, line: int) -> int:
         """Search `[:~][\n ]`, returns next pos after marker on success or -1 on fail."""
         start = state.bMarks[line] + state.tShift[line]
         maximum = state.eMarks[line]
@@ -51,7 +51,7 @@ def deflist_plugin(md: MarkdownIt):
 
         return start
 
-    def markTightParagraphs(state: StateBlock, idx: int):
+    def markTightParagraphs(state: StateBlock, idx: int) -> None:
         level = state.level + 2
 
         i = idx + 2
@@ -66,7 +66,7 @@ def deflist_plugin(md: MarkdownIt):
                 i += 2
             i += 1
 
-    def deflist(state: StateBlock, startLine: int, endLine: int, silent: bool):
+    def deflist(state: StateBlock, startLine: int, endLine: int, silent: bool) -> bool:
         if is_code_block(state, startLine):
             return False
 

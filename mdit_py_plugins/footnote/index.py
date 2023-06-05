@@ -1,7 +1,7 @@
-# Process footnotes
-#
+"""Process footnotes"""
+from __future__ import annotations
 
-from typing import List, Optional
+from typing import TYPE_CHECKING, List, Optional, Sequence
 
 from markdown_it import MarkdownIt
 from markdown_it.helpers import parseLinkLabel
@@ -12,8 +12,12 @@ from markdown_it.token import Token
 
 from mdit_py_plugins.utils import is_code_block
 
+if TYPE_CHECKING:
+    from markdown_it.renderer import RendererProtocol
+    from markdown_it.utils import EnvType, OptionsDict
 
-def footnote_plugin(md: MarkdownIt):
+
+def footnote_plugin(md: MarkdownIt) -> None:
     """Plugin ported from
     `markdown-it-footnote <https://github.com/markdown-it/markdown-it-footnote>`__.
 
@@ -56,7 +60,7 @@ def footnote_plugin(md: MarkdownIt):
 # ## RULES ##
 
 
-def footnote_def(state: StateBlock, startLine: int, endLine: int, silent: bool):
+def footnote_def(state: StateBlock, startLine: int, endLine: int, silent: bool) -> bool:
     """Process footnote block definition"""
 
     if is_code_block(state, startLine):
@@ -153,7 +157,7 @@ def footnote_def(state: StateBlock, startLine: int, endLine: int, silent: bool):
     return True
 
 
-def footnote_inline(state: StateInline, silent: bool):
+def footnote_inline(state: StateInline, silent: bool) -> bool:
     """Process inline footnotes (^[...])"""
 
     maximum = state.posMax
@@ -195,7 +199,7 @@ def footnote_inline(state: StateInline, silent: bool):
     return True
 
 
-def footnote_ref(state: StateInline, silent: bool):
+def footnote_ref(state: StateInline, silent: bool) -> bool:
     """Process footnote references ([^...])"""
 
     maximum = state.posMax
@@ -355,7 +359,13 @@ def footnote_tail(state: StateCore) -> None:
 # Renderer partials
 
 
-def render_footnote_anchor_name(self, tokens, idx, options, env):
+def render_footnote_anchor_name(
+    self: RendererProtocol,
+    tokens: Sequence[Token],
+    idx: int,
+    options: OptionsDict,
+    env: EnvType,
+) -> str:
     n = str(tokens[idx].meta["id"] + 1)
     prefix = ""
 
@@ -366,7 +376,13 @@ def render_footnote_anchor_name(self, tokens, idx, options, env):
     return prefix + n
 
 
-def render_footnote_caption(self, tokens, idx, options, env):
+def render_footnote_caption(
+    self: RendererProtocol,
+    tokens: Sequence[Token],
+    idx: int,
+    options: OptionsDict,
+    env: EnvType,
+) -> str:
     n = str(tokens[idx].meta["id"] + 1)
 
     if tokens[idx].meta.get("subId", -1) > 0:
@@ -375,9 +391,15 @@ def render_footnote_caption(self, tokens, idx, options, env):
     return "[" + n + "]"
 
 
-def render_footnote_ref(self, tokens, idx, options, env):
-    ident = self.rules["footnote_anchor_name"](tokens, idx, options, env)
-    caption = self.rules["footnote_caption"](tokens, idx, options, env)
+def render_footnote_ref(
+    self: RendererProtocol,
+    tokens: Sequence[Token],
+    idx: int,
+    options: OptionsDict,
+    env: EnvType,
+) -> str:
+    ident: str = self.rules["footnote_anchor_name"](tokens, idx, options, env)  # type: ignore[attr-defined]
+    caption: str = self.rules["footnote_caption"](tokens, idx, options, env)  # type: ignore[attr-defined]
     refid = ident
 
     if tokens[idx].meta.get("subId", -1) > 0:
@@ -394,7 +416,13 @@ def render_footnote_ref(self, tokens, idx, options, env):
     )
 
 
-def render_footnote_block_open(self, tokens, idx, options, env):
+def render_footnote_block_open(
+    self: RendererProtocol,
+    tokens: Sequence[Token],
+    idx: int,
+    options: OptionsDict,
+    env: EnvType,
+) -> str:
     return (
         (
             '<hr class="footnotes-sep" />\n'
@@ -406,12 +434,24 @@ def render_footnote_block_open(self, tokens, idx, options, env):
     )
 
 
-def render_footnote_block_close(self, tokens, idx, options, env):
+def render_footnote_block_close(
+    self: RendererProtocol,
+    tokens: Sequence[Token],
+    idx: int,
+    options: OptionsDict,
+    env: EnvType,
+) -> str:
     return "</ol>\n</section>\n"
 
 
-def render_footnote_open(self, tokens, idx, options, env):
-    ident = self.rules["footnote_anchor_name"](tokens, idx, options, env)
+def render_footnote_open(
+    self: RendererProtocol,
+    tokens: Sequence[Token],
+    idx: int,
+    options: OptionsDict,
+    env: EnvType,
+) -> str:
+    ident: str = self.rules["footnote_anchor_name"](tokens, idx, options, env)  # type: ignore[attr-defined]
 
     if tokens[idx].meta.get("subId", -1) > 0:
         ident += ":" + tokens[idx].meta["subId"]
@@ -419,12 +459,24 @@ def render_footnote_open(self, tokens, idx, options, env):
     return '<li id="fn' + ident + '" class="footnote-item">'
 
 
-def render_footnote_close(self, tokens, idx, options, env):
+def render_footnote_close(
+    self: RendererProtocol,
+    tokens: Sequence[Token],
+    idx: int,
+    options: OptionsDict,
+    env: EnvType,
+) -> str:
     return "</li>\n"
 
 
-def render_footnote_anchor(self, tokens, idx, options, env):
-    ident = self.rules["footnote_anchor_name"](tokens, idx, options, env)
+def render_footnote_anchor(
+    self: RendererProtocol,
+    tokens: Sequence[Token],
+    idx: int,
+    options: OptionsDict,
+    env: EnvType,
+) -> str:
+    ident: str = self.rules["footnote_anchor_name"](tokens, idx, options, env)  # type: ignore[attr-defined]
 
     if tokens[idx].meta["subId"] > 0:
         ident += ":" + str(tokens[idx].meta["subId"])

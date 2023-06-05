@@ -15,7 +15,7 @@ def anchors_plugin(
     permalinkSymbol: str = "¶",
     permalinkBefore: bool = False,
     permalinkSpace: bool = True,
-):
+) -> None:
     """Plugin for adding header anchors, based on
     `markdown-it-anchor <https://github.com/valeriangalliat/markdown-it-anchor>`__
 
@@ -64,8 +64,8 @@ def _make_anchors_func(
     permalinkSymbol: str,
     permalinkBefore: bool,
     permalinkSpace: bool,
-):
-    def _anchor_func(state: StateCore):
+) -> Callable[[StateCore], None]:
+    def _anchor_func(state: StateCore) -> None:
         slugs: Set[str] = set()
         for idx, token in enumerate(state.tokens):
             if token.type != "heading_open":
@@ -115,11 +115,11 @@ def _make_anchors_func(
     return _anchor_func
 
 
-def slugify(title: str):
+def slugify(title: str) -> str:
     return re.sub(r"[^\w\u4e00-\u9fff\- ]", "", title.strip().lower().replace(" ", "-"))
 
 
-def unique_slug(slug: str, slugs: set):
+def unique_slug(slug: str, slugs: Set[str]) -> str:
     uniq = slug
     i = 1
     while uniq in slugs:

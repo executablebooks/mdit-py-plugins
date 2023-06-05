@@ -1,12 +1,19 @@
 """An extension to capture amsmath latex environments."""
+from __future__ import annotations
+
 import re
-from typing import Callable, Optional
+from typing import TYPE_CHECKING, Callable, Optional, Sequence
 
 from markdown_it import MarkdownIt
 from markdown_it.common.utils import escapeHtml
 from markdown_it.rules_block import StateBlock
 
 from mdit_py_plugins.utils import is_code_block
+
+if TYPE_CHECKING:
+    from markdown_it.renderer import RendererProtocol
+    from markdown_it.token import Token
+    from markdown_it.utils import EnvType, OptionsDict
 
 # Taken from amsmath version 2.1
 # http://anorien.csc.warwick.ac.uk/mirrors/CTAN/macros/latex/required/amsmath/amsldoc.pdf
@@ -49,7 +56,9 @@ ENVIRONMENTS = [
 RE_OPEN = re.compile(r"\\begin\{(" + "|".join(ENVIRONMENTS) + r")([\*]?)\}")
 
 
-def amsmath_plugin(md: MarkdownIt, *, renderer: Optional[Callable[[str], str]] = None):
+def amsmath_plugin(
+    md: MarkdownIt, *, renderer: Optional[Callable[[str], str]] = None
+) -> None:
     """Parses TeX math equations, without any surrounding delimiters,
     only for top-level `amsmath <https://ctan.org/pkg/amsmath>`__ environments:
 
@@ -72,14 +81,20 @@ def amsmath_plugin(md: MarkdownIt, *, renderer: Optional[Callable[[str], str]] =
 
     _renderer = (lambda content: escapeHtml(content)) if renderer is None else renderer
 
-    def render_amsmath_block(self, tokens, idx, options, env):
+    def render_amsmath_block(
+        self: RendererProtocol,
+        tokens: Sequence[Token],
+        idx: int,
+        options: OptionsDict,
+        env: EnvType,
+    ) -> str:
         content = _renderer(str(tokens[idx].content))
         return f'<div class="math amsmath">\n{content}\n</div>\n'
 
     md.add_render_rule("amsmath", render_amsmath_block)
 
 
-def match_environment(string):
+def match_environment(string: str) -> None | tuple[str, str, int]:
     match_open = RE_OPEN.match(string)
     if not match_open:
         return None
@@ -93,7 +108,9 @@ def match_environment(string):
     return (environment, numbered, match_close.end())
 
 
-def amsmath_block(state: StateBlock, startLine: int, endLine: int, silent: bool):
+def amsmath_block(
+    state: StateBlock, startLine: int, endLine: int, silent: bool
+) -> bool:
     if is_code_block(state, startLine):
         return False
 
