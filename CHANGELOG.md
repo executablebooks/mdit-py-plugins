@@ -1,5 +1,24 @@
 # Change Log
 
+## 0.4.0 - 2023-06-05
+
+* ⬆️ UPGRADE: Drop python 3.7 and support 3.11 ([#77](https://github.com/executablebooks/mdit-py-plugins/pull/77))
+
+* ⬆️ UPGRADE: Allow markdown-it-py v3 ([#85](https://github.com/executablebooks/mdit-py-plugins/pull/85))
+  * 👌 Make field_list compatible with latest upstream ([#75](https://github.com/executablebooks/mdit-py-plugins/pull/75))
+  * 🔧 Convert `state.srcCharCode` -> `state.src` ([#84](https://github.com/executablebooks/mdit-py-plugins/pull/84))
+  * 🔧 Remove unnecessary method arg by @chrisjsewell in( [#76](https://github.com/executablebooks/mdit-py-plugins/pull/76))
+  * 👌 Centralise code block test ([#83](https://github.com/executablebooks/mdit-py-plugins/pull/83) and [#87](https://github.com/executablebooks/mdit-py-plugins/pull/87))
+    * This means that disabling the `code` block rule in markdown-it-py v3+ will now allow all syntax blocks to be indented by any amount of whitespace.
+
+* 👌 Improve `dollarmath` plugin: Add `allow_blank_lines` option, thanks to [@eric-wieser](https://github.com/eric-wieser) ([#46](https://github.com/executablebooks/mdit-py-plugins/pull/46))
+
+* 👌 Improve `admon` plugin: Add `???` support, thanks to [@KyleKing](https://github.com/KyleKing) ([#58](https://github.com/executablebooks/mdit-py-plugins/pull/58))
+
+* 🔧 MAINTAIN: Make type checking strict ([#86](https://github.com/executablebooks/mdit-py-plugins/pull/86))
+
+**Full Changelog**: <https://github.com/executablebooks/mdit-py-plugins/compare/v0.3.5...v0.4.0>
+
 ## 0.3.5 - 2023-03-02
 
 - 🐛 FIX: Regression in dollarmath by @chrisjsewell in [#69](https://github.com/executablebooks/mdit-py-plugins/pull/69)
