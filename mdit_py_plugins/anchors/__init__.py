@@ -1,1 +1,1 @@
-from .index import anchors_plugin  # noqa F401
+from .index import anchors_plugin as anchors_plugin

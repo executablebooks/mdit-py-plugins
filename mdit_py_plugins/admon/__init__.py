@@ -1,1 +1,1 @@
-from .index import admon_plugin  # noqa: F401
+from .index import admon_plugin as admon_plugin

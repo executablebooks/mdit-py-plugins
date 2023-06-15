@@ -1,1 +1,1 @@
-from .index import footnote_plugin  # noqa: F401
+from .index import footnote_plugin as footnote_plugin

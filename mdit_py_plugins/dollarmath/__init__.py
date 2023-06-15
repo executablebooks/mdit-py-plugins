@@ -1,1 +1,1 @@
-from .index import dollarmath_plugin  # noqa F401
+from .index import dollarmath_plugin as dollarmath_plugin
