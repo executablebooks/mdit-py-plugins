@@ -1,1 +1,3 @@
-from .index import texmath_plugin as texmath_plugin
+from .index import texmath_plugin
+
+__all__ = ("texmath_plugin",)

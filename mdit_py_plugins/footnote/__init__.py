@@ -1,1 +1,3 @@
-from .index import footnote_plugin as footnote_plugin
+from .index import footnote_plugin
+
+__all__ = ("footnote_plugin",)

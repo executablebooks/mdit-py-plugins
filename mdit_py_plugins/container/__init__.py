@@ -1,1 +1,3 @@
-from .index import container_plugin as container_plugin
+from .index import container_plugin
+
+__all__ = ("container_plugin",)

@@ -1,1 +1,3 @@
-from .index import dollarmath_plugin as dollarmath_plugin
+from .index import dollarmath_plugin
+
+__all__ = ("dollarmath_plugin",)
