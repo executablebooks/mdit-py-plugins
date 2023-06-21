@@ -130,7 +130,10 @@ def admonition(state: StateBlock, startLine: int, endLine: int, silent: bool) ->
     token = state.push("admonition_open", "div", 1)
     token.markup = markup
     token.block = True
-    token.attrs = {"class": " ".join(["admonition", tag, *_extra_classes(markup)])}
+    token.attrs = {
+        "class": " ".join(["admonition", tag, *_extra_classes(markup)]),
+        "role": tag,
+    }
     token.meta = {"tag": tag}
     token.content = title
     token.info = params
@@ -140,7 +143,7 @@ def admonition(state: StateBlock, startLine: int, endLine: int, silent: bool) ->
         title_markup = f"{markup} {tag}"
         token = state.push("admonition_title_open", "p", 1)
         token.markup = title_markup
-        token.attrs = {"class": "admonition-title"}
+        token.attrs = {"class": "admonition-title", "role": "heading"}
         token.map = [startLine, startLine + 1]
 
         token = state.push("inline", "", 0)
