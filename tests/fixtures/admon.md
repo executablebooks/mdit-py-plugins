@@ -59,7 +59,7 @@ Removes extra quotes from the title
     ...
 
 .
-<div class="admonition danger" role="danger">
+<div class="admonition danger" role="note">
 <p class="admonition-title" role="heading">Don't try this at home</p>
 <p>...</p>
 </div>
