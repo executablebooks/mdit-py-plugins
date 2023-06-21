@@ -1,6 +1,7 @@
 # Process admonitions and pass to cb.
 from __future__ import annotations
 
+import re
 from typing import TYPE_CHECKING, Callable, Sequence
 
 from markdown_it import MarkdownIt
@@ -14,20 +15,23 @@ if TYPE_CHECKING:
     from markdown_it.utils import EnvType, OptionsDict
 
 
-def _get_tag(params: str) -> tuple[str, str]:
+def _get_tag(params: str) -> tuple[List[str], str]:
     """Separate the tag name from the admonition title."""
-    if not params.strip():
-        return "", ""
 
-    tag, *_title = params.strip().split(" ")
-    joined = " ".join(_title)
+    params = params.strip()
 
-    title = ""
-    if not joined:
-        title = tag.title()
-    elif joined != '""':
-        title = joined
-    return tag.lower(), title
+    if not params:
+        return [""], ""
+
+    match = re.match('^\s*([^"]+)\s+"(.*)"\S*$', params)
+    if match:
+        tokens = match.group(1)
+        tags = tokens.strip().split(" ")
+        title = match.group(2)
+        return [tag.lower() for tag in tags], title
+    else:
+        tags = params.split(" ")
+        return [tag.lower() for tag in tags], tags[0].title()
 
 
 def _validate(params: str) -> bool:
@@ -125,12 +129,13 @@ def admonition(state: StateBlock, startLine: int, endLine: int, silent: bool) ->
     # this will prevent lazy continuations from ever going past our end marker
     state.lineMax = next_line
 
-    tag, title = _get_tag(params)
+    tags, title = _get_tag(params)
+    tag = tags[0]
 
     token = state.push("admonition_open", "div", 1)
     token.markup = markup
     token.block = True
-    token.attrs = {"class": " ".join(["admonition", tag, *_extra_classes(markup)])}
+    token.attrs = {"class": " ".join(["admonition", *tags, *_extra_classes(markup)])}
     token.meta = {"tag": tag}
     token.content = title
     token.info = params

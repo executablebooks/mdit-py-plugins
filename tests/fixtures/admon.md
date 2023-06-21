@@ -29,7 +29,7 @@ Could contain block elements too
 
 Shows custom title
 .
-!!! note Custom title
+!!! note "Custom title"
 
     Some text
 
@@ -249,7 +249,7 @@ zzz</p>
 
 Renders unknown admonition type 
 .
-!!! unknown title
+!!! unknown "title"
     content
 .
 <div class="admonition unknown">
