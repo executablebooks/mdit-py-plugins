@@ -25,9 +25,9 @@ def _get_tag(params: str) -> tuple[str, str]:
     title = ""
     if not joined:
         title = tag.title()
-    elif joined != '""':
+    elif joined != '""':  # Specifically check for no title
         title = joined
-    return tag.lower(), title
+    return tag.lower(), title.strip('"')
 
 
 def _validate(params: str) -> bool:

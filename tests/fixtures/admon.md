@@ -53,6 +53,19 @@ Shows no title
 .
 
 
+Removes extra quotes from the title
+.
+!!! danger "Don't try this at home"
+    ...
+
+.
+<div class="admonition danger">
+<p class="admonition-title">Don't try this at home</p>
+<p>...</p>
+</div>
+.
+
+
 Closes block after 2 empty lines
 .
 !!! note 
