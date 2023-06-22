@@ -1,8 +1,6 @@
 - attrs:
   - - class
     - admonition note is-collapsible collapsible-open
-  - - role
-    - note
   block: true
   children: null
   content: Note
@@ -21,8 +19,6 @@
 - attrs:
   - - class
     - admonition-title
-  - - role
-    - heading
   block: true
   children: null
   content: ''

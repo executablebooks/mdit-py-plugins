@@ -4,8 +4,8 @@ Simple admonition
 !!! note
     *content*
 .
-<div class="admonition note" role="note">
-<p class="admonition-title" role="heading">Note</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
 <p><em>content</em></p>
 </div>
 .
@@ -19,8 +19,8 @@ Could contain block elements too
     -----------
 
 .
-<div class="admonition note" role="note">
-<p class="admonition-title" role="heading">Note</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
 <h3>heading</h3>
 <hr>
 </div>
@@ -34,8 +34,8 @@ Shows custom title
     Some text
 
 .
-<div class="admonition note" role="note">
-<p class="admonition-title" role="heading">Custom title</p>
+<div class="admonition note">
+<p class="admonition-title">Custom title</p>
 <p>Some text</p>
 </div>
 .
@@ -47,7 +47,7 @@ Shows no title
     Some text
 
 .
-<div class="admonition note" role="note">
+<div class="admonition note">
 <p>Some text</p>
 </div>
 .
@@ -59,8 +59,8 @@ Removes extra quotes from the title
     ...
 
 .
-<div class="admonition danger" role="danger">
-<p class="admonition-title" role="heading">Don't try this at home</p>
+<div class="admonition danger">
+<p class="admonition-title">Don't try this at home</p>
 <p>...</p>
 </div>
 .
@@ -74,8 +74,8 @@ Closes block after 2 empty lines
 
     A code block
 .
-<div class="admonition note" role="note">
-<p class="admonition-title" role="heading">Note</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
 <p>Some text</p>
 </div>
 <pre><code>A code block
@@ -91,10 +91,10 @@ Nested blocks
             
             code block
 .
-<div class="admonition note" role="note">
-<p class="admonition-title" role="heading">Note</p>
-<div class="admonition note" role="note">
-<p class="admonition-title" role="heading">Note</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
 <p>Some text</p>
 <pre><code>code block
 </code></pre>
@@ -109,11 +109,11 @@ Consecutive admonitions
 
 !!! warning
 .
-<div class="admonition note" role="note">
-<p class="admonition-title" role="heading">Note</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
 </div>
-<div class="admonition warning" role="warning">
-<p class="admonition-title" role="heading">Warning</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
 </div>
 .
 
@@ -123,8 +123,8 @@ Marker may be indented up to 3 chars
    !!! note
        content
 .
-<div class="admonition note" role="note">
-<p class="admonition-title" role="heading">Note</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
 <p>content</p>
 </div>
 .
@@ -148,8 +148,8 @@ Some more indent checks
 
     code block
 .
-<div class="admonition note" role="note">
-<p class="admonition-title" role="heading">Note</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
 </div>
 <p>not a code block</p>
 <pre><code>code block
@@ -163,8 +163,8 @@ Type could be adjacent to marker
    xxx
 
 .
-<div class="admonition note" role="note">
-<p class="admonition-title" role="heading">Note</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
 <p>xxx</p>
 </div>
 .
@@ -176,8 +176,8 @@ Type could be adjacent to marker and content may be shifted up to 3 chars
       xxx
 
 .
-<div class="admonition note" role="note">
-<p class="admonition-title" role="heading">Note</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
 <p>xxx</p>
 </div>
 .
@@ -188,8 +188,8 @@ Or several spaces apart
 !!!     note
         xxx
 .
-<div class="admonition note" role="note">
-<p class="admonition-title" role="heading">Note</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
 <p>xxx</p>
 </div>
 .
@@ -200,8 +200,8 @@ Admonitions self-close at the end of the document
 !!! note
     xxx
 .
-<div class="admonition note" role="note">
-<p class="admonition-title" role="heading">Note</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
 <p>xxx</p>
 </div>
 .
@@ -218,8 +218,8 @@ They could be nested in lists
 .
 <ul>
 <li>
-<div class="admonition note" role="note">
-<p class="admonition-title" role="heading">Note</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
 <ul>
 <li>a</li>
 <li>b</li>
@@ -227,8 +227,8 @@ They could be nested in lists
 </div>
 </li>
 <li>
-<div class="admonition warning" role="warning">
-<p class="admonition-title" role="heading">Warning</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
 <ul>
 <li>c</li>
 <li>d</li>
@@ -248,8 +248,8 @@ Or in blockquotes
 >
 .
 <blockquote>
-<div class="admonition note" role="note">
-<p class="admonition-title" role="heading">Note</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
 <p>xxx</p>
 <blockquote>
 <p>yyy
@@ -265,8 +265,8 @@ Renders unknown admonition type
 !!! unknown title
     content
 .
-<div class="admonition unknown" role="unknown">
-<p class="admonition-title" role="heading">title</p>
+<div class="admonition unknown">
+<p class="admonition-title">title</p>
 <p>content</p>
 </div>
 .
@@ -288,8 +288,8 @@ MKdocs Closed Collapsible Sections
 ??? note
     content
 .
-<div class="admonition note is-collapsible collapsible-closed" role="note">
-<p class="admonition-title" role="heading">Note</p>
+<div class="admonition note is-collapsible collapsible-closed">
+<p class="admonition-title">Note</p>
 <p>content</p>
 </div>
 .
@@ -300,8 +300,8 @@ MKdocs Open Collapsible Sections
 ???+ note
     content
 .
-<div class="admonition note is-collapsible collapsible-open" role="note">
-<p class="admonition-title" role="heading">Note</p>
+<div class="admonition note is-collapsible collapsible-open">
+<p class="admonition-title">Note</p>
 <p>content</p>
 </div>
 .
@@ -321,8 +321,8 @@ Indented by 4 spaces, DISABLE-CODEBLOCKS
     ??? note
         content
 .
-<div class="admonition note is-collapsible collapsible-closed" role="note">
-<p class="admonition-title" role="heading">Note</p>
+<div class="admonition note is-collapsible collapsible-closed">
+<p class="admonition-title">Note</p>
 <p>content</p>
 </div>
 .
