@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-import re
-from typing import TYPE_CHECKING, Callable, Sequence, Tuple, List, Optional
 from contextlib import suppress
+import re
+from typing import TYPE_CHECKING, Callable, List, Optional, Sequence, Tuple
+
 from markdown_it import MarkdownIt
 from markdown_it.rules_block import StateBlock
 
