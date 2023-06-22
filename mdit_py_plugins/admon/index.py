@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from contextlib import suppress
 import re
-from typing import TYPE_CHECKING, Callable, List, Optional, Sequence, Tuple
+from typing import TYPE_CHECKING, Callable, List, Sequence, Tuple
 
 from markdown_it import MarkdownIt
 from markdown_it.rules_block import StateBlock
