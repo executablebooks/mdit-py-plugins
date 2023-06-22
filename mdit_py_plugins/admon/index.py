@@ -132,7 +132,7 @@ def admonition(state: StateBlock, startLine: int, endLine: int, silent: bool) ->
     token.block = True
     token.attrs = {
         "class": " ".join(["admonition", tag, *_extra_classes(markup)]),
-        "role": "note",
+        "role": tag,
     }
     token.meta = {"tag": tag}
     token.content = title
