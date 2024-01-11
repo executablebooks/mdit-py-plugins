@@ -228,7 +228,7 @@ rules: dict[str, dict[str, list[RuleDictType]]] = {
                 "rex": re.compile(
                     r"^`{3}math\s+?([^`]+?)\s+?`{3}\s*?\(([^)$\r\n]+?)\)", re.M
                 ),
-                "tmpl": '<section class="eqno">\n<eqn>{0}</eqn><span>({1})</span>\n</section>\n',  # noqa: E501
+                "tmpl": '<section class="eqno">\n<eqn>{0}</eqn><span>({1})</span>\n</section>\n',
                 "tag": "```math",
             },
             {
@@ -328,7 +328,7 @@ rules: dict[str, dict[str, list[RuleDictType]]] = {
             {
                 "name": "math_block_eqno",
                 "rex": re.compile(r"^\${2}([^$]*?)\${2}\s*?\(([^)$\r\n]+?)\)", re.M),
-                "tmpl": '<section class="eqno">\n<eqn>{0}</eqn><span>({1})</span>\n</section>\n',  # noqa: E501
+                "tmpl": '<section class="eqno">\n<eqn>{0}</eqn><span>({1})</span>\n</section>\n',
                 "tag": "$$",
             },
             {
