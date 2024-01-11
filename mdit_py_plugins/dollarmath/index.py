@@ -77,7 +77,7 @@ def dollarmath_plugin(
     _label_renderer: Callable[[str], str]
     if label_renderer is None:
         _label_renderer = (
-            lambda label: f'<a href="#{label}" class="mathlabel" title="Permalink to this equation">¶</a>'  # noqa: E501
+            lambda label: f'<a href="#{label}" class="mathlabel" title="Permalink to this equation">¶</a>'
         )
     else:
         _label_renderer = label_renderer
