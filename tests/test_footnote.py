@@ -443,7 +443,7 @@ def test_plugin_render():
     </li>
     </ol>
     </section>
-    """  # noqa: E501
+    """
         )
     )
 
