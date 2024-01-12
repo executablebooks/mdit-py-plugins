@@ -1,7 +1,10 @@
 # Process admonitions and pass to cb.
+
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable, Sequence
+from contextlib import suppress
+import re
+from typing import TYPE_CHECKING, Callable, List, Sequence, Tuple
 
 from markdown_it import MarkdownIt
 from markdown_it.rules_block import StateBlock
@@ -14,20 +17,34 @@ if TYPE_CHECKING:
     from markdown_it.utils import EnvType, OptionsDict
 
 
-def _get_tag(params: str) -> tuple[str, str]:
-    """Separate the tag name from the admonition title."""
-    if not params.strip():
-        return "", ""
+def _get_multiple_tags(params: str) -> Tuple[List[str], str]:
+    """Check for multiple tags when the title is double quoted."""
+    re_tags = re.compile(r'^\s*(?P<tokens>[^"]+)\s+"(?P<title>.*)"\S*$')
+    match = re_tags.match(params)
+    if match:
+        tags = match["tokens"].strip().split(" ")
+        return [tag.lower() for tag in tags], match["title"]
+    raise ValueError("No match found for parameters")
 
-    tag, *_title = params.strip().split(" ")
+
+def _get_tag(_params: str) -> Tuple[List[str], str]:
+    """Separate the tag name from the admonition title."""
+    params = _params.strip()
+    if not params:
+        return [""], ""
+
+    with suppress(ValueError):
+        return _get_multiple_tags(params)
+
+    tag, *_title = params.split(" ")
     joined = " ".join(_title)
 
     title = ""
     if not joined:
         title = tag.title()
-    elif joined != '""':
+    elif joined != '""':  # Specifically check for no title
         title = joined
-    return tag.lower(), title
+    return [tag.lower()], title
 
 
 def _validate(params: str) -> bool:
@@ -125,12 +142,13 @@ def admonition(state: StateBlock, startLine: int, endLine: int, silent: bool) ->
     # this will prevent lazy continuations from ever going past our end marker
     state.lineMax = next_line
 
-    tag, title = _get_tag(params)
+    tags, title = _get_tag(params)
+    tag = tags[0]
 
     token = state.push("admonition_open", "div", 1)
     token.markup = markup
     token.block = True
-    token.attrs = {"class": " ".join(["admonition", tag, *_extra_classes(markup)])}
+    token.attrs = {"class": " ".join(["admonition", *tags, *_extra_classes(markup)])}
     token.meta = {"tag": tag}
     token.content = title
     token.info = params

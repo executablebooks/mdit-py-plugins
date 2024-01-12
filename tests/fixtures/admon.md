@@ -53,6 +53,32 @@ Shows no title
 .
 
 
+Removes extra quotes from the title
+.
+!!! danger "Don't try this at home"
+    ...
+
+.
+<div class="admonition danger">
+<p class="admonition-title">Don't try this at home</p>
+<p>...</p>
+</div>
+.
+
+
+Parse additional classes to support Python markdown (https://github.com/executablebooks/mdit-py-plugins/issues/93#issuecomment-1601822723)
+.
+!!! a b c d inline-classes   "Note: note about "foo"" 
+    ...
+
+.
+<div class="admonition a b c d inline-classes">
+<p class="admonition-title">Note: note about &quot;foo&quot;</p>
+<p>...</p>
+</div>
+.
+
+
 Closes block after 2 empty lines
 .
 !!! note 
