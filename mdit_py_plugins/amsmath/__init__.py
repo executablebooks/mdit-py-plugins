@@ -1,4 +1,5 @@
 """An extension to capture amsmath latex environments."""
+
 from __future__ import annotations
 
 import re

@@ -19,6 +19,7 @@ val <- bareval | quotedval
 bareval <- (ASCII_ALPHANUM | ':' | '_' | '-')+
 quotedval <- '"' ([^"] | '\"') '"'
 """
+
 from __future__ import annotations
 
 from enum import Enum
