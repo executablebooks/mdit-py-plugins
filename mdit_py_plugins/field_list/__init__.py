@@ -1,4 +1,5 @@
 """Field list plugin"""
+
 from contextlib import contextmanager
 from typing import Iterator, Optional, Tuple
 
