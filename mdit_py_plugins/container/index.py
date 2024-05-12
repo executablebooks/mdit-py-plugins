@@ -1,4 +1,5 @@
 """Process block-level custom containers."""
+
 from __future__ import annotations
 
 from math import floor
@@ -56,7 +57,7 @@ def container_plugin(
         if tokens[idx].nesting == 1:
             tokens[idx].attrJoin("class", name)
 
-        return self.renderToken(tokens, idx, _options, env)  # type: ignore
+        return self.renderToken(tokens, idx, _options, env)  # type: ignore[attr-defined,no-any-return]
 
     min_markers = 3
     marker_str = marker

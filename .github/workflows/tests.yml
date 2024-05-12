@@ -48,6 +48,7 @@ jobs:
     - name: Upload to Codecov
       uses: codecov/codecov-action@v3
       with:
+        token: ${{ secrets.CODECOV_TOKEN }}
         name: mdit-py-plugins-pytests
         flags: pytests
         file: ./coverage.xml

@@ -1,4 +1,5 @@
 """Field list plugin"""
+
 from contextlib import contextmanager
 from typing import Iterator, Optional, Tuple
 
@@ -176,7 +177,7 @@ def _fieldlist_rule(
 
             has_first_line = contentStart < maximum
             if block_indent is None:  # no body content
-                if not has_first_line:  # noqa SIM108
+                if not has_first_line:  # noqa: SIM108
                     # no body or first line, so just use default
                     block_indent = 2
                 else:

@@ -1,8 +1,9 @@
 """An extension to capture amsmath latex environments."""
+
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Callable, Optional, Sequence
+from typing import TYPE_CHECKING, Callable, Sequence
 
 from markdown_it import MarkdownIt
 from markdown_it.common.utils import escapeHtml
@@ -57,7 +58,7 @@ RE_OPEN = re.compile(r"\\begin\{(" + "|".join(ENVIRONMENTS) + r")([\*]?)\}")
 
 
 def amsmath_plugin(
-    md: MarkdownIt, *, renderer: Optional[Callable[[str], str]] = None
+    md: MarkdownIt, *, renderer: Callable[[str], str] | None = None
 ) -> None:
     """Parses TeX math equations, without any surrounding delimiters,
     only for top-level `amsmath <https://ctan.org/pkg/amsmath>`__ environments:

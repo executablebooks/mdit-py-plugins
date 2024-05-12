@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from contextlib import suppress
 import re
-from typing import TYPE_CHECKING, Callable, List, Sequence, Tuple
+from typing import TYPE_CHECKING, Callable, Sequence
 
 from markdown_it import MarkdownIt
 from markdown_it.rules_block import StateBlock
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from markdown_it.utils import EnvType, OptionsDict
 
 
-def _get_multiple_tags(params: str) -> Tuple[List[str], str]:
+def _get_multiple_tags(params: str) -> tuple[list[str], str]:
     """Check for multiple tags when the title is double quoted."""
     re_tags = re.compile(r'^\s*(?P<tokens>[^"]+)\s+"(?P<title>.*)"\S*$')
     match = re_tags.match(params)
@@ -27,7 +27,7 @@ def _get_multiple_tags(params: str) -> Tuple[List[str], str]:
     raise ValueError("No match found for parameters")
 
 
-def _get_tag(_params: str) -> Tuple[List[str], str]:
+def _get_tag(_params: str) -> tuple[list[str], str]:
     """Separate the tag name from the admonition title."""
     params = _params.strip()
     if not params:
@@ -212,7 +212,7 @@ def admon_plugin(md: MarkdownIt, render: None | Callable[..., str] = None) -> No
         _options: OptionsDict,
         env: EnvType,
     ) -> str:
-        return self.renderToken(tokens, idx, _options, env)  # type: ignore
+        return self.renderToken(tokens, idx, _options, env)  # type: ignore[attr-defined,no-any-return]
 
     render = render or renderDefault
 

@@ -1,4 +1,5 @@
 """Process definition lists."""
+
 from markdown_it import MarkdownIt
 from markdown_it.rules_block import StateBlock
 

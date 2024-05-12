@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, Sequence
+from typing import TYPE_CHECKING, Any, Callable, Sequence
 
 from markdown_it import MarkdownIt
 from markdown_it.common.utils import escapeHtml, isWhiteSpace
@@ -24,9 +24,9 @@ def dollarmath_plugin(
     allow_digits: bool = True,
     allow_blank_lines: bool = True,
     double_inline: bool = False,
-    label_normalizer: Optional[Callable[[str], str]] = None,
-    renderer: Optional[Callable[[str, Dict[str, Any]], str]] = None,
-    label_renderer: Optional[Callable[[str], str]] = None,
+    label_normalizer: Callable[[str], str] | None = None,
+    renderer: Callable[[str, dict[str, Any]], str] | None = None,
+    label_renderer: Callable[[str], str] | None = None,
 ) -> None:
     """Plugin for parsing dollar enclosed math,
     e.g. inline: ``$a=1$``, block: ``$$b=2$$``
@@ -53,7 +53,7 @@ def dollarmath_plugin(
 
     """
     if label_normalizer is None:
-        label_normalizer = lambda label: re.sub(r"\s+", "-", label)
+        label_normalizer = lambda label: re.sub(r"\s+", "-", label)  # noqa: E731
 
     md.inline.ruler.before(
         "escape",
@@ -76,7 +76,7 @@ def dollarmath_plugin(
 
     _label_renderer: Callable[[str], str]
     if label_renderer is None:
-        _label_renderer = (
+        _label_renderer = (  # noqa: E731
             lambda label: f'<a href="#{label}" class="mathlabel" title="Permalink to this equation">¶</a>'
         )
     else:
@@ -286,7 +286,7 @@ DOLLAR_EQNO_REV = re.compile(r"^\s*\)([^)$\r\n]+?)\(\s*\${2}")
 
 def math_block_dollar(
     allow_labels: bool = True,
-    label_normalizer: Optional[Callable[[str], str]] = None,
+    label_normalizer: Callable[[str], str] | None = None,
     allow_blank_lines: bool = False,
 ) -> Callable[[StateBlock, int, int, bool], bool]:
     """Generate block dollar rule."""
