@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.4.1 - 2024-05-12
+
+* 👌 Add option for footnotes references to always be matched
+
+  Usually footnote references are only matched when a footnote definition of the same label has already been found. If `always_match_refs=True`, any `[^...]` syntax will be treated as a footnote.
+
 ## 0.4.0 - 2023-06-05
 
 * ⬆️ UPGRADE: Drop python 3.7 and support 3.11 ([#77](https://github.com/executablebooks/mdit-py-plugins/pull/77))
