@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Sequence
+from functools import partial
+from typing import TYPE_CHECKING, Sequence, TypedDict
 
 from markdown_it import MarkdownIt
 from markdown_it.helpers import parseLinkLabel
@@ -18,7 +19,13 @@ if TYPE_CHECKING:
     from markdown_it.utils import EnvType, OptionsDict
 
 
-def footnote_plugin(md: MarkdownIt) -> None:
+def footnote_plugin(
+    md: MarkdownIt,
+    *,
+    inline: bool = True,
+    move_to_end: bool = True,
+    always_match_refs: bool = False,
+) -> None:
     """Plugin ported from
     `markdown-it-footnote <https://github.com/markdown-it/markdown-it-footnote>`__.
 
@@ -38,13 +45,22 @@ def footnote_plugin(md: MarkdownIt) -> None:
             Subsequent paragraphs are indented to show that they
         belong to the previous footnote.
 
+    :param inline: If True, also parse inline footnotes (^[...]).
+    :param move_to_end: If True, move footnote definitions to the end of the token stream.
+    :param always_match_refs: If True, match references, even if the footnote is not defined.
+
     """
     md.block.ruler.before(
         "reference", "footnote_def", footnote_def, {"alt": ["paragraph", "reference"]}
     )
-    md.inline.ruler.after("image", "footnote_inline", footnote_inline)
-    md.inline.ruler.after("footnote_inline", "footnote_ref", footnote_ref)
-    md.core.ruler.after("inline", "footnote_tail", footnote_tail)
+    _footnote_ref = partial(footnote_ref, always_match=always_match_refs)
+    if inline:
+        md.inline.ruler.after("image", "footnote_inline", footnote_inline)
+        md.inline.ruler.after("footnote_inline", "footnote_ref", _footnote_ref)
+    else:
+        md.inline.ruler.after("image", "footnote_ref", _footnote_ref)
+    if move_to_end:
+        md.core.ruler.after("inline", "footnote_tail", footnote_tail)
 
     md.add_render_rule("footnote_ref", render_footnote_ref)
     md.add_render_rule("footnote_block_open", render_footnote_block_open)
@@ -56,6 +72,29 @@ def footnote_plugin(md: MarkdownIt) -> None:
     # helpers (only used in other rules, no tokens are attached to those)
     md.add_render_rule("footnote_caption", render_footnote_caption)
     md.add_render_rule("footnote_anchor_name", render_footnote_anchor_name)
+
+
+class _RefData(TypedDict, total=False):
+    # standard
+    label: str
+    count: int
+    # inline
+    content: str
+    tokens: list[Token]
+
+
+class _FootnoteData(TypedDict):
+    refs: dict[str, int]
+    """A mapping of all footnote labels (prefixed with ``:``) to their ID (-1 if not yet set)."""
+    list: dict[int, _RefData]
+    """A mapping of all footnote IDs to their data."""
+
+
+def _data_from_env(env: EnvType) -> _FootnoteData:
+    footnotes = env.setdefault("footnotes", {})
+    footnotes.setdefault("refs", {})
+    footnotes.setdefault("list", {})
+    return footnotes  # type: ignore[no-any-return]
 
 
 # ## RULES ##
@@ -97,7 +136,8 @@ def footnote_def(state: StateBlock, startLine: int, endLine: int, silent: bool) 
     pos += 1
 
     label = state.src[start + 2 : pos - 2]
-    state.env.setdefault("footnotes", {}).setdefault("refs", {})[":" + label] = -1
+    footnote_data = _data_from_env(state.env)
+    footnote_data["refs"][":" + label] = -1
 
     open_token = Token("footnote_reference_open", "", 1)
     open_token.meta = {"label": label}
@@ -182,7 +222,7 @@ def footnote_inline(state: StateInline, silent: bool) -> bool:
     # so all that's left to do is to call tokenizer.
     #
     if not silent:
-        refs = state.env.setdefault("footnotes", {}).setdefault("list", {})
+        refs = _data_from_env(state.env)["list"]
         footnoteId = len(refs)
 
         tokens: list[Token] = []
@@ -200,7 +240,9 @@ def footnote_inline(state: StateInline, silent: bool) -> bool:
     return True
 
 
-def footnote_ref(state: StateInline, silent: bool) -> bool:
+def footnote_ref(
+    state: StateInline, silent: bool, *, always_match: bool = False
+) -> bool:
     """Process footnote references ([^...])"""
 
     maximum = state.posMax
@@ -210,7 +252,9 @@ def footnote_ref(state: StateInline, silent: bool) -> bool:
     if start + 3 > maximum:
         return False
 
-    if "footnotes" not in state.env or "refs" not in state.env["footnotes"]:
+    footnote_data = _data_from_env(state.env)
+
+    if not (always_match or footnote_data["refs"]):
         return False
     if state.src[start] != "[":
         return False
@@ -219,9 +263,7 @@ def footnote_ref(state: StateInline, silent: bool) -> bool:
 
     pos = start + 2
     while pos < maximum:
-        if state.src[pos] == " ":
-            return False
-        if state.src[pos] == "\n":
+        if state.src[pos] in (" ", "\n"):
             return False
         if state.src[pos] == "]":
             break
@@ -234,22 +276,19 @@ def footnote_ref(state: StateInline, silent: bool) -> bool:
     pos += 1
 
     label = state.src[start + 2 : pos - 1]
-    if (":" + label) not in state.env["footnotes"]["refs"]:
+    if ((":" + label) not in footnote_data["refs"]) and not always_match:
         return False
 
     if not silent:
-        if "list" not in state.env["footnotes"]:
-            state.env["footnotes"]["list"] = {}
-
-        if state.env["footnotes"]["refs"][":" + label] < 0:
-            footnoteId = len(state.env["footnotes"]["list"])
-            state.env["footnotes"]["list"][footnoteId] = {"label": label, "count": 0}
-            state.env["footnotes"]["refs"][":" + label] = footnoteId
+        if footnote_data["refs"].get(":" + label, -1) < 0:
+            footnoteId = len(footnote_data["list"])
+            footnote_data["list"][footnoteId] = {"label": label, "count": 0}
+            footnote_data["refs"][":" + label] = footnoteId
         else:
-            footnoteId = state.env["footnotes"]["refs"][":" + label]
+            footnoteId = footnote_data["refs"][":" + label]
 
-        footnoteSubId = state.env["footnotes"]["list"][footnoteId]["count"]
-        state.env["footnotes"]["list"][footnoteId]["count"] += 1
+        footnoteSubId = footnote_data["list"][footnoteId]["count"]
+        footnote_data["list"][footnoteId]["count"] += 1
 
         token = state.push("footnote_ref", "", 0)
         token.meta = {"id": footnoteId, "subId": footnoteSubId, "label": label}
@@ -295,14 +334,14 @@ def footnote_tail(state: StateCore) -> None:
 
     state.tokens = [t for t, f in zip(state.tokens, tok_filter) if f]
 
-    if "list" not in state.env.get("footnotes", {}):
+    footnote_data = _data_from_env(state.env)
+    if not footnote_data["list"]:
         return
-    foot_list = state.env["footnotes"]["list"]
 
     token = Token("footnote_block_open", "", 1)
     state.tokens.append(token)
 
-    for i, foot_note in foot_list.items():
+    for i, foot_note in footnote_data["list"].items():
         token = Token("footnote_open", "", 1)
         token.meta = {"id": i, "label": foot_note.get("label", None)}
         # TODO propagate line positions of original foot note
@@ -326,7 +365,7 @@ def footnote_tail(state: StateCore) -> None:
             tokens.append(token)
 
         elif "label" in foot_note:
-            tokens = refTokens[":" + foot_note["label"]]
+            tokens = refTokens.get(":" + foot_note["label"], [])
 
         state.tokens.extend(tokens)
         if state.tokens[len(state.tokens) - 1].type == "paragraph_close":

@@ -96,7 +96,7 @@ def test_footnote_def():
             "hidden": False,
         },
     ]
-    assert state.env == {"footnotes": {"refs": {":a": -1}}}
+    assert state.env == {"footnotes": {"refs": {":a": -1}, "list": {}}}
 
 
 def test_footnote_ref():
@@ -440,7 +440,9 @@ def test_plugin_render():
 
 @pytest.mark.parametrize("line,title,input,expected", read_fixture_file(FIXTURE_PATH))
 def test_all(line, title, input, expected):
-    md = MarkdownIt("commonmark").use(footnote_plugin)
+    md = MarkdownIt().use(
+        footnote_plugin, always_match_refs="ALWAYS_MATCH-REFS" in title
+    )
     if "DISABLE-CODEBLOCKS" in title:
         md.disable("code")
     md.options["xhtmlOut"] = False
