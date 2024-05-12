@@ -1,7 +1,8 @@
 """Process footnotes"""
+
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, Optional, Sequence
+from typing import TYPE_CHECKING, Sequence
 
 from markdown_it import MarkdownIt
 from markdown_it.helpers import parseLinkLabel
@@ -184,7 +185,7 @@ def footnote_inline(state: StateInline, silent: bool) -> bool:
         refs = state.env.setdefault("footnotes", {}).setdefault("list", {})
         footnoteId = len(refs)
 
-        tokens: List[Token] = []
+        tokens: list[Token] = []
         state.md.inline.parse(
             state.src[labelStart:labelEnd], state.md, state.env, tokens
         )
@@ -270,7 +271,7 @@ def footnote_tail(state: StateCore) -> None:
     if "footnotes" not in state.env:
         return
 
-    current: List[Token] = []
+    current: list[Token] = []
     tok_filter = []
     for tok in state.tokens:
         if tok.type == "footnote_reference_open":
@@ -290,7 +291,7 @@ def footnote_tail(state: StateCore) -> None:
         if insideRef:
             current.append(tok)
 
-        tok_filter.append((not insideRef))
+        tok_filter.append(not insideRef)
 
     state.tokens = [t for t, f in zip(state.tokens, tok_filter) if f]
 
@@ -329,7 +330,7 @@ def footnote_tail(state: StateCore) -> None:
 
         state.tokens.extend(tokens)
         if state.tokens[len(state.tokens) - 1].type == "paragraph_close":
-            lastParagraph: Optional[Token] = state.tokens.pop()
+            lastParagraph: Token | None = state.tokens.pop()
         else:
             lastParagraph = None
 
@@ -482,4 +483,4 @@ def render_footnote_anchor(
         ident += ":" + str(tokens[idx].meta["subId"])
 
     # ↩ with escape code to prevent display as Apple Emoji on iOS
-    return ' <a href="#fnref' + ident + '" class="footnote-backref">\u21a9\uFE0E</a>'
+    return ' <a href="#fnref' + ident + '" class="footnote-backref">\u21a9\ufe0e</a>'

@@ -140,7 +140,7 @@ def _span_rule(state: StateInline, silent: bool) -> bool:
         state.pos = labelStart
         state.posMax = labelEnd
         token = state.push("span_open", "span", 1)
-        token.attrs = attrs  # type: ignore
+        token.attrs = attrs  # type: ignore[assignment]
         state.md.inline.tokenize(state)
         token = state.push("span_close", "span", -1)
 
@@ -190,7 +190,7 @@ def _attr_block_rule(
         return True
 
     token = state.push("attrs_block", "", 0)
-    token.attrs = attrs  # type: ignore
+    token.attrs = attrs  # type: ignore[assignment]
     token.map = [startLine, startLine + 1]
 
     state.line = startLine + 1
@@ -211,9 +211,9 @@ def _attr_resolve_block_rule(state: StateCore) -> None:
 
             # classes are appended
             if "class" in state.tokens[i].attrs and "class" in next_token.attrs:
-                state.tokens[i].attrs[
-                    "class"
-                ] = f"{state.tokens[i].attrs['class']} {next_token.attrs['class']}"
+                state.tokens[i].attrs["class"] = (
+                    f"{state.tokens[i].attrs['class']} {next_token.attrs['class']}"
+                )
 
             if next_token.type == "attrs_block":
                 # subsequent attribute blocks take precedence, when merging
