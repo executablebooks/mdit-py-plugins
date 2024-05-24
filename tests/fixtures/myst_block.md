@@ -69,6 +69,13 @@ Escaped target:
 <p>(a)=</p>
 .
 
+Escaped target 2:
+.
+(a\)=
+.
+<p>(a)=</p>
+.
+
 Indented target:
 .
   (a)= 
