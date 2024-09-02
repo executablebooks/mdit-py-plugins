@@ -67,20 +67,14 @@ def attrs_plugin(
             if allowed_attributes:
                 if strict:
                     attrs = {
-                        k: v
-                        for k, v in attrs.items()
-                        if k not in allowed_attributes
+                        k: v for k, v in attrs.items() if k not in allowed_attributes
                     }
                     if attrs:
                         raise NotAllowedAttributesError(
                             f"These attributes are not allowed {attrs}"
                         )
                 else:
-                    attrs = {
-                        k: v
-                        for k, v in attrs.items()
-                        if k in allowed_attributes
-                    }
+                    attrs = {k: v for k, v in attrs.items() if k in allowed_attributes}
         except ParseError:
             return False
         token_index = _find_opening(state.tokens, len(state.tokens) - 1)
