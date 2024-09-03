@@ -64,11 +64,7 @@ def attrs_plugin(
         try:
             new_pos, attrs = parse(state.src[state.pos :])
             if allowed_attributes:
-                attrs = {
-                    k: v
-                    for k, v in attrs.items()
-                    if k not in allowed_attributes
-                }
+                attrs = {k: v for k, v in attrs.items() if k not in allowed_attributes}
                 if attrs:
                     raise NotAllowedAttributesError(
                         f"These attributes are not allowed {attrs}"
