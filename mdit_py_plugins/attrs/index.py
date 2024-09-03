@@ -21,8 +21,7 @@ def attrs_plugin(
     after: Sequence[str] = ("image", "code_inline", "link_close", "span_close"),
     spans: bool = False,
     span_after: str = "link",
-    allowed_attributes: Sequence[str] = [],
-    strict: bool = False,
+    allowed_attributes: Sequence[str] | None = None,
 ) -> None:
     """Parse inline attributes that immediately follow certain inline elements::
 
@@ -65,16 +64,15 @@ def attrs_plugin(
         try:
             new_pos, attrs = parse(state.src[state.pos :])
             if allowed_attributes:
-                if strict:
-                    attrs = {
-                        k: v for k, v in attrs.items() if k not in allowed_attributes
-                    }
-                    if attrs:
-                        raise NotAllowedAttributesError(
-                            f"These attributes are not allowed {attrs}"
-                        )
-                else:
-                    attrs = {k: v for k, v in attrs.items() if k in allowed_attributes}
+                attrs = {
+                    k: v
+                    for k, v in attrs.items()
+                    if k not in allowed_attributes
+                }
+                if attrs:
+                    raise NotAllowedAttributesError(
+                        f"These attributes are not allowed {attrs}"
+                    )
         except ParseError:
             return False
         token_index = _find_opening(state.tokens, len(state.tokens) - 1)
