@@ -111,7 +111,7 @@ def attrs_block_plugin(md: MarkdownIt) -> None:
     md.core.ruler.after("block", "attr", _attr_resolve_block_rule)
 
 
-def _find_opening(tokens: Sequence[Token], index: int) -> Optional[int] | None:
+def _find_opening(tokens: Sequence[Token], index: int) -> int | None:
     """Find the opening token index, if the token is closing."""
     if tokens[index].nesting != -1:
         return index
