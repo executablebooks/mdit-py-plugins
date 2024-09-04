@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, Sequence
+from typing import Sequence
 
 from markdown_it import MarkdownIt
 from markdown_it.rules_block import StateBlock
