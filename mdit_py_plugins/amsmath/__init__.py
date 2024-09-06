@@ -31,18 +31,11 @@ ENVIRONMENTS = [
     "alignat",
     # stretches the space betweenthe equation columns to the maximum possible width
     "flalign",
-    # 4.1 The pmatrix, bmatrix, Bmatrix, vmatrix and Vmatrix have (respectively)
-    # (),[],{},||,and ‖‖ delimiters built in.
-    "matrix",
-    "pmatrix",
-    "bmatrix",
-    "Bmatrix",
-    "vmatrix",
-    "Vmatrix",
     # eqnarray is another math environment, it is not part of amsmath,
     # and note that it is better to use align or equation+split instead
     "eqnarray",
 ]
+
 # other "non-top-level" environments:
 
 # 3.4 the split environment is for single equations that are too long to fit on one line
@@ -53,6 +46,9 @@ ENVIRONMENTS = [
 # 3.7 variants gathered, aligned,and alignedat are provided
 # whose total width is the actual width of the contents;
 # thus they can be used as a component in a containing expression
+
+# 4.1 The pmatrix, bmatrix, Bmatrix, vmatrix and Vmatrix have (respectively)
+# (),[],{},||,and ‖‖ delimiters built in.
 
 RE_OPEN = re.compile(r"\\begin\{(" + "|".join(ENVIRONMENTS) + r")([\*]?)\}")
 
