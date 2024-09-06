@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from functools import partial
 import itertools
 from typing import TYPE_CHECKING, Sequence
 
@@ -15,8 +16,11 @@ if TYPE_CHECKING:
     from markdown_it.utils import EnvType, OptionsDict
 
 
-def myst_block_plugin(md: MarkdownIt) -> None:
-    """Parse MyST targets (``(name)=``), blockquotes (``% comment``) and block breaks (``+++``)."""
+def myst_block_plugin(md: MarkdownIt, *, single_line_directives=False, sld_markers: str = "`") -> None:
+    """Parse MyST targets (``(name)=``), blockquotes (``% comment``) and block breaks (``+++``).
+    
+    :param single_line_directive: Parse single line directives
+    """
     md.block.ruler.before(
         "blockquote",
         "myst_line_comment",
@@ -34,6 +38,13 @@ def myst_block_plugin(md: MarkdownIt) -> None:
         "myst_target",
         target,
         {"alt": ["paragraph", "reference", "blockquote", "list", "footnote_def"]},
+    )
+    if single_line_directives:
+        md.block.ruler.before(
+        "fence",
+        "myst_single_line_directive",
+        partial(single_line_directive, markers=sld_markers),
+        {"alt": []},
     )
     md.add_render_rule("myst_target", render_myst_target)
     md.add_render_rule("myst_line_comment", render_myst_line_comment)
@@ -139,6 +150,39 @@ def target(state: StateBlock, startLine: int, endLine: int, silent: bool) -> boo
     token = state.push("myst_target", "", 0)
     token.attrSet("class", "myst-target")
     token.content = text[1:-2]
+    token.map = [startLine, state.line]
+
+    return True
+
+
+def single_line_directive(state: StateBlock, startLine: int, endLine: int, silent: bool, markers: str = "`~") -> bool:
+    if is_code_block(state, startLine):
+        return False
+
+    pos = state.bMarks[startLine] + state.tShift[startLine]
+    maximum = state.eMarks[startLine]
+
+    text = state.src[pos:maximum].strip()
+
+    for ch in markers:
+        if text.startswith(ch*3) and text[3:].startswith("{") and text.endswith(ch*3):
+            splt = text[3:-3].split(maxsplit=1)
+            name = splt[0]
+            content = "" if len(splt) == 1 else splt[1]
+            if name.endswith("}") and len(name) > 2:
+                break
+    else:
+        return False
+    
+    if silent:
+        return True
+
+    state.line = startLine + 1
+
+    token = state.push("fence", "code", 0)
+    token.info = name
+    token.content = content
+    token.markup = ch
     token.map = [startLine, state.line]
 
     return True

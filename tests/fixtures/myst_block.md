@@ -176,3 +176,35 @@ Indented by 4 spaces, DISABLE-CODEBLOCKS
 <hr class="myst-block">
 <!-- abc --><div class="myst-target"><a href="#a">(a)=</a></div>
 .
+
+single line directive, SLD
+.
+``````
+hi
+``````
+
+```a```
+
+```{}```
+
+```{name}```
+
+```{name}text```
+
+```{name} text```
+```{name} text```
+
+paragraph
+```{name}```
+.
+<pre><code>hi
+</code></pre>
+<p><code>a</code></p>
+<p><code>{}</code></p>
+<pre><code class="language-{name}"></code></pre>
+<p><code>{name}text</code></p>
+<pre><code class="language-{name}">text</code></pre>
+<pre><code class="language-{name}">text</code></pre>
+<p>paragraph
+<code>{name}</code></p>
+.
