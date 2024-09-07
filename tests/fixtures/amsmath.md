@@ -204,6 +204,10 @@ equation environment, in block quote:
 > -0.707 & -0.408 & -0.577 \\
 > -0.    & -0.816 &  0.577
 > \end{matrix}
+
+> \begin{equation}
+a = 1
+\end{equation}
 .
 <blockquote>
 <div class="math amsmath">
@@ -212,6 +216,13 @@ equation environment, in block quote:
 -0.707 &amp; -0.408 &amp; -0.577 \\
 -0.    &amp; -0.816 &amp;  0.577
 \end{matrix}
+</div>
+</blockquote>
+<blockquote>
+<div class="math amsmath">
+\begin{equation}
+a = 1
+\end{equation}
 </div>
 </blockquote>
 .
