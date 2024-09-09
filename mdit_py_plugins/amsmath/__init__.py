@@ -54,7 +54,7 @@ ENVIRONMENTS = [
 # whose total width is the actual width of the contents;
 # thus they can be used as a component in a containing expression
 
-RE_OPEN = re.compile(r"\\begin\{(" + "|".join(ENVIRONMENTS) + r")([\*]?)\}")
+RE_OPEN = r"\\begin\{(" + "|".join(ENVIRONMENTS) + r")([\*]?)\}"
 
 
 def amsmath_plugin(
@@ -95,47 +95,60 @@ def amsmath_plugin(
     md.add_render_rule("amsmath", render_amsmath_block)
 
 
-def match_environment(string: str) -> None | tuple[str, str, int]:
-    match_open = RE_OPEN.match(string)
-    if not match_open:
-        return None
-    environment = match_open.group(1)
-    numbered = match_open.group(2)
-    match_close = re.search(
-        r"\\end\{" + environment + numbered.replace("*", r"\*") + "\\}", string
-    )
-    if not match_close:
-        return None
-    return (environment, numbered, match_close.end())
-
-
 def amsmath_block(
     state: StateBlock, startLine: int, endLine: int, silent: bool
 ) -> bool:
+    # note the code principally follows the logic in markdown_it/rules_block/fence.py,
+    # except that:
+    # (a) it allows for closing tag on same line as opening tag
+    # (b) it does not allow for opening tag without closing tag (i.e. no auto-closing)
+
     if is_code_block(state, startLine):
         return False
 
-    begin = state.bMarks[startLine] + state.tShift[startLine]
+    # does the first line contain the beginning of an amsmath environment
+    first_start = state.bMarks[startLine] + state.tShift[startLine]
+    first_end = state.eMarks[startLine]
+    first_text = state.src[first_start:first_end]
 
-    outcome = match_environment(state.src[begin:])
-    if not outcome:
+    if not (match_open := re.match(RE_OPEN, first_text)):
         return False
-    environment, numbered, endpos = outcome
-    endpos += begin
 
-    line = startLine
-    while line < endLine:
-        if endpos >= state.bMarks[line] and endpos <= state.eMarks[line]:
-            # line for end of block math found ...
-            state.line = line + 1
+    # construct the closing tag
+    environment = match_open.group(1)
+    numbered = match_open.group(2)
+    closing = rf"\end{{{match_open.group(1)}{match_open.group(2)}}}"
+
+    # start looking for the closing tag, including the current line
+    nextLine = startLine - 1
+
+    while True:
+        nextLine += 1
+        if nextLine >= endLine:
+            # reached the end of the block without finding the closing tag
+            return False
+
+        next_start = state.bMarks[nextLine] + state.tShift[nextLine]
+        next_end = state.eMarks[nextLine]
+        if next_start < first_end and state.sCount[nextLine] < state.blkIndent:
+            # non-empty line with negative indent should stop the list:
+            # - \begin{align}
+            #  test
+            return False
+
+        if state.src[next_start:next_end].rstrip().endswith(closing):
+            # found the closing tag
             break
-        line += 1
+
+    state.line = nextLine + 1
 
     if not silent:
         token = state.push("amsmath", "math", 0)
         token.block = True
-        token.content = state.src[begin:endpos]
+        token.content = state.getLines(
+            startLine, state.line, state.sCount[startLine], False
+        )
         token.meta = {"environment": environment, "numbered": numbered}
-        token.map = [startLine, line]
+        token.map = [startLine, nextLine]
 
     return True
