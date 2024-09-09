@@ -65,7 +65,7 @@ def attrs_plugin(
             partial(
                 _attr_inline_rule,
                 after=after,
-                allowed_attributes=None if allowed is None else set(allowed),
+                allowed=None if allowed is None else set(allowed),
             ),
         )
 
@@ -96,8 +96,7 @@ def attrs_block_plugin(md: MarkdownIt, *, allowed: Sequence[str] | None = None) 
         "block",
         "attr",
         partial(
-            _attr_resolve_block_rule,
-            allowed_attributes=None if allowed is None else set(allowed),
+            _attr_resolve_block_rule, allowed=None if allowed is None else set(allowed)
         ),
     )
 
@@ -262,14 +261,14 @@ def _attr_resolve_block_rule(state: StateCore, *, allowed: set[str] | None) -> N
 def _add_attrs(
     token: Token,
     attrs: dict[str, Any],
-    allowed_attributes: set[str] | None,
+    allowed: set[str] | None,
 ) -> None:
     """Add attributes to a token, skipping any disallowed attributes."""
-    if allowed_attributes is not None and (
-        disallowed := {k: v for k, v in attrs.items() if k not in allowed_attributes}
+    if allowed is not None and (
+        disallowed := {k: v for k, v in attrs.items() if k not in allowed}
     ):
         token.meta["insecure_attrs"] = disallowed
-        attrs = {k: v for k, v in attrs.items() if k in allowed_attributes}
+        attrs = {k: v for k, v in attrs.items() if k in allowed}
 
     # attributes takes precedence over existing attributes
     token.attrs.update(attrs)
