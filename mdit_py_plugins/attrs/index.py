@@ -61,10 +61,14 @@ def attrs_plugin(
             return False
         try:
             new_pos, attrs = parse(state.src[state.pos :])
-            if allowed_attributes:
-                attrs = {k: v for k, v in attrs.items() if k in allowed_attributes}
+            if allowed_attributes is not None:
+                attrs = {
+                    k: v for k, v in attrs.items() if k in allowed_attributes
+                }
                 token.meta["insecure_attrs"] = {
-                    k: v for k, v in attrs.items() if k not in allowed_attributes
+                    k: v
+                    for k, v in attrs.items()
+                    if k not in allowed_attributes
                 }
         except ParseError:
             return False
