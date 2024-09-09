@@ -20,3 +20,20 @@ def test_attrs(line, title, input, expected):
     text = md.render(input)
     print(text)
     assert text.rstrip() == expected.rstrip()
+
+
+def test_attrs_allowed(data_regression):
+    allowed = ["safe"]
+    md = (
+        MarkdownIt("commonmark")
+        .use(attrs_plugin, allowed=allowed)
+        .use(attrs_block_plugin, allowed=allowed)
+    )
+    tokens = md.parse("""
+{danger1=a safe=b}
+{danger2=c safe=d}
+# header
+
+`inline`{safe=a danger=b}
+    """)
+    data_regression.check([t.as_dict() for t in tokens])

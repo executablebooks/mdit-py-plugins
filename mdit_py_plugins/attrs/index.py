@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Sequence
+from functools import partial
+from typing import Any, Sequence
 
 from markdown_it import MarkdownIt
 from markdown_it.rules_block import StateBlock
@@ -19,7 +20,7 @@ def attrs_plugin(
     after: Sequence[str] = ("image", "code_inline", "link_close", "span_close"),
     spans: bool = False,
     span_after: str = "link",
-    allowed_attributes: Sequence[str] | None = None,
+    allowed: Sequence[str] | None = None,
 ) -> None:
     """Parse inline attributes that immediately follow certain inline elements::
 
@@ -51,43 +52,25 @@ def attrs_plugin(
     :param spans: If True, also parse attributes after spans of text, encapsulated by `[]`.
         Note Markdown link references take precedence over this syntax.
     :param span_after: The name of an inline rule after which spans may be specified.
+    :param allowed: A list of allowed attribute names.
+        If not ``None``, any attributes not in this list will be removed
+        and placed in the token's meta under the key "insecure_attrs".
     """
-
-    def _attr_inline_rule(state: StateInline, silent: bool) -> bool:
-        if state.pending or not state.tokens:
-            return False
-        token = state.tokens[-1]
-        if token.type not in after:
-            return False
-        try:
-            new_pos, attrs = parse(state.src[state.pos :])
-            if allowed_attributes is not None and (
-                disallowed := {
-                    k: v for k, v in attrs.items() if k not in allowed_attributes
-                }
-            ):
-                token.meta["insecure_attrs"] = disallowed
-                attrs = {k: v for k, v in attrs.items() if k in allowed_attributes}
-        except ParseError:
-            return False
-        token_index = _find_opening(state.tokens, len(state.tokens) - 1)
-        if token_index is None:
-            return False
-        state.pos += new_pos + 1
-        if not silent:
-            attr_token = state.tokens[token_index]
-            if "class" in attrs and "class" in token.attrs:
-                attrs["class"] = f"{attr_token.attrs['class']} {attrs['class']}"
-            attr_token.attrs.update(attrs)
-        return True
 
     if spans:
         md.inline.ruler.after(span_after, "span", _span_rule)
     if after:
-        md.inline.ruler.push("attr", _attr_inline_rule)
+        md.inline.ruler.push(
+            "attr",
+            partial(
+                _attr_inline_rule,
+                after=after,
+                allowed_attributes=None if allowed is None else set(allowed),
+            ),
+        )
 
 
-def attrs_block_plugin(md: MarkdownIt) -> None:
+def attrs_block_plugin(md: MarkdownIt, *, allowed: Sequence[str] | None = None) -> None:
     """Parse block attributes.
 
     Block attributes are attributes on a single line, with no other content.
@@ -103,9 +86,20 @@ def attrs_block_plugin(md: MarkdownIt) -> None:
         A paragraph, that will be assigned the class ``a b c``, and the identifier ``b``.
 
     This syntax is inspired by Djot block attributes.
+
+    :param allowed: A list of allowed attribute names.
+        If not ``None``, any attributes not in this list will be removed
+        and placed in the token's meta under the key "insecure_attrs".
     """
     md.block.ruler.before("fence", "attr", _attr_block_rule)
-    md.core.ruler.after("block", "attr", _attr_resolve_block_rule)
+    md.core.ruler.after(
+        "block",
+        "attr",
+        partial(
+            _attr_resolve_block_rule,
+            allowed_attributes=None if allowed is None else set(allowed),
+        ),
+    )
 
 
 def _find_opening(tokens: Sequence[Token], index: int) -> int | None:
@@ -159,6 +153,34 @@ def _span_rule(state: StateInline, silent: bool) -> bool:
     return True
 
 
+def _attr_inline_rule(
+    state: StateInline,
+    silent: bool,
+    after: Sequence[str],
+    *,
+    allowed_attributes: set[str] | None = None,
+) -> bool:
+    if state.pending or not state.tokens:
+        return False
+    token = state.tokens[-1]
+    if token.type not in after:
+        return False
+    try:
+        new_pos, attrs = parse(state.src[state.pos :])
+    except ParseError:
+        return False
+    token_index = _find_opening(state.tokens, len(state.tokens) - 1)
+    if token_index is None:
+        return False
+    state.pos += new_pos + 1
+    if not silent:
+        attr_token = state.tokens[token_index]
+        if "class" in attrs and "class" in token.attrs:
+            attrs["class"] = f"{token.attrs['class']} {attrs['class']}"
+        _add_attrs(attr_token, attrs, allowed_attributes)
+    return True
+
+
 def _attr_block_rule(
     state: StateBlock, startLine: int, endLine: int, silent: bool
 ) -> bool:
@@ -207,7 +229,9 @@ def _attr_block_rule(
     return True
 
 
-def _attr_resolve_block_rule(state: StateCore) -> None:
+def _attr_resolve_block_rule(
+    state: StateCore, *, allowed_attributes: set[str] | None
+) -> None:
     """Find attribute block then move its attributes to the next block."""
     i = 0
     len_tokens = len(state.tokens)
@@ -231,8 +255,23 @@ def _attr_resolve_block_rule(state: StateCore) -> None:
                     if key == "class" or key not in next_token.attrs:
                         next_token.attrs[key] = value
             else:
-                # attribute block takes precedence over attributes in other blocks
-                next_token.attrs.update(state.tokens[i].attrs)
+                _add_attrs(next_token, state.tokens[i].attrs, allowed_attributes)
 
         state.tokens.pop(i)
         len_tokens -= 1
+
+
+def _add_attrs(
+    token: Token,
+    attrs: dict[str, Any],
+    allowed_attributes: set[str] | None,
+) -> None:
+    """Add attributes to a token, skipping any disallowed attributes."""
+    if allowed_attributes is not None and (
+        disallowed := {k: v for k, v in attrs.items() if k not in allowed_attributes}
+    ):
+        token.meta["insecure_attrs"] = disallowed
+        attrs = {k: v for k, v in attrs.items() if k in allowed_attributes}
+
+    # attributes takes precedence over existing attributes
+    token.attrs.update(attrs)
