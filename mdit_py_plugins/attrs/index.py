@@ -158,7 +158,7 @@ def _attr_inline_rule(
     silent: bool,
     after: Sequence[str],
     *,
-    allowed_attributes: set[str] | None = None,
+    allowed: set[str] | None = None,
 ) -> bool:
     if state.pending or not state.tokens:
         return False
@@ -177,7 +177,7 @@ def _attr_inline_rule(
         attr_token = state.tokens[token_index]
         if "class" in attrs and "class" in token.attrs:
             attrs["class"] = f"{token.attrs['class']} {attrs['class']}"
-        _add_attrs(attr_token, attrs, allowed_attributes)
+        _add_attrs(attr_token, attrs, allowed)
     return True
 
 
@@ -229,9 +229,7 @@ def _attr_block_rule(
     return True
 
 
-def _attr_resolve_block_rule(
-    state: StateCore, *, allowed_attributes: set[str] | None
-) -> None:
+def _attr_resolve_block_rule(state: StateCore, *, allowed: set[str] | None) -> None:
     """Find attribute block then move its attributes to the next block."""
     i = 0
     len_tokens = len(state.tokens)
@@ -255,7 +253,7 @@ def _attr_resolve_block_rule(
                     if key == "class" or key not in next_token.attrs:
                         next_token.attrs[key] = value
             else:
-                _add_attrs(next_token, state.tokens[i].attrs, allowed_attributes)
+                _add_attrs(next_token, state.tokens[i].attrs, allowed)
 
         state.tokens.pop(i)
         len_tokens -= 1
