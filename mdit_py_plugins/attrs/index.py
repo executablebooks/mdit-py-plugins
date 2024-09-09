@@ -64,7 +64,7 @@ def attrs_plugin(
             if allowed_attributes is not None and (disallowed := {
                     k: v for k, v in attrs.items() if k not in allowed_attributes
                 }):
-                token.meta["insecure_attrs"] = dissalowed
+                token.meta["insecure_attrs"] = disallowed
                 attrs = {k: v for k, v in attrs.items() if k in allowed_attributes}
         except ParseError:
             return False
