@@ -1,5 +1,24 @@
 # Change Log
 
+## 0.4.2 - 2024-09-09
+
+- 👌 Improve parsing of nested amsmath
+
+  The previous logic was problematic for amsmath blocks nested in other blocs (such as blockquotes)
+
+  The new parsing code now principally follows the logic in `markdown_it/rules_block/fence.py`
+  (see also <https://spec.commonmark.org/0.30/#fenced-code-blocks>),
+  except that:
+
+  1. it allows for a closing tag on the same line as the opening tag, and
+  2. it does not allow for an opening tag without closing tag (i.e. no auto-closing)
+
+- ✨ Add `allowed` option for inline/block attributes
+
+  The `allowed` option accepts a list of allowed attribute names.
+  If not ``None``, any attributes not in this list will be removed
+  and placed in the token's meta under the key `"insecure_attrs"`.
+
 ## 0.4.1 - 2024-05-12
 
 * 👌 Add option for footnotes references to always be matched
