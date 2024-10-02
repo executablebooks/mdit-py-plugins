@@ -3,6 +3,7 @@
   date: 5 Dec 2023
   version: 3.0.0
   changes:
-    - TODO - Strikethroughs within a subscript are not rendered correctly in
-      markdown-it either, but that can be fixed at a later stage, perhaps
-      in both markdown-it and markdown-it-py
+    - TODO - Some strikethrough and subscript combinations are not rendered
+      correctly in markdown-it either, but that can be fixed at a later stage,
+      perhaps in both markdown-it and markdown-it-py.
+      See `tests/fixtures/subscript_strikethrough.md` for examples.
