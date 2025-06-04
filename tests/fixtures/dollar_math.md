@@ -516,21 +516,21 @@ Inline double-dollar start:
 .
 $$a=1$$ b
 .
-<p><div class="math inline">a=1</div> b</p>
+<p><div class="math block">a=1</div> b</p>
 .
 
 Inline double-dollar end:
 .
 a $$a=1$$
 .
-<p>a <div class="math inline">a=1</div></p>
+<p>a <div class="math block">a=1</div></p>
 .
 
 Inline double-dollar enclosed:
 .
 a $$a=1$$ (1) b
 .
-<p>a <div class="math inline">a=1</div> (1) b</p>
+<p>a <div class="math block">a=1</div> (1) b</p>
 .
 
 Inline double-dollar, escaped:
@@ -549,7 +549,7 @@ $$
 i.e., $[\alpha \bar{X}, \infty)$ is a lower 1-sided $1-\alpha$ confidence bound for $\mu$.
 .
 <p>Hence, for <span class="math inline">\alpha \in (0, 1)</span>,
-<div class="math inline">\mathbb P (\alpha \bar{X} \ge \mu) \le \alpha;</div>
+<div class="math block">\mathbb P (\alpha \bar{X} \ge \mu) \le \alpha;</div>
 i.e., <span class="math inline">[\alpha \bar{X}, \infty)</span> is a lower 1-sided <span class="math inline">1-\alpha</span> confidence bound for <span class="math inline">\mu</span>.</p>
 .
 
