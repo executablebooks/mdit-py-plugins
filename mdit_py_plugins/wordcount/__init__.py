@@ -1,5 +1,5 @@
+from collections.abc import Callable
 import string
-from typing import Callable, List
 
 from markdown_it import MarkdownIt
 from markdown_it.rules_core import StateCore
@@ -33,7 +33,7 @@ def wordcount_plugin(
     """
 
     def _word_count_rule(state: StateCore) -> None:
-        text: List[str] = []
+        text: list[str] = []
         words = 0
         for token in state.tokens:
             if token.type == "text":
@@ -53,6 +53,6 @@ def wordcount_plugin(
             data["text"] += text
         data.setdefault("words", 0)
         data["words"] += words
-        data["minutes"] = int(round(data["words"] / per_minute))
+        data["minutes"] = int(round(data["words"] / per_minute))  # noqa: RUF046
 
     md.core.ruler.push("wordcount", _word_count_rule)

@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Callable, Sequence
 import re
-from typing import TYPE_CHECKING, Any, Callable, Sequence
+from typing import TYPE_CHECKING, Any
 
 from markdown_it import MarkdownIt
 from markdown_it.common.utils import escapeHtml, isWhiteSpace
@@ -146,7 +147,7 @@ def is_escaped(state: StateInline, back_pos: int, mod: int = 0) -> bool:
         return False
 
     # if an odd number of \ then ignore
-    if (backslashes % 2) != mod:
+    if (backslashes % 2) != mod:  # noqa: SIM103
         return True
 
     return False

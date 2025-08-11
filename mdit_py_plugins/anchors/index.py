@@ -1,5 +1,5 @@
+from collections.abc import Callable
 import re
-from typing import Callable, List, Optional, Set
 
 from markdown_it import MarkdownIt
 from markdown_it.rules_core import StateCore
@@ -10,7 +10,7 @@ def anchors_plugin(
     md: MarkdownIt,
     min_level: int = 1,
     max_level: int = 2,
-    slug_func: Optional[Callable[[str], str]] = None,
+    slug_func: Callable[[str], str] | None = None,
     permalink: bool = False,
     permalinkSymbol: str = "¶",
     permalinkBefore: bool = False,
@@ -58,7 +58,7 @@ def anchors_plugin(
 
 
 def _make_anchors_func(
-    selected_levels: List[int],
+    selected_levels: list[int],
     slug_func: Callable[[str], str],
     permalink: bool,
     permalinkSymbol: str,
@@ -66,7 +66,7 @@ def _make_anchors_func(
     permalinkSpace: bool,
 ) -> Callable[[StateCore], None]:
     def _anchor_func(state: StateCore) -> None:
-        slugs: Set[str] = set()
+        slugs: set[str] = set()
         for idx, token in enumerate(state.tokens):
             if token.type != "heading_open":
                 continue
@@ -119,7 +119,7 @@ def slugify(title: str) -> str:
     return re.sub(r"[^\w\u4e00-\u9fff\- ]", "", title.strip().lower().replace(" ", "-"))
 
 
-def unique_slug(slug: str, slugs: Set[str]) -> str:
+def unique_slug(slug: str, slugs: set[str]) -> str:
     uniq = slug
     i = 1
     while uniq in slugs:

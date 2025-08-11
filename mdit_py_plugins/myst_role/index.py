@@ -1,5 +1,6 @@
+from collections.abc import Sequence
 import re
-from typing import TYPE_CHECKING, Sequence
+from typing import TYPE_CHECKING
 
 from markdown_it import MarkdownIt
 from markdown_it.common.utils import escapeHtml

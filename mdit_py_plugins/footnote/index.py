@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from functools import partial
-from typing import TYPE_CHECKING, Sequence, TypedDict
+from typing import TYPE_CHECKING, TypedDict
 
 from markdown_it import MarkdownIt
 from markdown_it.helpers import parseLinkLabel
@@ -332,7 +333,7 @@ def footnote_tail(state: StateCore) -> None:
 
         tok_filter.append(not insideRef)
 
-    state.tokens = [t for t, f in zip(state.tokens, tok_filter) if f]
+    state.tokens = [t for t, f in zip(state.tokens, tok_filter, strict=False) if f]
 
     footnote_data = _data_from_env(state.env)
     if not footnote_data["list"]:

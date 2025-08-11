@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Sequence
 import itertools
-from typing import TYPE_CHECKING, Sequence
+from typing import TYPE_CHECKING
 
 from markdown_it import MarkdownIt
 from markdown_it.common.utils import escapeHtml

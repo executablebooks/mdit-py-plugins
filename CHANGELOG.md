@@ -1,5 +1,10 @@
 # Change Log
 
+## 0.5.0 - 2025-08-11
+
+- ⬆️ Drop Python 3.9, which is EoL next month <https://devguide.python.org/versions> and allow for the, soon to be released, markdown-it-py v4.
+- ✨ NEW: Add plugin & tests to render subscripts, thanks to @miteshashar
+
 ## 0.4.2 - 2024-09-09
 
 - 👌 Improve parsing of nested amsmath

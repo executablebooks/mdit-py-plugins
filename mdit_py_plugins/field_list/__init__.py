@@ -1,7 +1,7 @@
 """Field list plugin"""
 
+from collections.abc import Iterator
 from contextlib import contextmanager
-from typing import Iterator, Optional, Tuple
 
 from markdown_it import MarkdownIt
 from markdown_it.rules_block import StateBlock
@@ -45,7 +45,7 @@ def fieldlist_plugin(md: MarkdownIt) -> None:
     )
 
 
-def parseNameMarker(state: StateBlock, startLine: int) -> Tuple[int, str]:
+def parseNameMarker(state: StateBlock, startLine: int) -> tuple[int, str]:
     """Parse field name: `:name:`
 
     :returns: position after name marker, name text
@@ -159,7 +159,7 @@ def _fieldlist_rule(
 
             # to figure out the indent of the body,
             # we look at all non-empty, indented lines and find the minimum indent
-            block_indent: Optional[int] = None
+            block_indent: int | None = None
             _line = startLine + 1
             while _line < endLine:
                 # if start_of_content < end_of_content, then non-empty line
