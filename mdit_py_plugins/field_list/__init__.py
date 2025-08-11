@@ -2,7 +2,6 @@
 
 from collections.abc import Iterator
 from contextlib import contextmanager
-from typing import Optional, Tuple
 
 from markdown_it import MarkdownIt
 from markdown_it.rules_block import StateBlock

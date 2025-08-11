@@ -147,7 +147,7 @@ def is_escaped(state: StateInline, back_pos: int, mod: int = 0) -> bool:
         return False
 
     # if an odd number of \ then ignore
-    if (backslashes % 2) != mod:
+    if (backslashes % 2) != mod:  # noqa: SIM103
         return True
 
     return False
