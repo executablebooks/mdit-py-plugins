@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+from collections.abc import Callable, Sequence
 import re
-from typing import TYPE_CHECKING, Any, Callable, Match, Sequence, TypedDict
+from re import Match
+from typing import TYPE_CHECKING, Any, TypedDict
 
 from markdown_it import MarkdownIt
 from markdown_it.common.utils import charCodeAt

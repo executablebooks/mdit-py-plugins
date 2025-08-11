@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from collections.abc import Callable, Sequence
 import re
-from typing import TYPE_CHECKING, Any, Callable, Sequence
+from typing import TYPE_CHECKING, Any
 
 from markdown_it import MarkdownIt
 from markdown_it.common.utils import escapeHtml, isWhiteSpace

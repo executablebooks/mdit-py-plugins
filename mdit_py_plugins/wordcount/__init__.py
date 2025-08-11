@@ -1,5 +1,6 @@
+from collections.abc import Callable
 import string
-from typing import Callable, List
+from typing import List
 
 from markdown_it import MarkdownIt
 from markdown_it.rules_core import StateCore
@@ -33,7 +34,7 @@ def wordcount_plugin(
     """
 
     def _word_count_rule(state: StateCore) -> None:
-        text: List[str] = []
+        text: list[str] = []
         words = 0
         for token in state.tokens:
             if token.type == "text":
