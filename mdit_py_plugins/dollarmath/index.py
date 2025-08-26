@@ -101,7 +101,7 @@ def dollarmath_plugin(
         env: EnvType,
     ) -> str:
         content = _renderer(str(tokens[idx].content).strip(), {"display_mode": True})
-        return f'<div class="math inline">{content}</div>'
+        return f'<div class="math block">{content}</div>'
 
     def render_math_block(
         self: RendererProtocol,
