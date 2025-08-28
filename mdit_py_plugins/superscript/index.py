@@ -29,13 +29,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 from __future__ import annotations
 """
 
-from collections.abc import Sequence
 import re
-from typing import TYPE_CHECKING
 
 from markdown_it import MarkdownIt
 from markdown_it.rules_inline import StateInline
-
 
 UNESCAPE_RE = re.compile(r"\\([ \\!\"#$%&'()*+,./:;<=>?@[\]^_`{|}~-])")
 WHITESPACE_RE = re.compile(r"(^|[^\\])(\\\\)*\s")
