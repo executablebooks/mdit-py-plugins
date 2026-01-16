@@ -15,8 +15,6 @@ FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 )
 def test_superscript_fixtures(line, title, input, expected):
     md = MarkdownIt("commonmark").use(superscript_plugin)
-    if "DISABLE-CODEBLOCKS" in title:
-        md.disable("code")
     md.options["xhtmlOut"] = False
     text = md.render(input)
     assert text.rstrip() == expected.rstrip()
