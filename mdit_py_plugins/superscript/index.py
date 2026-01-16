@@ -37,9 +37,14 @@ from mdit_py_plugins.utils import UNESCAPE_RE, WHITESPACE_RE
 def superscript_plugin(md: MarkdownIt) -> None:
     """Superscript (``<sup>``) tag plugin for Markdown-It-Py.
 
-    This plugin is ported from `markdown-it-sup <https://github.com/markdown-it/markdown-it-sup>`_. Markup is based on the `Pandoc superscript extension <https://pandoc.org/MANUAL.html#superscripts-and-subscripts>`_.
+    This plugin is ported from `markdown-it-sup
+    <https://github.com/markdown-it/markdown-it-sup>`_. Markup is based on the
+    `Pandoc superscript extension
+    <https://pandoc.org/MANUAL.html#superscripts-and-subscripts>`_.
 
-    Surround superscripted text with caret ``^`` characters. Superscripted text cannot contain whitespace characters. Nested markup is not supported.
+    Place superscripted text within caret ``^`` characters. You must escape any
+    spaces in the superscripted text. Note that you cannot use newline or tab
+    characters, and that nested markup is not supported.
 
     Example usage:
 
@@ -48,8 +53,8 @@ def superscript_plugin(md: MarkdownIt) -> None:
     >>> md = MarkdownIt().use(superscript_plugin)
     >>> md.render("1^st^")
     '<p>1<sup>st</sup></p>\\n'
-    >>> md.render("2^nd^")
-    '<p>2<sup>nd</sup></p>\\n'
+    >>> md.render("this^text\\\\ has\\\\ spaces^")
+    '<p>this<sup>text has spaces</sup></p>\\n'
     """
 
     def superscript(state: StateInline, silent: bool) -> bool:
