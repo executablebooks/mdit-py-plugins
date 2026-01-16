@@ -28,13 +28,9 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 """
 
-import re
-
 from markdown_it import MarkdownIt
 from markdown_it.rules_inline import StateInline
-
-UNESCAPE_RE = re.compile(r"\\([ \\!\"#$%&'()*+,./:;<=>?@[\]^_`{|}~-])")
-WHITESPACE_RE = re.compile(r"(^|[^\\])(\\\\)*\s")
+from mdit_py_plugins.utils import UNESCAPE_RE, WHITESPACE_RE
 
 
 def superscript_plugin(md: MarkdownIt) -> None:
