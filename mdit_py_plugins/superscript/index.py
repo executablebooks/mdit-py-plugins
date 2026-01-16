@@ -30,6 +30,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 from markdown_it import MarkdownIt
 from markdown_it.rules_inline import StateInline
+
 from mdit_py_plugins.utils import UNESCAPE_RE, WHITESPACE_RE
 
 
