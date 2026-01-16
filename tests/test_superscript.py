@@ -19,5 +19,4 @@ def test_superscript_fixtures(line, title, input, expected):
         md.disable("code")
     md.options["xhtmlOut"] = False
     text = md.render(input)
-    print(text)
     assert text.rstrip() == expected.rstrip()
