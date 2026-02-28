@@ -102,14 +102,23 @@ tox -e docs-clean
 # Build docs (incremental)
 tox -e docs-update
 
-# Build with a specific builder (e.g., linkcheck)
-BUILDER=linkcheck tox -e docs-update
+# Build with a specific builder (e.g., linkcheck to validate external links)
+tox -e docs-update -- linkcheck
 ```
 
 ### Code Quality
 
 ```bash
-# Run pre-commit hooks on all files
+# Run all pre-commit hooks (ruff, mypy, trailing whitespace, etc.)
+tox -e pre-commit
+
+# Run pre-commit with specific hook
+tox -e pre-commit -- --all-files ruff
+
+# Run mypy type checking
+tox -e mypy
+
+# Run pre-commit hooks directly (if pre-commit is installed)
 pre-commit run --all-files
 ```
 
