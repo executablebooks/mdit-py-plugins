@@ -245,3 +245,27 @@ test
 .
 <p>test</p>
 .
+
+Indented by 4 spaces
+.
+    Term 1
+
+    : Definition 1
+.
+<pre><code>Term 1
+
+: Definition 1
+</code></pre>
+.
+
+Indented by 4 spaces, DISABLE-CODEBLOCKS
+.
+    Term 1
+
+    : Definition 1
+.
+<dl>
+<dt>Term 1</dt>
+<dd>Definition 1</dd>
+</dl>
+.

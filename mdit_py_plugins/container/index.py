@@ -1,19 +1,29 @@
 """Process block-level custom containers."""
+
+from __future__ import annotations
+
+from collections.abc import Callable, Sequence
 from math import floor
-from typing import Callable, Optional
+from typing import TYPE_CHECKING, Any
 
 from markdown_it import MarkdownIt
-from markdown_it.common.utils import charCodeAt
 from markdown_it.rules_block import StateBlock
+
+from mdit_py_plugins.utils import is_code_block
+
+if TYPE_CHECKING:
+    from markdown_it.renderer import RendererProtocol
+    from markdown_it.token import Token
+    from markdown_it.utils import EnvType, OptionsDict
 
 
 def container_plugin(
     md: MarkdownIt,
     name: str,
     marker: str = ":",
-    validate: Optional[Callable[[str, str], bool]] = None,
-    render=None,
-):
+    validate: None | Callable[[str, str], bool] = None,
+    render: None | Callable[..., str] = None,
+) -> None:
     """Plugin ported from
     `markdown-it-container <https://github.com/markdown-it/markdown-it-container>`__.
 
@@ -34,24 +44,34 @@ def container_plugin(
 
     """
 
-    def validateDefault(params: str, *args):
+    def validateDefault(params: str, *args: Any) -> bool:
         return params.strip().split(" ", 2)[0] == name
 
-    def renderDefault(self, tokens, idx, _options, env):
+    def renderDefault(
+        self: RendererProtocol,
+        tokens: Sequence[Token],
+        idx: int,
+        _options: OptionsDict,
+        env: EnvType,
+    ) -> str:
         # add a class to the opening tag
         if tokens[idx].nesting == 1:
             tokens[idx].attrJoin("class", name)
 
-        return self.renderToken(tokens, idx, _options, env)
+        return self.renderToken(tokens, idx, _options, env)  # type: ignore[attr-defined,no-any-return]
 
     min_markers = 3
     marker_str = marker
-    marker_char = charCodeAt(marker_str, 0)
+    marker_char = marker_str[0]
     marker_len = len(marker_str)
     validate = validate or validateDefault
     render = render or renderDefault
 
-    def container_func(state: StateBlock, startLine: int, endLine: int, silent: bool):
+    def container_func(
+        state: StateBlock, startLine: int, endLine: int, silent: bool
+    ) -> bool:
+        if is_code_block(state, startLine):
+            return False
 
         auto_closed = False
         start = state.bMarks[startLine] + state.tShift[startLine]
@@ -59,7 +79,7 @@ def container_plugin(
 
         # Check out the first character quickly,
         # this should filter out most of non-containers
-        if marker_char != state.srcCharCode[start]:
+        if marker_char != state.src[start]:
             return False
 
         # Check out the rest of the marker string
@@ -107,11 +127,10 @@ def container_plugin(
                 #  test
                 break
 
-            if marker_char != state.srcCharCode[start]:
+            if marker_char != state.src[start]:
                 continue
 
-            if state.sCount[nextLine] - state.blkIndent >= 4:
-                # closing fence should be indented less than 4 spaces
+            if is_code_block(state, nextLine):
                 continue
 
             pos = start + 1

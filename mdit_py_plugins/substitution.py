@@ -2,10 +2,12 @@ from markdown_it import MarkdownIt
 from markdown_it.rules_block import StateBlock
 from markdown_it.rules_inline import StateInline
 
+from mdit_py_plugins.utils import is_code_block
+
 
 def substitution_plugin(
     md: MarkdownIt, start_delimiter: str = "{", end_delimiter: str = "}"
-):
+) -> None:
     """A plugin to create substitution tokens.
 
     These, token should be handled by the renderer.
@@ -18,14 +20,11 @@ def substitution_plugin(
 
     """
 
-    start_char = ord(start_delimiter)
-    end_char = ord(end_delimiter)
-
-    def _substitution_inline(state: StateInline, silent: bool):
+    def _substitution_inline(state: StateInline, silent: bool) -> bool:
         try:
             if (
-                state.srcCharCode[state.pos] != start_char
-                or state.srcCharCode[state.pos + 1] != start_char
+                state.src[state.pos] != start_delimiter
+                or state.src[state.pos + 1] != start_delimiter
             ):
                 return False
         except IndexError:
@@ -35,11 +34,11 @@ def substitution_plugin(
         found_closing = False
         while True:
             try:
-                end = state.srcCharCode.index(end_char, pos)
+                end = state.src.index(end_delimiter, pos)
             except ValueError:
                 return False
             try:
-                if state.srcCharCode[end + 1] == end_char:
+                if state.src[end + 1] == end_delimiter:
                     found_closing = True
                     break
             except IndexError:
@@ -66,13 +65,12 @@ def substitution_plugin(
 
     def _substitution_block(
         state: StateBlock, startLine: int, endLine: int, silent: bool
-    ):
+    ) -> bool:
+        if is_code_block(state, startLine):
+            return False
+
         startPos = state.bMarks[startLine] + state.tShift[startLine]
         end = state.eMarks[startLine]
-
-        # if it's indented more than 3 spaces, it should be a code block
-        if state.sCount[startLine] - state.blkIndent >= 4:
-            return False
 
         lineText = state.src[startPos:end].strip()
 

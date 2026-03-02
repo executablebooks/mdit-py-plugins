@@ -421,3 +421,26 @@ yyy
 yyy
 </code></pre>
 .
+
+
+Indented by 4 spaces
+.
+    :::name
+    foo
+    :::
+.
+<pre><code>:::name
+foo
+:::
+</code></pre>
+.
+
+Indented by 4 spaces, DISABLE-CODEBLOCKS
+.
+    :::name
+    foo
+    :::
+.
+<pre><code class="block-name" >foo
+</code></pre>
+.

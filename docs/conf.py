@@ -21,7 +21,6 @@ intersphinx_mapping = {
 html_title = "mdit-py-plugins"
 html_theme = "sphinx_book_theme"
 html_theme_options = {
-    "single_page": True,
     "use_edit_page_button": True,
     "repository_url": "https://github.com/executablebooks/mdit-py-plugins",
     "repository_branch": "master",

@@ -11,6 +11,15 @@ a = 1
 </div>
 .
 
+equation environment on one line:
+.
+\begin{equation}a = 1\end{equation}
+.
+<div class="math amsmath">
+\begin{equation}a = 1\end{equation}
+</div>
+.
+
 equation* environment:
 .
 \begin{equation*}
@@ -181,11 +190,41 @@ equation environment, in list:
 <li>
 <div class="math amsmath">
 \begin{equation}
-  a = 1
-  \end{equation}
+a = 1
+\end{equation}
 </div>
 </li>
 </ul>
+.
+
+equation environment, in block quote:
+.
+> \begin{matrix}
+> -0.707 &  0.408 &  0.577 \\
+> -0.707 & -0.408 & -0.577 \\
+> -0.    & -0.816 &  0.577
+> \end{matrix}
+
+> \begin{equation}
+a = 1
+\end{equation}
+.
+<blockquote>
+<div class="math amsmath">
+\begin{matrix}
+-0.707 &amp;  0.408 &amp;  0.577 \\
+-0.707 &amp; -0.408 &amp; -0.577 \\
+-0.    &amp; -0.816 &amp;  0.577
+\end{matrix}
+</div>
+</blockquote>
+<blockquote>
+<div class="math amsmath">
+\begin{equation}
+a = 1
+\end{equation}
+</div>
+</blockquote>
 .
 
 `alignat` environment and HTML escaping
@@ -219,5 +258,30 @@ equation environment, in list:
 &amp; c   \quad &amp;&amp; \text{constante aditiva} \quad &amp;&amp; 0\leq c&lt;m\\
 &amp; x_0 \quad &amp;&amp; \text{valor inicial}     \quad &amp;&amp; 0\leq x_0 &lt;m
 \end{alignat*}
+</div>
+.
+
+Indented by 4 spaces
+.
+    \begin{equation}
+    a = 1
+    \end{equation}
+.
+<pre><code>\begin{equation}
+a = 1
+\end{equation}
+</code></pre>
+.
+
+Indented by 4 spaces, DISABLE-CODEBLOCKS
+.
+    \begin{equation}
+    a = 1
+    \end{equation}
+.
+<div class="math amsmath">
+\begin{equation}
+a = 1
+\end{equation}
 </div>
 .

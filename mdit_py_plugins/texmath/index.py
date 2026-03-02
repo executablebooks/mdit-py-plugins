@@ -1,11 +1,24 @@
+from __future__ import annotations
+
+from collections.abc import Callable, Sequence
 import re
-from typing import Optional
+from re import Match
+from typing import TYPE_CHECKING, Any, TypedDict
 
 from markdown_it import MarkdownIt
 from markdown_it.common.utils import charCodeAt
 
+if TYPE_CHECKING:
+    from markdown_it.renderer import RendererProtocol
+    from markdown_it.rules_block import StateBlock
+    from markdown_it.rules_inline import StateInline
+    from markdown_it.token import Token
+    from markdown_it.utils import EnvType, OptionsDict
 
-def texmath_plugin(md: MarkdownIt, delimiters="dollars", macros: Optional[dict] = None):
+
+def texmath_plugin(
+    md: MarkdownIt, delimiters: str = "dollars", macros: Any = None
+) -> None:
     """Plugin ported from
     `markdown-it-texmath <https://github.com/goessner/markdown-it-texmath>`__.
 
@@ -26,8 +39,14 @@ def texmath_plugin(md: MarkdownIt, delimiters="dollars", macros: Optional[dict] 
                 "escape", rule_inline["name"], make_inline_func(rule_inline)
             )
 
-            def render_math_inline(self, tokens, idx, options, env):
-                return rule_inline["tmpl"].format(
+            def render_math_inline(
+                self: RendererProtocol,
+                tokens: Sequence[Token],
+                idx: int,
+                options: OptionsDict,
+                env: EnvType,
+            ) -> str:
+                return rule_inline["tmpl"].format(  # noqa: B023
                     render(tokens[idx].content, False, macros)
                 )
 
@@ -38,40 +57,59 @@ def texmath_plugin(md: MarkdownIt, delimiters="dollars", macros: Optional[dict] 
                 "fence", rule_block["name"], make_block_func(rule_block)
             )
 
-            def render_math_block(self, tokens, idx, options, env):
-                return rule_block["tmpl"].format(
+            def render_math_block(
+                self: RendererProtocol,
+                tokens: Sequence[Token],
+                idx: int,
+                options: OptionsDict,
+                env: EnvType,
+            ) -> str:
+                return rule_block["tmpl"].format(  # noqa: B023
                     render(tokens[idx].content, True, macros), tokens[idx].info
                 )
 
             md.add_render_rule(rule_block["name"], render_math_block)
 
 
-def applyRule(rule, string: str, begin, inBlockquote):
+class _RuleDictReqType(TypedDict):
+    name: str
+    rex: re.Pattern[str]
+    tmpl: str
+    tag: str
 
+
+class RuleDictType(_RuleDictReqType, total=False):
+    # Note in Python 3.10+ could use Req annotation
+    pre: Any
+    post: Any
+
+
+def applyRule(
+    rule: RuleDictType, string: str, begin: int, inBlockquote: bool
+) -> None | Match[str]:
     if not (
         string.startswith(rule["tag"], begin)
         and (rule["pre"](string, begin) if "pre" in rule else True)
     ):
-        return False
+        return None
 
-    match = rule["rex"].match(string[begin:])  # type: re.Match
+    match = rule["rex"].match(string[begin:])
 
     if not match or match.start() != 0:
-        return False
+        return None
 
     lastIndex = match.end() + begin - 1
-    if "post" in rule:
-        if not (
-            rule["post"](string, lastIndex)  # valid post-condition
-            # remove evil blockquote bug (https:#github.com/goessner/mdmath/issues/50)
-            and (not inBlockquote or "\n" not in match.group(1))
-        ):
-            return False
+    if "post" in rule and not (
+        rule["post"](string, lastIndex)  # valid post-condition
+        # remove evil blockquote bug (https:#github.com/goessner/mdmath/issues/50)
+        and (not inBlockquote or "\n" not in match.group(1))
+    ):
+        return None
     return match
 
 
-def make_inline_func(rule):
-    def _func(state, silent):
+def make_inline_func(rule: RuleDictType) -> Callable[[StateInline, bool], bool]:
+    def _func(state: StateInline, silent: bool) -> bool:
         res = applyRule(rule, state.src, state.pos, False)
         if res:
             if not silent:
@@ -86,8 +124,8 @@ def make_inline_func(rule):
     return _func
 
 
-def make_block_func(rule):
-    def _func(state, begLine, endLine, silent):
+def make_block_func(rule: RuleDictType) -> Callable[[StateBlock, int, int, bool], bool]:
+    def _func(state: StateBlock, begLine: int, endLine: int, silent: bool) -> bool:
         begin = state.bMarks[begLine] + state.tShift[begLine]
         res = applyRule(rule, state.src, begin, state.parentType == "blockquote")
         if res:
@@ -108,23 +146,21 @@ def make_block_func(rule):
                     break
                 line += 1
 
-            state.pos = begin + res.end()
-
         return bool(res)
 
     return _func
 
 
-def dollar_pre(str, beg):
-    prv = charCodeAt(str[beg - 1], 0) if beg > 0 else False
+def dollar_pre(src: str, beg: int) -> bool:
+    prv = charCodeAt(src[beg - 1], 0) if beg > 0 else False
     return (
-        (not prv) or prv != 0x5C and (prv < 0x30 or prv > 0x39)  # no backslash,
+        (not prv) or (prv != 0x5C and (prv < 0x30 or prv > 0x39))  # no backslash,
     )  # no decimal digit .. before opening '$'
 
 
-def dollar_post(string, end):
+def dollar_post(src: str, end: int) -> bool:
     try:
-        nxt = string[end + 1] and charCodeAt(string[end + 1], 0)
+        nxt = src[end + 1] and charCodeAt(src[end + 1], 0)
     except IndexError:
         return True
     return (
@@ -132,7 +168,7 @@ def dollar_post(string, end):
     )  # no decimal digit .. after closing '$'
 
 
-def render(tex, displayMode, macros):
+def render(tex: str, displayMode: bool, macros: Any) -> str:
     return tex
     # TODO better HTML renderer port for math
     # try:
@@ -151,7 +187,8 @@ def render(tex, displayMode, macros):
 # All regexes areg global (g) and sticky (y), see:
 # https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/sticky
 
-rules: dict = {
+
+rules: dict[str, dict[str, list[RuleDictType]]] = {
     "brackets": {
         "inline": [
             {
@@ -193,7 +230,7 @@ rules: dict = {
                 "rex": re.compile(
                     r"^`{3}math\s+?([^`]+?)\s+?`{3}\s*?\(([^)$\r\n]+?)\)", re.M
                 ),
-                "tmpl": '<section class="eqno">\n<eqn>{0}</eqn><span>({1})</span>\n</section>\n',  # noqa: E501
+                "tmpl": '<section class="eqno">\n<eqn>{0}</eqn><span>({1})</span>\n</section>\n',
                 "tag": "```math",
             },
             {
@@ -293,7 +330,7 @@ rules: dict = {
             {
                 "name": "math_block_eqno",
                 "rex": re.compile(r"^\${2}([^$]*?)\${2}\s*?\(([^)$\r\n]+?)\)", re.M),
-                "tmpl": '<section class="eqno">\n<eqn>{0}</eqn><span>({1})</span>\n</section>\n',  # noqa: E501
+                "tmpl": '<section class="eqno">\n<eqn>{0}</eqn><span>({1})</span>\n</section>\n',
                 "tag": "$$",
             },
             {

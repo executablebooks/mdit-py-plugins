@@ -1,5 +1,68 @@
 # Change Log
 
+## 0.5.0 - 2025-08-11
+
+- ⬆️ Drop Python 3.9, which is EoL next month <https://devguide.python.org/versions> and allow for the, soon to be released, markdown-it-py v4.
+- ✨ NEW: Add plugin & tests to render subscripts, thanks to @miteshashar
+
+## 0.4.2 - 2024-09-09
+
+- 👌 Improve parsing of nested amsmath
+
+  The previous logic was problematic for amsmath blocks nested in other blocs (such as blockquotes)
+
+  The new parsing code now principally follows the logic in `markdown_it/rules_block/fence.py`
+  (see also <https://spec.commonmark.org/0.30/#fenced-code-blocks>),
+  except that:
+
+  1. it allows for a closing tag on the same line as the opening tag, and
+  2. it does not allow for an opening tag without closing tag (i.e. no auto-closing)
+
+- ✨ Add `allowed` option for inline/block attributes
+
+  The `allowed` option accepts a list of allowed attribute names.
+  If not ``None``, any attributes not in this list will be removed
+  and placed in the token's meta under the key `"insecure_attrs"`.
+
+## 0.4.1 - 2024-05-12
+
+* 👌 Add option for footnotes references to always be matched
+
+  Usually footnote references are only matched when a footnote definition of the same label has already been found. If `always_match_refs=True`, any `[^...]` syntax will be treated as a footnote.
+
+## 0.4.0 - 2023-06-05
+
+* ⬆️ UPGRADE: Drop python 3.7 and support 3.11 ([#77](https://github.com/executablebooks/mdit-py-plugins/pull/77))
+
+* ⬆️ UPGRADE: Allow markdown-it-py v3 ([#85](https://github.com/executablebooks/mdit-py-plugins/pull/85))
+  * 👌 Make field_list compatible with latest upstream ([#75](https://github.com/executablebooks/mdit-py-plugins/pull/75))
+  * 🔧 Convert `state.srcCharCode` -> `state.src` ([#84](https://github.com/executablebooks/mdit-py-plugins/pull/84))
+  * 🔧 Remove unnecessary method arg by @chrisjsewell in( [#76](https://github.com/executablebooks/mdit-py-plugins/pull/76))
+  * 👌 Centralise code block test ([#83](https://github.com/executablebooks/mdit-py-plugins/pull/83) and [#87](https://github.com/executablebooks/mdit-py-plugins/pull/87))
+    * This means that disabling the `code` block rule in markdown-it-py v3+ will now allow all syntax blocks to be indented by any amount of whitespace.
+
+* 👌 Improve `dollarmath` plugin: Add `allow_blank_lines` option, thanks to [@eric-wieser](https://github.com/eric-wieser) ([#46](https://github.com/executablebooks/mdit-py-plugins/pull/46))
+
+* 👌 Improve `admon` plugin: Add `???` support, thanks to [@KyleKing](https://github.com/KyleKing) ([#58](https://github.com/executablebooks/mdit-py-plugins/pull/58))
+
+* 🔧 MAINTAIN: Make type checking strict ([#86](https://github.com/executablebooks/mdit-py-plugins/pull/86))
+
+**Full Changelog**: <https://github.com/executablebooks/mdit-py-plugins/compare/v0.3.5...v0.4.0>
+
+## 0.3.5 - 2023-03-02
+
+- 🐛 FIX: Regression in dollarmath by @chrisjsewell in [#69](https://github.com/executablebooks/mdit-py-plugins/pull/69)
+- 🐛 Fix regression in amsmath by @chrisjsewell in [#70](https://github.com/executablebooks/mdit-py-plugins/pull/70)
+- 🔧 Correct project documentation link by @andersk in [#73](https://github.com/executablebooks/mdit-py-plugins/pull/73)
+
+## 0.3.4 - 2023-02-18
+
+- ✨ NEW: Add attrs_block_plugin by @chrisjsewell in [#66](https://github.com/executablebooks/mdit-py-plugins/pull/66)
+- 👌 Improve field lists by @chrisjsewell in [#65](https://github.com/executablebooks/mdit-py-plugins/pull/65)
+- 🔧 Update pre-commit by @chrisjsewell in [#64](https://github.com/executablebooks/mdit-py-plugins/pull/64) (moving from flake8 to ruff)
+
+**Full Changelog**: [v0.3.3...v0.3.](https://github.com/executablebooks/mdit-py-plugins/compare/v0.3.3...v0.3.4)
+
 ## 0.3.3 - 2022-12-06
 
 🐛 FIX: span with end of inline before attrs

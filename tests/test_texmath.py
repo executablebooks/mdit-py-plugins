@@ -14,7 +14,6 @@ FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 
 
 def test_inline_func():
-
     inline_func = main.make_inline_func(main.rules["dollars"]["inline"][0])
 
     md = MarkdownIt()
@@ -87,6 +86,8 @@ def test_plugin_parse(data_regression):
 )
 def test_dollar_fixtures(line, title, input, expected):
     md = MarkdownIt("commonmark").use(texmath_plugin)
+    if "DISABLE-CODEBLOCKS" in title:
+        md.disable("code")
     md.options["xhtmlOut"] = False
     text = md.render(input)
     print(text)
@@ -99,6 +100,8 @@ def test_dollar_fixtures(line, title, input, expected):
 )
 def test_bracket_fixtures(line, title, input, expected):
     md = MarkdownIt("commonmark").use(texmath_plugin, delimiters="brackets")
+    if "DISABLE-CODEBLOCKS" in title:
+        md.disable("code")
     md.options["xhtmlOut"] = False
     text = md.render(input)
     print(text)

@@ -14,7 +14,6 @@ FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 
 
 def test_inline_func():
-
     inline_func = main.math_inline_dollar()
 
     md = MarkdownIt()
@@ -82,14 +81,25 @@ def test_plugin_parse(data_regression):
     data_regression.check([t.as_dict() for t in tokens])
 
 
+def test_custom_renderer(data_regression):
+    md = MarkdownIt().use(dollarmath_plugin, renderer=lambda x, y: x)
+    assert md.render("$x$").strip() == '<p><span class="math inline">x</span></p>'
+
+
 @pytest.mark.parametrize(
     "line,title,input,expected",
     read_fixture_file(FIXTURE_PATH.joinpath("dollar_math.md")),
 )
 def test_dollarmath_fixtures(line, title, input, expected):
     md = MarkdownIt("commonmark").use(
-        dollarmath_plugin, allow_space=False, allow_digits=False, double_inline=True
+        dollarmath_plugin,
+        allow_space=False,
+        allow_digits=False,
+        double_inline=True,
+        allow_blank_lines=False,
     )
+    if "DISABLE-CODEBLOCKS" in title:
+        md.disable("code")
     md.options.xhtmlOut = False
     text = md.render(input)
     print(text)

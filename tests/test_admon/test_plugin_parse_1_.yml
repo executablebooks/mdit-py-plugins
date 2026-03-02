@@ -1,0 +1,145 @@
+- attrs:
+  - - class
+    - admonition note is-collapsible collapsible-closed
+  block: true
+  children: null
+  content: Note
+  hidden: false
+  info: ' note'
+  level: 0
+  map:
+  - 0
+  - 2
+  markup: ???
+  meta:
+    tag: note
+  nesting: 1
+  tag: div
+  type: admonition_open
+- attrs:
+  - - class
+    - admonition-title
+  block: true
+  children: null
+  content: ''
+  hidden: false
+  info: ''
+  level: 1
+  map:
+  - 0
+  - 1
+  markup: ??? note
+  meta: {}
+  nesting: 1
+  tag: p
+  type: admonition_title_open
+- attrs: null
+  block: true
+  children:
+  - attrs: null
+    block: false
+    children: null
+    content: Note
+    hidden: false
+    info: ''
+    level: 0
+    map: null
+    markup: ''
+    meta: {}
+    nesting: 0
+    tag: ''
+    type: text
+  content: Note
+  hidden: false
+  info: ''
+  level: 2
+  map:
+  - 0
+  - 1
+  markup: ''
+  meta: {}
+  nesting: 0
+  tag: ''
+  type: inline
+- attrs: null
+  block: true
+  children: null
+  content: ''
+  hidden: false
+  info: ''
+  level: 1
+  map: null
+  markup: ''
+  meta: {}
+  nesting: -1
+  tag: p
+  type: admonition_title_close
+- attrs: null
+  block: true
+  children: null
+  content: ''
+  hidden: false
+  info: ''
+  level: 1
+  map:
+  - 1
+  - 2
+  markup: ''
+  meta: {}
+  nesting: 1
+  tag: p
+  type: paragraph_open
+- attrs: null
+  block: true
+  children:
+  - attrs: null
+    block: false
+    children: null
+    content: content 2
+    hidden: false
+    info: ''
+    level: 0
+    map: null
+    markup: ''
+    meta: {}
+    nesting: 0
+    tag: ''
+    type: text
+  content: content 2
+  hidden: false
+  info: ''
+  level: 2
+  map:
+  - 1
+  - 2
+  markup: ''
+  meta: {}
+  nesting: 0
+  tag: ''
+  type: inline
+- attrs: null
+  block: true
+  children: null
+  content: ''
+  hidden: false
+  info: ''
+  level: 1
+  map: null
+  markup: ''
+  meta: {}
+  nesting: -1
+  tag: p
+  type: paragraph_close
+- attrs: null
+  block: true
+  children: null
+  content: ''
+  hidden: false
+  info: ''
+  level: 0
+  map: null
+  markup: ???
+  meta: {}
+  nesting: -1
+  tag: div
+  type: admonition_close

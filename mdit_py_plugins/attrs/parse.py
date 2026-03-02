@@ -19,11 +19,12 @@ val <- bareval | quotedval
 bareval <- (ASCII_ALPHANUM | ':' | '_' | '-')+
 quotedval <- '"' ([^"] | '\"') '"'
 """
+
 from __future__ import annotations
 
+from collections.abc import Callable
 from enum import Enum
 import re
-from typing import Callable
 
 
 class State(Enum):
@@ -46,14 +47,14 @@ REGEX_KEY_CHARACTERS = re.compile(r"[a-zA-Z\d_:-]")
 
 
 class TokenState:
-    def __init__(self):
-        self._tokens = []
+    def __init__(self) -> None:
+        self._tokens: list[tuple[int, int, str]] = []
         self.start: int = 0
 
     def set_start(self, start: int) -> None:
         self.start = start
 
-    def append(self, start: int, end: int, ttype: str):
+    def append(self, start: int, end: int, ttype: str) -> None:
         self._tokens.append((start, end, ttype))
 
     def compile(self, string: str) -> dict[str, str]:
@@ -113,14 +114,12 @@ def parse(string: str) -> tuple[int, dict[str, str]]:
 
 
 def handle_start(char: str, pos: int, tokens: TokenState) -> State:
-
     if char == "{":
         return State.SCANNING
     raise ParseError("Attributes must start with '{'", pos)
 
 
 def handle_scanning(char: str, pos: int, tokens: TokenState) -> State:
-
     if char == " " or char == "\t" or char == "\n" or char == "\r":
         return State.SCANNING
     if char == "}":
@@ -142,7 +141,6 @@ def handle_scanning(char: str, pos: int, tokens: TokenState) -> State:
 
 
 def handle_scanning_comment(char: str, pos: int, tokens: TokenState) -> State:
-
     if char == "%":
         return State.SCANNING
 
@@ -150,7 +148,6 @@ def handle_scanning_comment(char: str, pos: int, tokens: TokenState) -> State:
 
 
 def handle_scanning_id(char: str, pos: int, tokens: TokenState) -> State:
-
     if not REGEX_SPACE_PUNCTUATION.fullmatch(char):
         return State.SCANNING_ID
 
@@ -168,7 +165,6 @@ def handle_scanning_id(char: str, pos: int, tokens: TokenState) -> State:
 
 
 def handle_scanning_class(char: str, pos: int, tokens: TokenState) -> State:
-
     if not REGEX_SPACE_PUNCTUATION.fullmatch(char):
         return State.SCANNING_CLASS
 
@@ -186,7 +182,6 @@ def handle_scanning_class(char: str, pos: int, tokens: TokenState) -> State:
 
 
 def handle_scanning_key(char: str, pos: int, tokens: TokenState) -> State:
-
     if char == "=":
         tokens.append(tokens.start, pos, "key")
         return State.SCANNING_VALUE
@@ -198,7 +193,6 @@ def handle_scanning_key(char: str, pos: int, tokens: TokenState) -> State:
 
 
 def handle_scanning_value(char: str, pos: int, tokens: TokenState) -> State:
-
     if char == '"':
         tokens.set_start(pos)
         return State.SCANNING_QUOTED_VALUE
@@ -211,7 +205,6 @@ def handle_scanning_value(char: str, pos: int, tokens: TokenState) -> State:
 
 
 def handle_scanning_bare_value(char: str, pos: int, tokens: TokenState) -> State:
-
     if REGEX_KEY_CHARACTERS.fullmatch(char):
         return State.SCANNING_BARE_VALUE
 
@@ -231,7 +224,6 @@ def handle_scanning_escaped(char: str, pos: int, tokens: TokenState) -> State:
 
 
 def handle_scanning_quoted_value(char: str, pos: int, tokens: TokenState) -> State:
-
     if char == '"':
         tokens.append(tokens.start + 1, pos, "value")
         return State.SCANNING

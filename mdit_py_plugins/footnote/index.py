@@ -1,17 +1,32 @@
-# Process footnotes
-#
+"""Process footnotes"""
 
-from typing import List, Optional
+from __future__ import annotations
+
+from collections.abc import Sequence
+from functools import partial
+from typing import TYPE_CHECKING, TypedDict
 
 from markdown_it import MarkdownIt
-from markdown_it.common.utils import isSpace
 from markdown_it.helpers import parseLinkLabel
 from markdown_it.rules_block import StateBlock
+from markdown_it.rules_core import StateCore
 from markdown_it.rules_inline import StateInline
 from markdown_it.token import Token
 
+from mdit_py_plugins.utils import is_code_block
 
-def footnote_plugin(md: MarkdownIt):
+if TYPE_CHECKING:
+    from markdown_it.renderer import RendererProtocol
+    from markdown_it.utils import EnvType, OptionsDict
+
+
+def footnote_plugin(
+    md: MarkdownIt,
+    *,
+    inline: bool = True,
+    move_to_end: bool = True,
+    always_match_refs: bool = False,
+) -> None:
     """Plugin ported from
     `markdown-it-footnote <https://github.com/markdown-it/markdown-it-footnote>`__.
 
@@ -31,13 +46,22 @@ def footnote_plugin(md: MarkdownIt):
             Subsequent paragraphs are indented to show that they
         belong to the previous footnote.
 
+    :param inline: If True, also parse inline footnotes (^[...]).
+    :param move_to_end: If True, move footnote definitions to the end of the token stream.
+    :param always_match_refs: If True, match references, even if the footnote is not defined.
+
     """
     md.block.ruler.before(
         "reference", "footnote_def", footnote_def, {"alt": ["paragraph", "reference"]}
     )
-    md.inline.ruler.after("image", "footnote_inline", footnote_inline)
-    md.inline.ruler.after("footnote_inline", "footnote_ref", footnote_ref)
-    md.core.ruler.after("inline", "footnote_tail", footnote_tail)
+    _footnote_ref = partial(footnote_ref, always_match=always_match_refs)
+    if inline:
+        md.inline.ruler.after("image", "footnote_inline", footnote_inline)
+        md.inline.ruler.after("footnote_inline", "footnote_ref", _footnote_ref)
+    else:
+        md.inline.ruler.after("image", "footnote_ref", _footnote_ref)
+    if move_to_end:
+        md.core.ruler.after("inline", "footnote_tail", footnote_tail)
 
     md.add_render_rule("footnote_ref", render_footnote_ref)
     md.add_render_rule("footnote_block_open", render_footnote_block_open)
@@ -51,11 +75,37 @@ def footnote_plugin(md: MarkdownIt):
     md.add_render_rule("footnote_anchor_name", render_footnote_anchor_name)
 
 
+class _RefData(TypedDict, total=False):
+    # standard
+    label: str
+    count: int
+    # inline
+    content: str
+    tokens: list[Token]
+
+
+class _FootnoteData(TypedDict):
+    refs: dict[str, int]
+    """A mapping of all footnote labels (prefixed with ``:``) to their ID (-1 if not yet set)."""
+    list: dict[int, _RefData]
+    """A mapping of all footnote IDs to their data."""
+
+
+def _data_from_env(env: EnvType) -> _FootnoteData:
+    footnotes = env.setdefault("footnotes", {})
+    footnotes.setdefault("refs", {})
+    footnotes.setdefault("list", {})
+    return footnotes  # type: ignore[no-any-return]
+
+
 # ## RULES ##
 
 
-def footnote_def(state: StateBlock, startLine: int, endLine: int, silent: bool):
+def footnote_def(state: StateBlock, startLine: int, endLine: int, silent: bool) -> bool:
     """Process footnote block definition"""
+
+    if is_code_block(state, startLine):
+        return False
 
     start = state.bMarks[startLine] + state.tShift[startLine]
     maximum = state.eMarks[startLine]
@@ -64,30 +114,31 @@ def footnote_def(state: StateBlock, startLine: int, endLine: int, silent: bool):
     if start + 4 > maximum:
         return False
 
-    if state.srcCharCode[start] != 0x5B:  # /* [ */
+    if state.src[start] != "[":
         return False
-    if state.srcCharCode[start + 1] != 0x5E:  # /* ^ */
+    if state.src[start + 1] != "^":
         return False
 
     pos = start + 2
     while pos < maximum:
-        if state.srcCharCode[pos] == 0x20:
+        if state.src[pos] == " ":
             return False
-        if state.srcCharCode[pos] == 0x5D:  # /* ] */
+        if state.src[pos] == "]":
             break
         pos += 1
 
     if pos == start + 2:  # no empty footnote labels
         return False
     pos += 1
-    if pos >= maximum or state.srcCharCode[pos] != 0x3A:  # /* : */
+    if pos >= maximum or state.src[pos] != ":":
         return False
     if silent:
         return True
     pos += 1
 
     label = state.src[start + 2 : pos - 2]
-    state.env.setdefault("footnotes", {}).setdefault("refs", {})[":" + label] = -1
+    footnote_data = _data_from_env(state.env)
+    footnote_data["refs"][":" + label] = -1
 
     open_token = Token("footnote_reference_open", "", 1)
     open_token.meta = {"label": label}
@@ -108,13 +159,12 @@ def footnote_def(state: StateBlock, startLine: int, endLine: int, silent: bool):
     )
 
     while pos < maximum:
-        ch = state.srcCharCode[pos]
+        ch = state.src[pos]
 
-        if isSpace(ch):
-            if ch == 0x09:
-                offset += 4 - offset % 4
-            else:
-                offset += 1
+        if ch == "\t":
+            offset += 4 - offset % 4
+        elif ch == " ":
+            offset += 1
 
         else:
             break
@@ -131,7 +181,7 @@ def footnote_def(state: StateBlock, startLine: int, endLine: int, silent: bool):
     if state.sCount[startLine] < state.blkIndent:
         state.sCount[startLine] += state.blkIndent
 
-    state.md.block.tokenize(state, startLine, endLine, True)
+    state.md.block.tokenize(state, startLine, endLine)
 
     state.parentType = oldParentType
     state.blkIndent -= 4
@@ -149,7 +199,7 @@ def footnote_def(state: StateBlock, startLine: int, endLine: int, silent: bool):
     return True
 
 
-def footnote_inline(state: StateInline, silent: bool):
+def footnote_inline(state: StateInline, silent: bool) -> bool:
     """Process inline footnotes (^[...])"""
 
     maximum = state.posMax
@@ -157,9 +207,9 @@ def footnote_inline(state: StateInline, silent: bool):
 
     if start + 2 >= maximum:
         return False
-    if state.srcCharCode[start] != 0x5E:  # /* ^ */
+    if state.src[start] != "^":
         return False
-    if state.srcCharCode[start + 1] != 0x5B:  # /* [ */
+    if state.src[start + 1] != "[":
         return False
 
     labelStart = start + 2
@@ -173,10 +223,10 @@ def footnote_inline(state: StateInline, silent: bool):
     # so all that's left to do is to call tokenizer.
     #
     if not silent:
-        refs = state.env.setdefault("footnotes", {}).setdefault("list", {})
+        refs = _data_from_env(state.env)["list"]
         footnoteId = len(refs)
 
-        tokens: List[Token] = []
+        tokens: list[Token] = []
         state.md.inline.parse(
             state.src[labelStart:labelEnd], state.md, state.env, tokens
         )
@@ -191,7 +241,9 @@ def footnote_inline(state: StateInline, silent: bool):
     return True
 
 
-def footnote_ref(state: StateInline, silent: bool):
+def footnote_ref(
+    state: StateInline, silent: bool, *, always_match: bool = False
+) -> bool:
     """Process footnote references ([^...])"""
 
     maximum = state.posMax
@@ -201,20 +253,20 @@ def footnote_ref(state: StateInline, silent: bool):
     if start + 3 > maximum:
         return False
 
-    if "footnotes" not in state.env or "refs" not in state.env["footnotes"]:
+    footnote_data = _data_from_env(state.env)
+
+    if not (always_match or footnote_data["refs"]):
         return False
-    if state.srcCharCode[start] != 0x5B:  # /* [ */
+    if state.src[start] != "[":
         return False
-    if state.srcCharCode[start + 1] != 0x5E:  # /* ^ */
+    if state.src[start + 1] != "^":
         return False
 
     pos = start + 2
     while pos < maximum:
-        if state.srcCharCode[pos] == 0x20:
+        if state.src[pos] in (" ", "\n"):
             return False
-        if state.srcCharCode[pos] == 0x0A:
-            return False
-        if state.srcCharCode[pos] == 0x5D:  # /* ] */
+        if state.src[pos] == "]":
             break
         pos += 1
 
@@ -225,22 +277,19 @@ def footnote_ref(state: StateInline, silent: bool):
     pos += 1
 
     label = state.src[start + 2 : pos - 1]
-    if (":" + label) not in state.env["footnotes"]["refs"]:
+    if ((":" + label) not in footnote_data["refs"]) and not always_match:
         return False
 
     if not silent:
-        if "list" not in state.env["footnotes"]:
-            state.env["footnotes"]["list"] = {}
-
-        if state.env["footnotes"]["refs"][":" + label] < 0:
-            footnoteId = len(state.env["footnotes"]["list"])
-            state.env["footnotes"]["list"][footnoteId] = {"label": label, "count": 0}
-            state.env["footnotes"]["refs"][":" + label] = footnoteId
+        if footnote_data["refs"].get(":" + label, -1) < 0:
+            footnoteId = len(footnote_data["list"])
+            footnote_data["list"][footnoteId] = {"label": label, "count": 0}
+            footnote_data["refs"][":" + label] = footnoteId
         else:
-            footnoteId = state.env["footnotes"]["refs"][":" + label]
+            footnoteId = footnote_data["refs"][":" + label]
 
-        footnoteSubId = state.env["footnotes"]["list"][footnoteId]["count"]
-        state.env["footnotes"]["list"][footnoteId]["count"] += 1
+        footnoteSubId = footnote_data["list"][footnoteId]["count"]
+        footnote_data["list"][footnoteId]["count"] += 1
 
         token = state.push("footnote_ref", "", 0)
         token.meta = {"id": footnoteId, "subId": footnoteSubId, "label": label}
@@ -250,7 +299,7 @@ def footnote_ref(state: StateInline, silent: bool):
     return True
 
 
-def footnote_tail(state: StateBlock, *args, **kwargs):
+def footnote_tail(state: StateCore) -> None:
     """Post-processing step, to move footnote tokens to end of the token stream.
 
     Also removes un-referenced tokens.
@@ -262,10 +311,9 @@ def footnote_tail(state: StateBlock, *args, **kwargs):
     if "footnotes" not in state.env:
         return
 
-    current: List[Token] = []
+    current: list[Token] = []
     tok_filter = []
     for tok in state.tokens:
-
         if tok.type == "footnote_reference_open":
             insideRef = True
             current = []
@@ -283,18 +331,18 @@ def footnote_tail(state: StateBlock, *args, **kwargs):
         if insideRef:
             current.append(tok)
 
-        tok_filter.append((not insideRef))
+        tok_filter.append(not insideRef)
 
-    state.tokens = [t for t, f in zip(state.tokens, tok_filter) if f]
+    state.tokens = [t for t, f in zip(state.tokens, tok_filter, strict=False) if f]
 
-    if "list" not in state.env.get("footnotes", {}):
+    footnote_data = _data_from_env(state.env)
+    if not footnote_data["list"]:
         return
-    foot_list = state.env["footnotes"]["list"]
 
     token = Token("footnote_block_open", "", 1)
     state.tokens.append(token)
 
-    for i, foot_note in foot_list.items():
+    for i, foot_note in footnote_data["list"].items():
         token = Token("footnote_open", "", 1)
         token.meta = {"id": i, "label": foot_note.get("label", None)}
         # TODO propagate line positions of original foot note
@@ -318,11 +366,11 @@ def footnote_tail(state: StateBlock, *args, **kwargs):
             tokens.append(token)
 
         elif "label" in foot_note:
-            tokens = refTokens[":" + foot_note["label"]]
+            tokens = refTokens.get(":" + foot_note["label"], [])
 
         state.tokens.extend(tokens)
         if state.tokens[len(state.tokens) - 1].type == "paragraph_close":
-            lastParagraph: Optional[Token] = state.tokens.pop()
+            lastParagraph: Token | None = state.tokens.pop()
         else:
             lastParagraph = None
 
@@ -352,7 +400,13 @@ def footnote_tail(state: StateBlock, *args, **kwargs):
 # Renderer partials
 
 
-def render_footnote_anchor_name(self, tokens, idx, options, env):
+def render_footnote_anchor_name(
+    self: RendererProtocol,
+    tokens: Sequence[Token],
+    idx: int,
+    options: OptionsDict,
+    env: EnvType,
+) -> str:
     n = str(tokens[idx].meta["id"] + 1)
     prefix = ""
 
@@ -363,7 +417,13 @@ def render_footnote_anchor_name(self, tokens, idx, options, env):
     return prefix + n
 
 
-def render_footnote_caption(self, tokens, idx, options, env):
+def render_footnote_caption(
+    self: RendererProtocol,
+    tokens: Sequence[Token],
+    idx: int,
+    options: OptionsDict,
+    env: EnvType,
+) -> str:
     n = str(tokens[idx].meta["id"] + 1)
 
     if tokens[idx].meta.get("subId", -1) > 0:
@@ -372,9 +432,15 @@ def render_footnote_caption(self, tokens, idx, options, env):
     return "[" + n + "]"
 
 
-def render_footnote_ref(self, tokens, idx, options, env):
-    ident = self.rules["footnote_anchor_name"](tokens, idx, options, env)
-    caption = self.rules["footnote_caption"](tokens, idx, options, env)
+def render_footnote_ref(
+    self: RendererProtocol,
+    tokens: Sequence[Token],
+    idx: int,
+    options: OptionsDict,
+    env: EnvType,
+) -> str:
+    ident: str = self.rules["footnote_anchor_name"](tokens, idx, options, env)  # type: ignore[attr-defined]
+    caption: str = self.rules["footnote_caption"](tokens, idx, options, env)  # type: ignore[attr-defined]
     refid = ident
 
     if tokens[idx].meta.get("subId", -1) > 0:
@@ -391,7 +457,13 @@ def render_footnote_ref(self, tokens, idx, options, env):
     )
 
 
-def render_footnote_block_open(self, tokens, idx, options, env):
+def render_footnote_block_open(
+    self: RendererProtocol,
+    tokens: Sequence[Token],
+    idx: int,
+    options: OptionsDict,
+    env: EnvType,
+) -> str:
     return (
         (
             '<hr class="footnotes-sep" />\n'
@@ -403,12 +475,24 @@ def render_footnote_block_open(self, tokens, idx, options, env):
     )
 
 
-def render_footnote_block_close(self, tokens, idx, options, env):
+def render_footnote_block_close(
+    self: RendererProtocol,
+    tokens: Sequence[Token],
+    idx: int,
+    options: OptionsDict,
+    env: EnvType,
+) -> str:
     return "</ol>\n</section>\n"
 
 
-def render_footnote_open(self, tokens, idx, options, env):
-    ident = self.rules["footnote_anchor_name"](tokens, idx, options, env)
+def render_footnote_open(
+    self: RendererProtocol,
+    tokens: Sequence[Token],
+    idx: int,
+    options: OptionsDict,
+    env: EnvType,
+) -> str:
+    ident: str = self.rules["footnote_anchor_name"](tokens, idx, options, env)  # type: ignore[attr-defined]
 
     if tokens[idx].meta.get("subId", -1) > 0:
         ident += ":" + tokens[idx].meta["subId"]
@@ -416,15 +500,27 @@ def render_footnote_open(self, tokens, idx, options, env):
     return '<li id="fn' + ident + '" class="footnote-item">'
 
 
-def render_footnote_close(self, tokens, idx, options, env):
+def render_footnote_close(
+    self: RendererProtocol,
+    tokens: Sequence[Token],
+    idx: int,
+    options: OptionsDict,
+    env: EnvType,
+) -> str:
     return "</li>\n"
 
 
-def render_footnote_anchor(self, tokens, idx, options, env):
-    ident = self.rules["footnote_anchor_name"](tokens, idx, options, env)
+def render_footnote_anchor(
+    self: RendererProtocol,
+    tokens: Sequence[Token],
+    idx: int,
+    options: OptionsDict,
+    env: EnvType,
+) -> str:
+    ident: str = self.rules["footnote_anchor_name"](tokens, idx, options, env)  # type: ignore[attr-defined]
 
     if tokens[idx].meta["subId"] > 0:
         ident += ":" + str(tokens[idx].meta["subId"])
 
     # ↩ with escape code to prevent display as Apple Emoji on iOS
-    return ' <a href="#fnref' + ident + '" class="footnote-backref">\u21a9\uFE0E</a>'
+    return ' <a href="#fnref' + ident + '" class="footnote-backref">\u21a9\ufe0e</a>'

@@ -344,3 +344,51 @@ b
 </ol>
 </section>
 .
+
+Indented by 4 spaces
+.
+    [^1]
+
+    [^1]: footnote
+.
+<pre><code>[^1]
+
+[^1]: footnote
+</code></pre>
+.
+
+Indented by 4 spaces, DISABLE-CODEBLOCKS
+.
+    [^1]
+
+    [^1]: footnote
+.
+<p><sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup></p>
+<hr class="footnotes-sep">
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"><p>footnote <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+</li>
+</ol>
+</section>
+.
+
+refs with no definition standard
+.
+[^1]  [^1]
+.
+<p>[^1]  [^1]</p>
+.
+
+refs with no definition, ALWAYS_MATCH-REFS
+.
+[^1]  [^1]
+.
+<p><sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup>  <sup class="footnote-ref"><a href="#fn1" id="fnref1:1">[1:1]</a></sup></p>
+<hr class="footnotes-sep">
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"> <a href="#fnref1" class="footnote-backref">↩︎</a> <a href="#fnref1:1" class="footnote-backref">↩︎</a></li>
+</ol>
+</section>
+.

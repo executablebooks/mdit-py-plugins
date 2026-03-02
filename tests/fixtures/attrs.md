@@ -1,3 +1,76 @@
+block with preceding text is not a block
+.
+{#a .a b=c} a
+.
+<p>{#a .a b=c} a</p>
+.
+
+block no preceding
+.
+{#a .a c=1}
+.
+
+.
+
+block basic
+.
+{#a .a c=1}
+a
+.
+<p id="a" c="1" class="a">a</p>
+.
+
+multiple blocks
+.
+{#a .a c=1} 
+
+ {#b .b c=2}
+a
+.
+<p id="b" c="2" class="a b">a</p>
+.
+
+block list
+.
+{#a .a c=1}
+- a
+.
+<ul id="a" c="1" class="a">
+<li>a</li>
+</ul>
+.
+
+block quote
+.
+{#a .a c=1}
+> a
+.
+<blockquote id="a" c="1" class="a">
+<p>a</p>
+</blockquote>
+.
+
+block fence
+.
+{#a .b c=1}
+```python
+a = 1
+```
+.
+<pre><code id="a" c="1" class="b language-python">a = 1
+</code></pre>
+.
+
+block after paragraph
+.
+a
+{#a .a c=1}
+.
+<p>a
+{#a .a c=1}</p>
+.
+
+
 simple reference link
 .
 [text *emphasis*](a){#id .a}
@@ -166,4 +239,22 @@ spans: merge attributes
 [a]{#a .a}{#b .a .b other=c}{other=d}
 .
 <p><span id="b" class="a b" other="d">a</span></p>
+.
+
+Indented by 4 spaces
+.
+    {#a .a b=c}
+    # head
+.
+<pre><code>{#a .a b=c}
+# head
+</code></pre>
+.
+
+Indented by 4 spaces, DISABLE-CODEBLOCKS
+.
+    {#a .a b=c}
+    # head
+.
+<h1 id="a" b="c" class="a">head</h1>
 .

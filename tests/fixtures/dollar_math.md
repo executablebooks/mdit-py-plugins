@@ -226,6 +226,18 @@ b = 2
 </div>
 .
 
+display equation with blank lines. (valid=False)
+.
+$$
+1+1=2
+
+$$
+.
+<p>$$
+1+1=2</p>
+<p>$$</p>
+.
+
 equation followed by a labelled equation (valid=True)
 .
 $$
@@ -548,5 +560,23 @@ $$1+1=2$$ (a b)
 <div id="a-b" class="math block">
 <a href="#a-b" class="mathlabel" title="Permalink to this equation">¶</a>
 1+1=2
+</div>
+.
+
+
+Indented by 4 spaces
+.
+    $$a$$
+.
+<pre><code>$$a$$
+</code></pre>
+.
+
+Indented by 4 spaces, DISABLE-CODEBLOCKS
+.
+    $$a$$
+.
+<div class="math block">
+a
 </div>
 .

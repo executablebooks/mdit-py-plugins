@@ -1,1 +1,3 @@
-from .index import deflist_plugin  # noqa F401
+from .index import deflist_plugin
+
+__all__ = ("deflist_plugin",)

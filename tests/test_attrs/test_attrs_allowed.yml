@@ -1,0 +1,121 @@
+- attrs:
+  - - safe
+    - d
+  block: true
+  children: null
+  content: ''
+  hidden: false
+  info: ''
+  level: 0
+  map:
+  - 3
+  - 4
+  markup: '#'
+  meta:
+    insecure_attrs:
+      danger1: a
+      danger2: c
+  nesting: 1
+  tag: h1
+  type: heading_open
+- attrs: null
+  block: true
+  children:
+  - attrs: null
+    block: false
+    children: null
+    content: header
+    hidden: false
+    info: ''
+    level: 0
+    map: null
+    markup: ''
+    meta: {}
+    nesting: 0
+    tag: ''
+    type: text
+  content: header
+  hidden: false
+  info: ''
+  level: 1
+  map:
+  - 3
+  - 4
+  markup: ''
+  meta: {}
+  nesting: 0
+  tag: ''
+  type: inline
+- attrs: null
+  block: true
+  children: null
+  content: ''
+  hidden: false
+  info: ''
+  level: 0
+  map: null
+  markup: '#'
+  meta: {}
+  nesting: -1
+  tag: h1
+  type: heading_close
+- attrs: null
+  block: true
+  children: null
+  content: ''
+  hidden: false
+  info: ''
+  level: 0
+  map:
+  - 5
+  - 6
+  markup: ''
+  meta: {}
+  nesting: 1
+  tag: p
+  type: paragraph_open
+- attrs: null
+  block: true
+  children:
+  - attrs:
+    - - safe
+      - a
+    block: false
+    children: null
+    content: inline
+    hidden: false
+    info: ''
+    level: 0
+    map: null
+    markup: '`'
+    meta:
+      insecure_attrs:
+        danger: b
+    nesting: 0
+    tag: code
+    type: code_inline
+  content: '`inline`{safe=a danger=b}'
+  hidden: false
+  info: ''
+  level: 1
+  map:
+  - 5
+  - 6
+  markup: ''
+  meta: {}
+  nesting: 0
+  tag: ''
+  type: inline
+- attrs: null
+  block: true
+  children: null
+  content: ''
+  hidden: false
+  info: ''
+  level: 0
+  map: null
+  markup: ''
+  meta: {}
+  nesting: -1
+  tag: p
+  type: paragraph_close

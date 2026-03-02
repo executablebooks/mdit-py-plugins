@@ -1,10 +1,20 @@
+from __future__ import annotations
+
+from collections.abc import Callable, Sequence
 import re
-from typing import Any, Callable, Dict, Optional
+from typing import TYPE_CHECKING, Any
 
 from markdown_it import MarkdownIt
 from markdown_it.common.utils import escapeHtml, isWhiteSpace
 from markdown_it.rules_block import StateBlock
 from markdown_it.rules_inline import StateInline
+
+from mdit_py_plugins.utils import is_code_block
+
+if TYPE_CHECKING:
+    from markdown_it.renderer import RendererProtocol
+    from markdown_it.token import Token
+    from markdown_it.utils import EnvType, OptionsDict
 
 
 def dollarmath_plugin(
@@ -13,10 +23,11 @@ def dollarmath_plugin(
     allow_labels: bool = True,
     allow_space: bool = True,
     allow_digits: bool = True,
+    allow_blank_lines: bool = True,
     double_inline: bool = False,
-    label_normalizer: Optional[Callable[[str], str]] = None,
-    renderer: Optional[Callable[[str, Dict[str, Any]], str]] = None,
-    label_renderer: Optional[Callable[[str], str]] = None,
+    label_normalizer: Callable[[str], str] | None = None,
+    renderer: Callable[[str, dict[str, Any]], str] | None = None,
+    label_renderer: Callable[[str], str] | None = None,
 ) -> None:
     """Plugin for parsing dollar enclosed math,
     e.g. inline: ``$a=1$``, block: ``$$b=2$$``
@@ -30,6 +41,10 @@ def dollarmath_plugin(
     :param allow_digits: Parse inline math when there is a digit
         before/after the opening/closing ``$``, e.g. ``1$`` or ``$2``.
         This is useful when also using currency.
+    :param allow_blank_lines: Allow blank lines inside ``$$``. Note that blank lines are
+        not allowed in LaTeX, executablebooks/markdown-it-dollarmath, or the Github or
+        StackExchange markdown dialects. Hoever, they have special semantics if used
+        within Sphinx `..math` admonitions, so are allowed for backwards-compatibility.
     :param double_inline: Search for double-dollar math within inline contexts
     :param label_normalizer: Function to normalize the label,
         by default replaces whitespace with `-`
@@ -39,7 +54,7 @@ def dollarmath_plugin(
 
     """
     if label_normalizer is None:
-        label_normalizer = lambda label: re.sub(r"\s+", "-", label)
+        label_normalizer = lambda label: re.sub(r"\s+", "-", label)  # noqa: E731
 
     md.inline.ruler.before(
         "escape",
@@ -47,38 +62,64 @@ def dollarmath_plugin(
         math_inline_dollar(allow_space, allow_digits, double_inline),
     )
     md.block.ruler.before(
-        "fence", "math_block", math_block_dollar(allow_labels, label_normalizer)
+        "fence",
+        "math_block",
+        math_block_dollar(allow_labels, label_normalizer, allow_blank_lines),
     )
 
     # TODO the current render rules are really just for testing
     # would be good to allow "proper" math rendering,
     # e.g. https://github.com/roniemartinez/latex2mathml
 
-    if renderer is None:
-        _renderer = lambda content, _: escapeHtml(content)
-    else:
-        _renderer = renderer
+    _renderer = (
+        (lambda content, _: escapeHtml(content)) if renderer is None else renderer
+    )
 
+    _label_renderer: Callable[[str], str]
     if label_renderer is None:
-        _label_renderer = (
-            lambda label: f'<a href="#{label}" class="mathlabel" title="Permalink to this equation">¶</a>'  # noqa: E501
+        _label_renderer = (  # noqa: E731
+            lambda label: f'<a href="#{label}" class="mathlabel" title="Permalink to this equation">¶</a>'
         )
     else:
         _label_renderer = label_renderer
 
-    def render_math_inline(self, tokens, idx, options, env) -> str:
+    def render_math_inline(
+        self: RendererProtocol,
+        tokens: Sequence[Token],
+        idx: int,
+        options: OptionsDict,
+        env: EnvType,
+    ) -> str:
         content = _renderer(str(tokens[idx].content).strip(), {"display_mode": False})
         return f'<span class="math inline">{content}</span>'
 
-    def render_math_inline_double(self, tokens, idx, options, env) -> str:
+    def render_math_inline_double(
+        self: RendererProtocol,
+        tokens: Sequence[Token],
+        idx: int,
+        options: OptionsDict,
+        env: EnvType,
+    ) -> str:
         content = _renderer(str(tokens[idx].content).strip(), {"display_mode": True})
         return f'<div class="math inline">{content}</div>'
 
-    def render_math_block(self, tokens, idx, options, env) -> str:
+    def render_math_block(
+        self: RendererProtocol,
+        tokens: Sequence[Token],
+        idx: int,
+        options: OptionsDict,
+        env: EnvType,
+    ) -> str:
         content = _renderer(str(tokens[idx].content).strip(), {"display_mode": True})
         return f'<div class="math block">\n{content}\n</div>\n'
 
-    def render_math_block_label(self, tokens, idx, options, env) -> str:
+    def render_math_block_label(
+        self: RendererProtocol,
+        tokens: Sequence[Token],
+        idx: int,
+        options: OptionsDict,
+        env: EnvType,
+    ) -> str:
         content = _renderer(str(tokens[idx].content).strip(), {"display_mode": True})
         _id = tokens[idx].info
         label = _label_renderer(tokens[idx].info)
@@ -97,7 +138,7 @@ def is_escaped(state: StateInline, back_pos: int, mod: int = 0) -> bool:
     backslashes = 0
     while back_pos >= 0:
         back_pos = back_pos - 1
-        if state.srcCharCode[back_pos] == 0x5C:  # /* \ */
+        if state.src[back_pos] == "\\":
             backslashes += 1
         else:
             break
@@ -106,7 +147,7 @@ def is_escaped(state: StateInline, back_pos: int, mod: int = 0) -> bool:
         return False
 
     # if an odd number of \ then ignore
-    if (backslashes % 2) != mod:
+    if (backslashes % 2) != mod:  # noqa: SIM103
         return True
 
     return False
@@ -145,13 +186,13 @@ def math_inline_dollar(
         # TODO options:
         # even/odd backslash escaping
 
-        if state.srcCharCode[state.pos] != 0x24:  # /* $ */
+        if state.src[state.pos] != "$":
             return False
 
         if not allow_space:
             # whitespace not allowed straight after opening $
             try:
-                if isWhiteSpace(state.srcCharCode[state.pos + 1]):
+                if isWhiteSpace(ord(state.src[state.pos + 1])):
                     return False
             except IndexError:
                 return False
@@ -168,7 +209,7 @@ def math_inline_dollar(
             return False
 
         try:
-            is_double = allow_double and state.srcCharCode[state.pos + 1] == 0x24
+            is_double = allow_double and state.src[state.pos + 1] == "$"
         except IndexError:
             return False
 
@@ -177,7 +218,7 @@ def math_inline_dollar(
         found_closing = False
         while not found_closing:
             try:
-                end = state.srcCharCode.index(0x24, pos)
+                end = state.src.index("$", pos)
             except ValueError:
                 return False
 
@@ -186,7 +227,7 @@ def math_inline_dollar(
                 continue
 
             try:
-                if is_double and not state.srcCharCode[end + 1] == 0x24:
+                if is_double and state.src[end + 1] != "$":
                     pos = end + 1
                     continue
             except IndexError:
@@ -203,7 +244,7 @@ def math_inline_dollar(
         if not allow_space:
             # whitespace not allowed straight before closing $
             try:
-                if isWhiteSpace(state.srcCharCode[end - 1]):
+                if isWhiteSpace(ord(state.src[end - 1])):
                     return False
             except IndexError:
                 return False
@@ -246,31 +287,27 @@ DOLLAR_EQNO_REV = re.compile(r"^\s*\)([^)$\r\n]+?)\(\s*\${2}")
 
 def math_block_dollar(
     allow_labels: bool = True,
-    label_normalizer: Optional[Callable[[str], str]] = None,
+    label_normalizer: Callable[[str], str] | None = None,
+    allow_blank_lines: bool = False,
 ) -> Callable[[StateBlock, int, int, bool], bool]:
     """Generate block dollar rule."""
 
     def _math_block_dollar(
         state: StateBlock, startLine: int, endLine: int, silent: bool
     ) -> bool:
-
         # TODO internal backslash escaping
+
+        if is_code_block(state, startLine):
+            return False
 
         haveEndMarker = False
         startPos = state.bMarks[startLine] + state.tShift[startLine]
         end = state.eMarks[startLine]
 
-        # if it's indented more than 3 spaces, it should be a code block
-        if state.sCount[startLine] - state.blkIndent >= 4:
-            return False
-
         if startPos + 2 > end:
             return False
 
-        if (
-            state.srcCharCode[startPos] != 0x24
-            or state.srcCharCode[startPos + 1] != 0x24
-        ):  # /* $ */
+        if state.src[startPos] != "$" or state.src[startPos + 1] != "$":
             return False
 
         # search for end of block
@@ -280,7 +317,6 @@ def math_block_dollar(
         # search for end of block on same line
         lineText = state.src[startPos:end]
         if len(lineText.strip()) > 3:
-
             if lineText.strip().endswith("$$"):
                 haveEndMarker = True
                 end = end - 2 - (len(lineText) - len(lineText.strip()))
@@ -302,15 +338,14 @@ def math_block_dollar(
                 start = state.bMarks[nextLine] + state.tShift[nextLine]
                 end = state.eMarks[nextLine]
 
-                if end - start < 2:
-                    continue
-
                 lineText = state.src[start:end]
 
                 if lineText.strip().endswith("$$"):
                     haveEndMarker = True
                     end = end - 2 - (len(lineText) - len(lineText.strip()))
                     break
+                if lineText.strip() == "" and not allow_blank_lines:
+                    break  # blank lines are not allowed within $$
 
                 # reverse the line and match
                 if allow_labels:

@@ -1,17 +1,28 @@
 """An extension to capture amsmath latex environments."""
+
+from __future__ import annotations
+
+from collections.abc import Callable, Sequence
 import re
-from typing import Callable, Optional
+from typing import TYPE_CHECKING
 
 from markdown_it import MarkdownIt
 from markdown_it.common.utils import escapeHtml
 from markdown_it.rules_block import StateBlock
+
+from mdit_py_plugins.utils import is_code_block
+
+if TYPE_CHECKING:
+    from markdown_it.renderer import RendererProtocol
+    from markdown_it.token import Token
+    from markdown_it.utils import EnvType, OptionsDict
 
 # Taken from amsmath version 2.1
 # http://anorien.csc.warwick.ac.uk/mirrors/CTAN/macros/latex/required/amsmath/amsldoc.pdf
 ENVIRONMENTS = [
     # 3.2 single equation with an automatically gen-erated number
     "equation",
-    # 3.3 variation equation, used for equations that don’t fit on a single line
+    # 3.3 variation equation, used for equations that dont fit on a single line
     "multline",
     # 3.5 a group of consecutive equations when there is no alignment desired among them
     "gather",
@@ -44,10 +55,12 @@ ENVIRONMENTS = [
 # whose total width is the actual width of the contents;
 # thus they can be used as a component in a containing expression
 
-RE_OPEN = re.compile(r"\\begin\{(" + "|".join(ENVIRONMENTS) + r")([\*]?)\}")
+RE_OPEN = r"\\begin\{(" + "|".join(ENVIRONMENTS) + r")([\*]?)\}"
 
 
-def amsmath_plugin(md: MarkdownIt, *, renderer: Optional[Callable[[str], str]] = None):
+def amsmath_plugin(
+    md: MarkdownIt, *, renderer: Callable[[str], str] | None = None
+) -> None:
     """Parses TeX math equations, without any surrounding delimiters,
     only for top-level `amsmath <https://ctan.org/pkg/amsmath>`__ environments:
 
@@ -68,59 +81,75 @@ def amsmath_plugin(md: MarkdownIt, *, renderer: Optional[Callable[[str], str]] =
         {"alt": ["paragraph", "reference", "blockquote", "list", "footnote_def"]},
     )
 
-    if renderer is None:
-        _renderer = lambda content: escapeHtml(content)
-    else:
-        _renderer = renderer
+    _renderer = (lambda content: escapeHtml(content)) if renderer is None else renderer
 
-    def render_amsmath_block(self, tokens, idx, options, env):
+    def render_amsmath_block(
+        self: RendererProtocol,
+        tokens: Sequence[Token],
+        idx: int,
+        options: OptionsDict,
+        env: EnvType,
+    ) -> str:
         content = _renderer(str(tokens[idx].content))
         return f'<div class="math amsmath">\n{content}\n</div>\n'
 
     md.add_render_rule("amsmath", render_amsmath_block)
 
 
-def match_environment(string):
-    match_open = RE_OPEN.match(string)
-    if not match_open:
-        return None
+def amsmath_block(
+    state: StateBlock, startLine: int, endLine: int, silent: bool
+) -> bool:
+    # note the code principally follows the logic in markdown_it/rules_block/fence.py,
+    # except that:
+    # (a) it allows for closing tag on same line as opening tag
+    # (b) it does not allow for opening tag without closing tag (i.e. no auto-closing)
+
+    if is_code_block(state, startLine):
+        return False
+
+    # does the first line contain the beginning of an amsmath environment
+    first_start = state.bMarks[startLine] + state.tShift[startLine]
+    first_end = state.eMarks[startLine]
+    first_text = state.src[first_start:first_end]
+
+    if not (match_open := re.match(RE_OPEN, first_text)):
+        return False
+
+    # construct the closing tag
     environment = match_open.group(1)
     numbered = match_open.group(2)
-    match_close = re.search(
-        r"\\end\{" + environment + numbered.replace("*", r"\*") + "\\}", string
-    )
-    if not match_close:
-        return None
-    return (environment, numbered, match_close.end())
+    closing = rf"\end{{{match_open.group(1)}{match_open.group(2)}}}"
 
+    # start looking for the closing tag, including the current line
+    nextLine = startLine - 1
 
-def amsmath_block(state: StateBlock, startLine: int, endLine: int, silent: bool):
+    while True:
+        nextLine += 1
+        if nextLine >= endLine:
+            # reached the end of the block without finding the closing tag
+            return False
 
-    # if it's indented more than 3 spaces, it should be a code block
-    if state.sCount[startLine] - state.blkIndent >= 4:
-        return False
+        next_start = state.bMarks[nextLine] + state.tShift[nextLine]
+        next_end = state.eMarks[nextLine]
+        if next_start < first_end and state.sCount[nextLine] < state.blkIndent:
+            # non-empty line with negative indent should stop the list:
+            # - \begin{align}
+            #  test
+            return False
 
-    begin = state.bMarks[startLine] + state.tShift[startLine]
-
-    outcome = match_environment(state.src[begin:])
-    if not outcome:
-        return False
-    environment, numbered, endpos = outcome
-    endpos += begin
-
-    line = startLine
-    while line < endLine:
-        if endpos >= state.bMarks[line] and endpos <= state.eMarks[line]:
-            # line for end of block math found ...
-            state.line = line + 1
+        if state.src[next_start:next_end].rstrip().endswith(closing):
+            # found the closing tag
             break
-        line += 1
+
+    state.line = nextLine + 1
 
     if not silent:
         token = state.push("amsmath", "math", 0)
         token.block = True
-        token.content = state.src[begin:endpos]
+        token.content = state.getLines(
+            startLine, state.line, state.sCount[startLine], False
+        )
         token.meta = {"environment": environment, "numbered": numbered}
-        token.map = [startLine, line]
+        token.map = [startLine, nextLine]
 
     return True

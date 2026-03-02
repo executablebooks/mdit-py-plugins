@@ -14,7 +14,6 @@ FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures", "footnote.md")
 
 
 def test_footnote_def():
-
     md = MarkdownIt()
     src = r"[^a]: xyz"
     tokens = []
@@ -97,11 +96,10 @@ def test_footnote_def():
             "hidden": False,
         },
     ]
-    assert state.env == {"footnotes": {"refs": {":a": -1}}}
+    assert state.env == {"footnotes": {"refs": {":a": -1}, "list": {}}}
 
 
 def test_footnote_ref():
-
     md = MarkdownIt()
     src = r"[^a]"
     tokens = []
@@ -132,7 +130,6 @@ def test_footnote_ref():
 
 
 def test_footnote_inline():
-
     md = MarkdownIt().use(footnote_plugin)
     src = r"^[a]"
     tokens = []
@@ -191,89 +188,79 @@ def test_footnote_tail():
 
     tokens = [
         Token(
-            **{
-                "type": "footnote_reference_open",
-                "tag": "",
-                "nesting": 1,
-                "attrs": None,
-                "map": None,
-                "level": 0,
-                "children": None,
-                "content": "",
-                "markup": "",
-                "info": "",
-                "meta": {"label": "a"},
-                "block": False,
-                "hidden": False,
-            }
+            type="footnote_reference_open",
+            tag="",
+            nesting=1,
+            attrs=None,
+            map=None,
+            level=0,
+            children=None,
+            content="",
+            markup="",
+            info="",
+            meta={"label": "a"},
+            block=False,
+            hidden=False,
         ),
         Token(
-            **{
-                "type": "paragraph_open",
-                "tag": "p",
-                "nesting": 1,
-                "attrs": None,
-                "map": [0, 1],
-                "level": 1,
-                "children": None,
-                "content": "",
-                "markup": "",
-                "info": "",
-                "meta": {},
-                "block": True,
-                "hidden": False,
-            }
+            type="paragraph_open",
+            tag="p",
+            nesting=1,
+            attrs=None,
+            map=[0, 1],
+            level=1,
+            children=None,
+            content="",
+            markup="",
+            info="",
+            meta={},
+            block=True,
+            hidden=False,
         ),
         Token(
-            **{
-                "type": "inline",
-                "tag": "",
-                "nesting": 0,
-                "attrs": None,
-                "map": [0, 1],
-                "level": 2,
-                "children": [],
-                "content": "xyz",
-                "markup": "",
-                "info": "",
-                "meta": {},
-                "block": True,
-                "hidden": False,
-            }
+            type="inline",
+            tag="",
+            nesting=0,
+            attrs=None,
+            map=[0, 1],
+            level=2,
+            children=[],
+            content="xyz",
+            markup="",
+            info="",
+            meta={},
+            block=True,
+            hidden=False,
         ),
         Token(
-            **{
-                "type": "paragraph_close",
-                "tag": "p",
-                "nesting": -1,
-                "attrs": None,
-                "map": None,
-                "level": 1,
-                "children": None,
-                "content": "",
-                "markup": "",
-                "info": "",
-                "meta": {},
-                "block": True,
-                "hidden": False,
-            }
+            type="paragraph_close",
+            tag="p",
+            nesting=-1,
+            attrs=None,
+            map=None,
+            level=1,
+            children=None,
+            content="",
+            markup="",
+            info="",
+            meta={},
+            block=True,
+            hidden=False,
         ),
         Token(
-            **{
-                "type": "footnote_reference_close",
-                "tag": "",
-                "nesting": -1,
-                "attrs": None,
-                "map": None,
-                "level": 0,
-                "children": None,
-                "content": "",
-                "markup": "",
-                "info": "",
-                "meta": {},
-                "block": False,
-                "hidden": False,
-            }
+            type="footnote_reference_close",
+            tag="",
+            nesting=-1,
+            attrs=None,
+            map=None,
+            level=0,
+            children=None,
+            content="",
+            markup="",
+            info="",
+            meta={},
+            block=False,
+            hidden=False,
         ),
         Token("other", "", 0),
     ]
@@ -446,14 +433,18 @@ def test_plugin_render():
     </li>
     </ol>
     </section>
-    """  # noqa: E501
+    """
         )
     )
 
 
 @pytest.mark.parametrize("line,title,input,expected", read_fixture_file(FIXTURE_PATH))
 def test_all(line, title, input, expected):
-    md = MarkdownIt("commonmark").use(footnote_plugin)
+    md = MarkdownIt().use(
+        footnote_plugin, always_match_refs="ALWAYS_MATCH-REFS" in title
+    )
+    if "DISABLE-CODEBLOCKS" in title:
+        md.disable("code")
     md.options["xhtmlOut"] = False
     text = md.render(input)
     print(text)

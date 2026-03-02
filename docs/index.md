@@ -22,7 +22,7 @@ md = MarkdownIt("gfm-like")
 ```
 
 ```{seealso}
-See [](markdown_it:using)
+See <inv:markdown_it#using>
 ```
 
 ## mdit-py-plugins package
@@ -89,10 +89,14 @@ html_string = md.render("some *Markdown*")
 .. autofunction:: mdit_py_plugins.admon.admon_plugin
 ```
 
-## Inline Attributes
+## Attributes
 
 ```{eval-rst}
 .. autofunction:: mdit_py_plugins.attrs.attrs_plugin
+```
+
+```{eval-rst}
+.. autofunction:: mdit_py_plugins.attrs.attrs_block_plugin
 ```
 
 ## Math
@@ -115,6 +119,18 @@ html_string = md.render("some *Markdown*")
 .. autofunction:: mdit_py_plugins.abbr.abbr_plugin
 ```
 
+## Subscripts
+
+```{eval-rst}
+.. autofunction:: mdit_py_plugins.subscript.sub_plugin
+```
+
+## Superscript
+
+```{eval-rst}
+.. autofunction:: mdit_py_plugins.superscript.superscript_plugin
+```
+
 ## MyST plugins
 
 `myst_blocks` and `myst_role` plugins are also available, for utilisation by the [MyST renderer](https://myst-parser.readthedocs.io/en/latest/using/syntax.html)
@@ -126,12 +142,10 @@ html_string = md.render("some *Markdown*")
 
 ## Write your own
 
-Use the `mdit_py_plugins` as a guide to write your own, following the [markdown-it design principles](markdown_it:architecture).
+Use the `mdit_py_plugins` as a guide to write your own, following the [markdown-it design principles](inv:markdown_it#architecture).
 
 There are many other plugins which could easily be ported from the JS versions (and hopefully will):
 
-- [subscript](https://github.com/markdown-it/markdown-it-sub)
-- [superscript](https://github.com/markdown-it/markdown-it-sup)
 - [abbreviation](https://github.com/markdown-it/markdown-it-abbr)
 - [emoji](https://github.com/markdown-it/markdown-it-emoji)
 - [insert](https://github.com/markdown-it/markdown-it-ins)

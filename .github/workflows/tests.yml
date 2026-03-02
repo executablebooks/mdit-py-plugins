@@ -17,12 +17,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v2
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
       with:
-        python-version: 3.8
-    - uses: pre-commit/action@v2.0.0
+        python-version: "3.10"
+    - uses: pre-commit/action@v3.0.1
 
   tests:
 
@@ -30,12 +30,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['pypy-3.7', '3.7', '3.8', '3.9', '3.10']
+        python-version: ['pypy-3.10', '3.10', '3.11', '3.12', '3.13']
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
@@ -46,12 +46,22 @@ jobs:
       run: |
         pytest --cov=mdit_py_plugins --cov-report=xml --cov-report=term-missing
     - name: Upload to Codecov
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v5
+      if: github.event.pull_request.head.repo.full_name == github.repository
       with:
+        token: ${{ secrets.CODECOV_TOKEN }}
         name: mdit-py-plugins-pytests
         flags: pytests
-        file: ./coverage.xml
+        files: ./coverage.xml
         fail_ci_if_error: true
+
+  allgood:
+    runs-on: ubuntu-latest
+    needs:
+    - pre-commit
+    - tests
+    steps:
+    - run: echo "Great success!"
 
   publish:
 
@@ -61,11 +71,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout source
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
-        python-version: "3.8"
+        python-version: "3.10"
     - name: install flit
       run: |
         pip install flit~=3.4

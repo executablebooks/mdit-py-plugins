@@ -13,6 +13,8 @@ FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures", "myst_block.md")
 @pytest.mark.parametrize("line,title,input,expected", read_fixture_file(FIXTURE_PATH))
 def test_all(line, title, input, expected):
     md = MarkdownIt("commonmark").use(myst_block_plugin)
+    if "DISABLE-CODEBLOCKS" in title:
+        md.disable("code")
     md.options["xhtmlOut"] = False
     text = md.render(input)
     print(text)

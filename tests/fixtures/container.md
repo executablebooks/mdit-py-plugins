@@ -284,3 +284,27 @@ yyy</p>
 <p>yyy
 :::</p>
 .
+
+
+Indented by 4 spaces
+.
+    ::: name
+    content
+    :::
+.
+<pre><code>::: name
+content
+:::
+</code></pre>
+.
+
+Indented by 4 spaces, DISABLE-CODEBLOCKS
+.
+    ::: name
+    content
+    :::
+.
+<div class="name">
+<p>content</p>
+</div>
+.
