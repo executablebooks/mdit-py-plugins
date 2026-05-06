@@ -2,11 +2,37 @@
 
 Three inline scanners are registered:
 
-- **gfm_autolink_www** (char ``w``): bare ``www.`` URLs
+- **gfm_autolink_www** (char ``w``): bare ``www.`` URLs.
+  Uses ``add_terminator_char("w")`` so the text scanner interrupts at ``w``.
 - **gfm_autolink_protocol** (char ``:``): ``http://``, ``https://``,
   ``mailto:``, ``xmpp:`` URLs via back-scanning ``pending``.
 - **gfm_autolink_email** (char ``@``): bare email addresses via
   back-scanning ``pending``.
+
+Since ``:`` and ``@`` are already default terminator characters in
+markdown-it-py, the protocol and email rules are invoked at every occurrence
+of those characters. They use a *back-scanning* approach: looking backwards
+through ``state.pending`` for a protocol prefix or email local-part that was
+accumulated by the text rule. This means every ``:`` and ``@`` in the
+document incurs a (cheap) regex check or character scan of pending text.
+
+The trade-off vs. a **core-rule** (post-processing) approach — which would
+walk the final token stream, find autolink patterns in text tokens, and
+split them — is:
+
+- **Inline approach** (current): simpler, integrates naturally with
+  ``state.linkLevel`` to suppress matching inside links, but relies on the
+  prefix being present in ``state.pending`` (if a prior inline rule consumed
+  part of the prefix, matching would fail — unlikely in practice).
+- **Core-rule approach**: guaranteed to find all autolinks regardless of
+  inline rule ordering, but requires token-stream surgery (splitting text
+  tokens and inserting link tokens) and cannot easily interact with nesting
+  guards like ``linkLevel``.
+
+The ``w`` terminator is the only *new* terminator added. It causes the text
+rule to interrupt at every ``w``, which is a minor performance cost for
+documents heavy in that letter, but necessary since ``www.`` must be matched
+from the start of the URL.
 
 Specification: https://github.github.com/gfm/#autolinks-extension-
 
