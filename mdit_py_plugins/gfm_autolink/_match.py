@@ -33,7 +33,7 @@ _SPACE_CHARS = frozenset(" \t\r\n\x00\x0b\x0c")
 
 
 def _isspace(ch: str) -> bool:
-    return ch in _SPACE_CHARS or ch == "\r" or ch == "\n"
+    return ch in _SPACE_CHARS
 
 
 _LINK_END_ASSORTMENT = frozenset("?!.,:*_~'\"[]")

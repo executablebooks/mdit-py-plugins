@@ -8,6 +8,7 @@ Enables a set of plugins that together approximate GitHub's Markdown rendering:
 - Task lists (built-in, markdown-it-py >= 4.1.0)
 - Alerts (built-in, markdown-it-py >= 4.1.0)
 - Footnotes (``[^label]`` references and definitions)
+
 Optional extras:
 
 - Dollar math (``$...$`` / ``$$...$$``)
