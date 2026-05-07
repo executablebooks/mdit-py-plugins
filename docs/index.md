@@ -43,6 +43,18 @@ html_string = md.render("some *Markdown*")
 .. autofunction:: mdit_py_plugins.front_matter.front_matter_plugin
 ```
 
+## GFM (GitHub Flavored Markdown)
+
+```{eval-rst}
+.. autofunction:: mdit_py_plugins.gfm.gfm_plugin
+```
+
+## GFM Autolinks
+
+```{eval-rst}
+.. autofunction:: mdit_py_plugins.gfm_autolink.gfm_autolink_plugin
+```
+
 ## Footnotes
 
 ```{eval-rst}

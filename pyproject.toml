@@ -39,6 +39,7 @@ testing = [
     "pytest",
     "pytest-cov",
     "pytest-regressions",
+    "pytest-timeout",
 ]
 rtd = [
     "myst-parser",
@@ -84,3 +85,6 @@ show_error_codes = true
 warn_unused_ignores = true
 warn_redundant_casts = true
 strict = true
+
+[tool.pytest.ini_options]
+timeout = 10
