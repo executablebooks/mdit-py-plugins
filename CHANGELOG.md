@@ -1,5 +1,32 @@
 # Change Log
 
+## 0.6.0 - 2026-05-07
+
+- ✨ NEW: Add GFM autolink and composite GFM plugins (#135)
+
+  The `gfm_autolink` plugin implements [GFM autolink literals](https://github.github.com/gfm/#autolinks-extension-),
+  auto-linking URLs and email addresses without requiring angle brackets:
+
+  ```markdown
+  Visit www.example.com or contact user@example.com
+  ```
+
+  The `gfm` composite plugin enables a full Github Flavored Markdown (GFM)-like configuration in a single call
+  (tables, strikethrough, autolinks, task lists, alerts, and footnotes).
+
+  See [the GitHub docs](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax) for more information.
+
+  **Requires markdown-it-py >= 4.1.0.**
+
+- ✨ NEW: Add superscript plugin and tests, thanks to @elijahgreenstein (#128)
+
+  Ported from [markdown-it-sup](https://github.com/markdown-it/markdown-it-sup).
+  Renders superscript text using `^..^` syntax:
+
+  ```markdown
+  29^th^ of May
+  ```
+
 ## 0.5.0 - 2025-08-11
 
 - ⬆️ Drop Python 3.9, which is EoL next month <https://devguide.python.org/versions> and allow for the, soon to be released, markdown-it-py v4.
