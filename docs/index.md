@@ -125,6 +125,12 @@ html_string = md.render("some *Markdown*")
 .. autofunction:: mdit_py_plugins.amsmath.amsmath_plugin
 ```
 
+## Abbreviation
+
+```{eval-rst}
+.. autofunction:: mdit_py_plugins.abbr.abbr_plugin
+```
+
 ## Subscripts
 
 ```{eval-rst}
