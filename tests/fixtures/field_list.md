@@ -388,3 +388,171 @@ indented</p>
 </dd>
 </dl>
 .
+
+Multiple fields in list item:
+.
+- :name1: body1
+  :name2: body2
+  :name3: body3
+.
+<ul>
+<li>
+<dl class="field-list">
+<dt>name1</dt>
+<dd>
+<p>body1</p>
+</dd>
+<dt>name2</dt>
+<dd>
+<p>body2</p>
+</dd>
+<dt>name3</dt>
+<dd>
+<p>body3</p>
+</dd>
+</dl>
+</li>
+</ul>
+.
+
+Multiple fields in list item with body continuation:
+.
+- :name1: body1
+      continuation
+  :name2: body2
+.
+<ul>
+<li>
+<dl class="field-list">
+<dt>name1</dt>
+<dd>
+<p>body1
+continuation</p>
+</dd>
+<dt>name2</dt>
+<dd>
+<p>body2</p>
+</dd>
+</dl>
+</li>
+</ul>
+.
+
+Multiple fields in list item with multi-paragraph body:
+.
+- :name1: body1
+
+      paragraph 2
+  :name2: body2
+.
+<ul>
+<li>
+<dl class="field-list">
+<dt>name1</dt>
+<dd>
+<p>body1</p>
+<p>paragraph 2</p>
+</dd>
+<dt>name2</dt>
+<dd>
+<p>body2</p>
+</dd>
+</dl>
+</li>
+</ul>
+.
+
+Field list in nested list:
+.
+- item
+  - :name1: body1
+    :name2: body2
+.
+<ul>
+<li>item
+<ul>
+<li>
+<dl class="field-list">
+<dt>name1</dt>
+<dd>
+<p>body1</p>
+</dd>
+<dt>name2</dt>
+<dd>
+<p>body2</p>
+</dd>
+</dl>
+</li>
+</ul>
+</li>
+</ul>
+.
+
+Nested field list (body on next line):
+.
+:outer:
+  :inner1: val1
+  :inner2: val2
+.
+<dl class="field-list">
+<dt>outer</dt>
+<dd>
+<dl class="field-list">
+<dt>inner1</dt>
+<dd>
+<p>val1</p>
+</dd>
+<dt>inner2</dt>
+<dd>
+<p>val2</p>
+</dd>
+</dl>
+</dd>
+</dl>
+.
+
+Nested field list (inline body):
+.
+:outer: :inner1: val1
+        :inner2: val2
+.
+<dl class="field-list">
+<dt>outer</dt>
+<dd>
+<dl class="field-list">
+<dt>inner1</dt>
+<dd>
+<p>val1</p>
+</dd>
+<dt>inner2</dt>
+<dd>
+<p>val2</p>
+</dd>
+</dl>
+</dd>
+</dl>
+.
+
+Double nested field list:
+.
+:a:
+  :b:
+    :c: val
+.
+<dl class="field-list">
+<dt>a</dt>
+<dd>
+<dl class="field-list">
+<dt>b</dt>
+<dd>
+<dl class="field-list">
+<dt>c</dt>
+<dd>
+<p>val</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+.
