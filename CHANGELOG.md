@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.6.1 - 2026-05-13
+
+- 🐛 FIX: Nested field lists incorrectly nesting inside parent containers (#139)
+
+  Field lists inside list items (or other indented containers) would recursively nest each field inside the previous one, instead of being siblings.
+
 ## 0.6.0 - 2026-05-07
 
 - ✨ NEW: Add GFM autolink and composite GFM plugins (#135)
