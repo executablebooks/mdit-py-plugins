@@ -1,5 +1,22 @@
 # Change Log
 
+## Unreleased
+
+- ✨ NEW: Add section reference plugin (`section_ref`)
+
+  The `section_ref` plugin captures section-sign references — the syntax LLMs
+  commonly use to point at numbered headings — into dedicated `section_ref` tokens,
+  so downstream renderers (e.g. MyST-Parser) can resolve them to heading cross-references:
+
+  ```markdown
+  See §1, §1.1 and §2.3.4 for details.
+  ```
+
+  A `§` must be immediately followed by ASCII digits (dot-separated for nested
+  levels, no spaces); the number string is stored on the token's `meta["number"]`.
+
+  **Requires markdown-it-py >= 4.1.0.**
+
 ## 0.6.1 - 2026-05-13
 
 - 🐛 FIX: Nested field lists incorrectly nesting inside parent containers (#139)
