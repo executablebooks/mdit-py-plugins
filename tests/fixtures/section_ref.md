@@ -135,7 +135,7 @@ Followed by non-digit, non-space char (not captured):
 <p>§x and §.5</p>
 .
 
-Leading zeros preserved:
+Leading zeros preserved in content (meta numbers are normalized):
 .
 §01.02
 .

@@ -66,7 +66,7 @@ def test_token():
                     content="§1.2",
                     markup="§",
                     info="",
-                    meta={"number": "1.2"},
+                    meta={"numbers": [1, 2]},
                     block=False,
                     hidden=False,
                 ),

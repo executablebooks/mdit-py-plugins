@@ -13,7 +13,8 @@
   ```
 
   A `§` must be immediately followed by ASCII digits (dot-separated for nested
-  levels, no spaces); the number string is stored on the token's `meta["number"]`.
+  levels, no spaces); the parsed section number is stored on the token's
+  `meta["numbers"]` as a list of ints (e.g. `[1, 1]` for `§1.1`).
 
   **Requires markdown-it-py >= 4.1.0.**
 

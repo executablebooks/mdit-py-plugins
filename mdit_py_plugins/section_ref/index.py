@@ -44,8 +44,10 @@ def section_ref_plugin(md: MarkdownIt) -> None:
 
     Each reference becomes a ``section_ref`` token, with the matched text
     (e.g. ``"§1.1"``) as its ``content``, ``markup`` set to ``§`` and
-    ``meta["number"]`` holding the number string (e.g. ``"1.1"``), so that
-    downstream renderers can resolve it to a heading target.
+    ``meta["numbers"]`` holding the parsed section number as a list of ints
+    (e.g. ``[1, 1]`` for ``§1.1``), so that downstream renderers can resolve
+    it to a heading target without re-parsing.  Leading zeros are normalized
+    (``§01.02`` gives ``[1, 2]``); the original text remains in ``content``.
 
     The default rendering is ``<span class="section-ref">§1.1</span>``.
     Override it with ``md.add_render_rule("section_ref", ...)``.
@@ -78,7 +80,7 @@ def _section_ref_rule(state: StateInline, silent: bool) -> bool:
         token = state.push("section_ref", "", 0)
         token.content = match.group(0)
         token.markup = "§"
-        token.meta = {"number": match.group(1)}
+        token.meta = {"numbers": [int(part) for part in match.group(1).split(".")]}
 
     state.pos = end
     return True
