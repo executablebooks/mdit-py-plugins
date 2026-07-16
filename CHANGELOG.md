@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- ✨ NEW: Add section reference plugin (`section_ref`)
+- ✨ NEW: Add section reference plugin (`section_ref`) (#144)
 
   The `section_ref` plugin captures section-sign references — the syntax LLMs
   commonly use to point at numbered headings — into dedicated `section_ref` tokens,
