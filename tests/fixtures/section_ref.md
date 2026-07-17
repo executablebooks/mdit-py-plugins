@@ -55,6 +55,13 @@ Trailing comma:
 <p><span class="section-ref">§3</span>, and more</p>
 .
 
+Trailing possessive apostrophe:
+.
+§4.3's rules
+.
+<p><span class="section-ref">§4.3</span>'s rules</p>
+.
+
 Inside emphasis:
 .
 *important: §2.1*
