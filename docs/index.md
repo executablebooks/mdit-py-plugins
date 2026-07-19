@@ -137,6 +137,12 @@ html_string = md.render("some *Markdown*")
 .. autofunction:: mdit_py_plugins.superscript.superscript_plugin
 ```
 
+## Section References
+
+```{eval-rst}
+.. autofunction:: mdit_py_plugins.section_ref.section_ref_plugin
+```
+
 ## MyST plugins
 
 `myst_blocks` and `myst_role` plugins are also available, for utilisation by the [MyST renderer](https://myst-parser.readthedocs.io/en/latest/using/syntax.html)
