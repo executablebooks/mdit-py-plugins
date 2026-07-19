@@ -102,3 +102,24 @@ Escaped:
 .
 <p>{abc}<code>xyz</code></p>
 .
+
+Role at start with trailing backslash (#62):
+.
+{foo}`ar`\
+.
+<p><code class="myst role">{foo}[ar]</code>\</p>
+.
+
+Escaped role backslash:
+.
+\{foo}`x`
+.
+<p>{foo}<code>x</code></p>
+.
+
+Escaped double backslash before role (#62):
+.
+\\{foo}`x`
+.
+<p>\<code class="myst role">{foo}[x]</code></p>
+.

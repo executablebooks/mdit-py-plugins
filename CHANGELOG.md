@@ -18,6 +18,8 @@
 
   **Requires markdown-it-py >= 4.1.0.**
 
+- 🐛 FIX: `myst_role` no longer mis-rejects a role at the start of inline content when the content ends with a backslash, and `\\{name}`x`` (an escaped backslash before a role) now parses the role (#62)
+
 ## 0.6.1 - 2026-05-13
 
 - 🐛 FIX: Nested field lists incorrectly nesting inside parent containers (#139)

@@ -21,19 +21,14 @@ def myst_role_plugin(md: MarkdownIt) -> None:
 
 
 def myst_role(state: StateInline, silent: bool) -> bool:
+    # note ``\{`` escaping is handled by the core ``escape`` rule,
+    # which runs before this rule
+
     # check name
     match = VALID_NAME_PATTERN.match(state.src[state.pos :])
     if not match:
         return False
     name = match.group(1)
-
-    # check for starting backslash escape
-    try:
-        if state.src[state.pos - 1] == "\\":
-            # escaped (this could be improved in the case of edge case '\\{')
-            return False
-    except IndexError:
-        pass
 
     # scan opening tick length
     start = pos = state.pos + match.end()
