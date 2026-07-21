@@ -11,6 +11,8 @@
   - `myst_block`: target labels (``(name)=``) are now escaped in the rendered anchor.
   - `attrs` / `attrs_block`: when no explicit `allowed` list is given, event-handler (`on*`) and `style` attributes are now stripped by default (removed entries are preserved in `token.meta["insecure_attrs"]`). Text spans (``[text]{...}``) now also honour the `allowed` list, which they previously bypassed entirely. This is a baseline protection, not a full sanitiser — pass an explicit `allowed` list (e.g. `("id", "class")`) to safely render untrusted input.
 
+  A categorical guard (`tests/test_xss.py`) renders injection probes through each plugin's default renderer, so a future unescaped interpolation is caught before review.
+
 ## 0.7.0 - 2026-07-19
 
 - ✨ NEW: Add section reference plugin (`section_ref`) (#144)
