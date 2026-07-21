@@ -1,5 +1,19 @@
 # Change Log
 
+## Unreleased
+
+- 🐛 FIX: `dollarmath` block rule no longer absorbs following content when a same-line-closed `$$...$$` has non-label trailing text (#147)
+
+  A same-line close followed by trailing content that wasn't a label suffix (e.g. `` $$b$$ trailing ``) wasn't recognized as closed, so the rule fell through to its multi-line scan and silently swallowed every following line, including subsequent list items, up to the next `$$` anywhere later in the document:
+
+  ```markdown
+  1. $$a$$
+  1. $$b$$ trailing
+     1. $$c$$
+  ```
+
+  This ambiguous case (closing marker present, but not at end of line and not a label) is now rejected outright, letting the line fall through to normal inline parsing instead.
+
 ## 0.7.0 - 2026-07-19
 
 - ✨ NEW: Add section reference plugin (`section_ref`) (#144)

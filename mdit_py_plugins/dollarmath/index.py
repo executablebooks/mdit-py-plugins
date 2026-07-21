@@ -322,13 +322,21 @@ def math_block_dollar(
             if lineText.strip().endswith("$$"):
                 haveEndMarker = True
                 end = end - 2 - (len(lineText) - len(lineText.strip()))
-            elif allow_labels:
-                # reverse the line and match
-                eqnoMatch = DOLLAR_EQNO_REV.match(lineText[::-1])
-                if eqnoMatch:
-                    haveEndMarker = True
-                    label = eqnoMatch.group(1)[::-1]
-                    end = end - eqnoMatch.end()
+            else:
+                # a closing marker present but not at end of line and not a label
+                # suffix is ambiguous, so don't greedily scan subsequent lines for it
+                trailing_close = "$$" in lineText[2:]
+                if allow_labels:
+                    # reverse the line and match
+                    eqnoMatch = DOLLAR_EQNO_REV.match(lineText[::-1])
+                    if eqnoMatch:
+                        haveEndMarker = True
+                        label = eqnoMatch.group(1)[::-1]
+                        end = end - eqnoMatch.end()
+                    elif trailing_close:
+                        return False
+                elif trailing_close:
+                    return False
 
         # search for end of block on subsequent line
         if not haveEndMarker:

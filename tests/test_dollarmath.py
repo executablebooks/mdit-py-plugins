@@ -64,6 +64,21 @@ def test_block_func():
     }
 
 
+@pytest.mark.parametrize("allow_labels", [True, False])
+def test_block_func_ambiguous_trailing_content(allow_labels):
+    """A same-line close followed by non-label trailing content is
+    ambiguous, so the block rule should not match and greedily scan
+    subsequent lines for the next ``$$``.
+    """
+    block_func = main.math_block_dollar(allow_labels=allow_labels)
+    md = MarkdownIt()
+    src = "$$b$$ trailing\n$$c$$\n"
+    tokens = []
+    state = StateBlock(src, md, {}, tokens)
+    assert block_func(state, 0, 2, False) is False
+    assert tokens == []
+
+
 def test_plugin_parse(data_regression):
     md = MarkdownIt().use(dollarmath_plugin)
     tokens = md.parse(
