@@ -580,3 +580,38 @@ Indented by 4 spaces, DISABLE-CODEBLOCKS
 a
 </div>
 .
+
+same-line-closed block with trailing text is not absorbed into
+a later math block on a following line. (valid=True)
+.
+$$a$$ trailing
+$$c$$
+.
+<p><div class="math inline">a</div> trailing
+<div class="math inline">c</div></p>
+.
+
+same-line-closed block with trailing text inside a list is not
+absorbed into a later list item. (valid=True)
+.
+1. $$a$$
+1. $$b$$ trailing
+   1. $$c$$
+.
+<ol>
+<li>
+<div class="math block">
+a
+</div>
+</li>
+<li><div class="math inline">b</div> trailing
+<ol>
+<li>
+<div class="math block">
+c
+</div>
+</li>
+</ol>
+</li>
+</ol>
+.
