@@ -17,9 +17,6 @@ if TYPE_CHECKING:
     from markdown_it.utils import EnvType, OptionsDict
 
 
-_LABEL_WHITESPACE_RE = re.compile(r"\s+")
-
-
 def dollarmath_plugin(
     md: MarkdownIt,
     *,
@@ -57,7 +54,7 @@ def dollarmath_plugin(
 
     """
     if label_normalizer is None:
-        label_normalizer = lambda label: _LABEL_WHITESPACE_RE.sub("-", label)  # noqa: E731
+        label_normalizer = lambda label: re.sub(r"\s+", "-", label)  # noqa: E731
 
     md.inline.ruler.before(
         "escape",

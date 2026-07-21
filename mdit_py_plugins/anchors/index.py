@@ -115,11 +115,8 @@ def _make_anchors_func(
     return _anchor_func
 
 
-_NON_SLUG_CHARS_RE = re.compile(r"[^\w\u4e00-\u9fff\- ]")
-
-
 def slugify(title: str) -> str:
-    return _NON_SLUG_CHARS_RE.sub("", title.strip().lower().replace(" ", "-"))
+    return re.sub(r"[^\w\u4e00-\u9fff\- ]", "", title.strip().lower().replace(" ", "-"))
 
 
 def unique_slug(slug: str, slugs: set[str]) -> str:

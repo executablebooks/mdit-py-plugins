@@ -1,5 +1,22 @@
 # Change Log
 
+## Unreleased
+
+- 🐛 FIX: Resolve regex denial-of-service (ReDoS) in `texmath` and `admon` (#143, #148)
+
+  Two shipped patterns backtracked super-linearly on adversarial input with no
+  closing delimiter, so a single crafted document could hang the parser:
+
+  - `texmath`'s `` ```math `` block rules (all `` ```math `` flavors, i.e. the
+    `gitlab` and `julia` delimiters) blew up on a `` ```math `` fence followed by a
+    long whitespace run with no closing fence.
+  - `admon`'s multi-tag title parser blew up on an unquoted header containing a long
+    interior whitespace run.
+
+  Both patterns were rewritten to anchor the capture on non-whitespace at both ends,
+  which stays flat on the same input. A behavioral guard (`tests/test_redos.py`) now
+  renders adversarial payloads through every plugin to catch the next such pattern.
+
 ## 0.7.0 - 2026-07-19
 
 - ✨ NEW: Add section reference plugin (`section_ref`) (#144)
