@@ -1,5 +1,35 @@
 # Change Log
 
+## Unreleased
+
+- 🐛 FIX: Escape attacker-controlled content in default HTML renderers to prevent XSS (#143)
+
+  Several plugins interpolated captured markdown into their default HTML render
+  rules without escaping, so untrusted input could inject live markup even with
+  raw HTML disabled:
+
+  - `texmath` emitted the math source (and the `math_block_eqno` equation number)
+    verbatim into `<eq>`/`<eqn>` templates across every delimiter flavor
+  - `dollarmath` emitted the equation label into `id=`/`href=` attributes (the
+    equation content was already escaped)
+  - `myst_block` emitted the target label into an `<a>` body and `href`
+
+  All three now escape via `markdown_it.common.utils.escapeHtml`. Downstream
+  integrators that register their own render rules (e.g. `myst-parser`) are
+  unaffected.
+
+- 🔒 SECURITY: `attrs`/`attrs_block` no longer emit event-handler or `style` attributes by default (#143)
+
+  With no explicit `allowed` list, `on*` and `style` attributes are now diverted
+  to `token.meta["insecure_attrs"]` (matching the existing allow-list behavior)
+  instead of reaching the output, so `[x]{onclick="..."}` can no longer inject
+  script under the default configuration. Other attribute names (`id`, `class`,
+  `data-*`, etc.) are unchanged; pass an explicit `allowed` list to restrict
+  further.
+
+  A categorical guard (`tests/test_xss.py`) now renders injection probes through
+  each plugin to catch the next unescaped interpolation.
+
 ## 0.7.0 - 2026-07-19
 
 - ✨ NEW: Add section reference plugin (`section_ref`) (#144)

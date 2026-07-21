@@ -56,10 +56,18 @@ def attrs_plugin(
     :param allowed: A list of allowed attribute names.
         If not ``None``, any attributes not in this list will be removed
         and placed in the token's meta under the key "insecure_attrs".
+        When ``None`` (the default), event-handler (``on*``) and ``style``
+        attributes are still diverted to "insecure_attrs", since they inject
+        script even when raw HTML is disabled; pass an explicit allow-list to
+        restrict attributes further for untrusted input.
     """
 
     if spans:
-        md.inline.ruler.after(span_after, "span", _span_rule)
+        md.inline.ruler.after(
+            span_after,
+            "span",
+            partial(_span_rule, allowed=None if allowed is None else set(allowed)),
+        )
     if after:
         md.inline.ruler.push(
             "attr",
@@ -91,6 +99,10 @@ def attrs_block_plugin(md: MarkdownIt, *, allowed: Sequence[str] | None = None) 
     :param allowed: A list of allowed attribute names.
         If not ``None``, any attributes not in this list will be removed
         and placed in the token's meta under the key "insecure_attrs".
+        When ``None`` (the default), event-handler (``on*``) and ``style``
+        attributes are still diverted to "insecure_attrs", since they inject
+        script even when raw HTML is disabled; pass an explicit allow-list to
+        restrict attributes further for untrusted input.
     """
     md.block.ruler.before("fence", "attr", _attr_block_rule)
     md.core.ruler.after(
@@ -115,7 +127,9 @@ def _find_opening(tokens: Sequence[Token], index: int) -> int | None:
     return None
 
 
-def _span_rule(state: StateInline, silent: bool) -> bool:
+def _span_rule(
+    state: StateInline, silent: bool, *, allowed: set[str] | None = None
+) -> bool:
     if state.src[state.pos] != "[":
         return False
 
@@ -144,7 +158,7 @@ def _span_rule(state: StateInline, silent: bool) -> bool:
         state.pos = labelStart
         state.posMax = labelEnd
         token = state.push("span_open", "span", 1)
-        token.attrs = attrs  # type: ignore[assignment]
+        _add_attrs(token, attrs, allowed)
         state.md.inline.tokenize(state)
         token = state.push("span_close", "span", -1)
 
@@ -259,17 +273,31 @@ def _attr_resolve_block_rule(state: StateCore, *, allowed: set[str] | None) -> N
         len_tokens -= 1
 
 
+def _is_event_or_style(key: str) -> bool:
+    """Attributes that inject script even when raw HTML is disabled."""
+    lowered = key.lower()
+    return lowered.startswith("on") or lowered == "style"
+
+
 def _add_attrs(
     token: Token,
     attrs: dict[str, Any],
     allowed: set[str] | None,
 ) -> None:
-    """Add attributes to a token, skipping any disallowed attributes."""
-    if allowed is not None and (
-        disallowed := {k: v for k, v in attrs.items() if k not in allowed}
-    ):
+    """Add attributes to a token, diverting disallowed ones to meta.
+
+    With an explicit ``allowed`` set, anything outside it is diverted. Without one
+    (the default), event-handler (``on*``) and ``style`` attributes are still
+    diverted, so the default configuration cannot emit a script vector.
+    """
+    if allowed is None:
+        disallowed = {k: v for k, v in attrs.items() if _is_event_or_style(k)}
+    else:
+        disallowed = {k: v for k, v in attrs.items() if k not in allowed}
+
+    if disallowed:
         token.meta["insecure_attrs"] = disallowed
-        attrs = {k: v for k, v in attrs.items() if k in allowed}
+        attrs = {k: v for k, v in attrs.items() if k not in disallowed}
 
     # attributes takes precedence over existing attributes
     token.attrs.update(attrs)
