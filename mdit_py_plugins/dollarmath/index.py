@@ -79,7 +79,7 @@ def dollarmath_plugin(
     if label_renderer is None:
         _label_renderer = (  # noqa: E731
             lambda label: (
-                f'<a href="#{label}" class="mathlabel" title="Permalink to this equation">¶</a>'
+                f'<a href="#{escapeHtml(label)}" class="mathlabel" title="Permalink to this equation">¶</a>'
             )
         )
     else:
@@ -123,7 +123,7 @@ def dollarmath_plugin(
         env: EnvType,
     ) -> str:
         content = _renderer(str(tokens[idx].content).strip(), {"display_mode": True})
-        _id = tokens[idx].info
+        _id = escapeHtml(tokens[idx].info)
         label = _label_renderer(tokens[idx].info)
         return f'<div id="{_id}" class="math block">\n{label}\n{content}\n</div>\n'
 

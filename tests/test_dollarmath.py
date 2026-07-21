@@ -104,3 +104,22 @@ def test_dollarmath_fixtures(line, title, input, expected):
     text = md.render(input)
     print(text)
     assert text.rstrip() == expected.rstrip()
+
+
+def test_label_is_html_escaped():
+    """Equation labels must be HTML-escaped in the id attribute and href (XSS)."""
+    md = MarkdownIt("commonmark").use(dollarmath_plugin)
+    text = md.render('$$a=1$$ ("><svg/onload=alert(1)>)')
+    # the payload must not break out of the attribute / inject an element
+    assert "<svg" not in text
+    assert '"><svg' not in text
+    assert "&lt;svg/onload=alert(1)&gt;" in text
+
+
+def test_label_escaped_with_custom_normalizer():
+    """Even a permissive label_normalizer output is escaped before rendering."""
+    md = MarkdownIt("commonmark").use(
+        dollarmath_plugin, label_normalizer=lambda label: label
+    )
+    text = md.render('$$a=1$$ ("><svg/onload=alert(1)>)')
+    assert "<svg" not in text

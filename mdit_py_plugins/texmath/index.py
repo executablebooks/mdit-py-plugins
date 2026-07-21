@@ -6,7 +6,7 @@ from re import Match
 from typing import TYPE_CHECKING, Any, TypedDict
 
 from markdown_it import MarkdownIt
-from markdown_it.common.utils import charCodeAt
+from markdown_it.common.utils import charCodeAt, escapeHtml
 
 if TYPE_CHECKING:
     from markdown_it.renderer import RendererProtocol
@@ -47,7 +47,7 @@ def texmath_plugin(
                 env: EnvType,
             ) -> str:
                 return rule_inline["tmpl"].format(  # noqa: B023
-                    render(tokens[idx].content, False, macros)
+                    escapeHtml(render(tokens[idx].content, False, macros))
                 )
 
             md.add_render_rule(rule_inline["name"], render_math_inline)
@@ -65,7 +65,8 @@ def texmath_plugin(
                 env: EnvType,
             ) -> str:
                 return rule_block["tmpl"].format(  # noqa: B023
-                    render(tokens[idx].content, True, macros), tokens[idx].info
+                    escapeHtml(render(tokens[idx].content, True, macros)),
+                    escapeHtml(tokens[idx].info),
                 )
 
             md.add_render_rule(rule_block["name"], render_math_block)

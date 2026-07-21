@@ -23,7 +23,7 @@ simple equation including special html character. (valid=True)
 .
 \(1+1<3\)
 .
-<p><eq>1+1<3</eq></p>
+<p><eq>1+1&lt;3</eq></p>
 .
 
 equation including backslashes. (valid=True)
@@ -239,8 +239,8 @@ multiline equation. (valid=True)
 .
 <section>
 <eqn>\\begin{matrix}
- f & = & 2 + x + 3 \\ 
- & = & 5 + x 
+ f &amp; = &amp; 2 + x + 3 \\ 
+ &amp; = &amp; 5 + x 
 \\end{matrix}</eqn>
 </section>
 .
@@ -253,7 +253,7 @@ vector equation. (valid=True)
 .
 <section>
 <eqn>\\begin{pmatrix}x_2 \\\\ y_2 \\end{pmatrix} = 
-\\begin{pmatrix} A & B \\\\ C & D \\end{pmatrix}\\cdot
+\\begin{pmatrix} A &amp; B \\\\ C &amp; D \\end{pmatrix}\\cdot
 \\begin{pmatrix} x_1 \\\\ y_1 \\end{pmatrix}</eqn>
 </section>
 .

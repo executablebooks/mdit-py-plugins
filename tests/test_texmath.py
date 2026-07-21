@@ -106,3 +106,19 @@ def test_bracket_fixtures(line, title, input, expected):
     text = md.render(input)
     print(text)
     assert text.rstrip() == expected.rstrip()
+
+
+@pytest.mark.parametrize("delimiters", ["dollars", "brackets", "gitlab", "julia"])
+def test_math_content_is_html_escaped(delimiters):
+    """Math content must be HTML-escaped so it cannot inject markup (XSS)."""
+    md = MarkdownIt("commonmark").use(texmath_plugin, delimiters=delimiters)
+    open_delim = {"dollars": "$", "brackets": r"\(", "gitlab": "$`", "julia": "``"}[
+        delimiters
+    ]
+    close_delim = {"dollars": "$", "brackets": r"\)", "gitlab": "`$", "julia": "``"}[
+        delimiters
+    ]
+    payload = "<img src=x onerror=alert(1)>"
+    text = md.render(f"a {open_delim}{payload}{close_delim} b")
+    assert "<img" not in text
+    assert "&lt;img src=x onerror=alert(1)&gt;" in text
