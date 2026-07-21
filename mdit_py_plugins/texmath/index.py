@@ -47,7 +47,7 @@ def texmath_plugin(
                 env: EnvType,
             ) -> str:
                 return rule_inline["tmpl"].format(  # noqa: B023
-                    escapeHtml(render(tokens[idx].content, False, macros))
+                    render(tokens[idx].content, False, macros)
                 )
 
             md.add_render_rule(rule_inline["name"], render_math_inline)
@@ -65,7 +65,7 @@ def texmath_plugin(
                 env: EnvType,
             ) -> str:
                 return rule_block["tmpl"].format(  # noqa: B023
-                    escapeHtml(render(tokens[idx].content, True, macros)),
+                    render(tokens[idx].content, True, macros),
                     escapeHtml(tokens[idx].info),
                 )
 
@@ -170,7 +170,10 @@ def dollar_post(src: str, end: int) -> bool:
 
 
 def render(tex: str, displayMode: bool, macros: Any) -> str:
-    return tex
+    # The captured math source is attacker-controlled and interpolated into HTML
+    # templates, so escape it; a real (KaTeX-style) renderer would emit safe markup
+    # of its own and replace this stub.
+    return escapeHtml(tex)
     # TODO better HTML renderer port for math
     # try:
     #     res = katex.renderToString(tex,{throwOnError:False,displayMode,macros})
