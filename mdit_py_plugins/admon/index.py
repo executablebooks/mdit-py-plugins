@@ -18,10 +18,12 @@ if TYPE_CHECKING:
     from markdown_it.utils import EnvType, OptionsDict
 
 
+TAGS_RE = re.compile(r'^\s*(?P<tokens>[^"\s](?:[^"]*[^"\s])?)\s+"(?P<title>.*)"\S*$')
+
+
 def _get_multiple_tags(params: str) -> tuple[list[str], str]:
     """Check for multiple tags when the title is double quoted."""
-    re_tags = re.compile(r'^\s*(?P<tokens>[^"]+)\s+"(?P<title>.*)"\S*$')
-    match = re_tags.match(params)
+    match = TAGS_RE.match(params)
     if match:
         tags = match["tokens"].strip().split(" ")
         return [tag.lower() for tag in tags], match["title"]

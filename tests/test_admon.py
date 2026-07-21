@@ -34,3 +34,10 @@ def test_plugin_parse(data_regression, text_idx):
     md = MarkdownIt().use(admon_plugin)
     tokens = md.parse(dedent(texts[text_idx]))
     data_regression.check([t.as_dict() for t in tokens])
+
+
+@pytest.mark.timeout(2)
+def test_title_parsing_redos():
+    """A long unquoted admonition header must not trigger catastrophic backtracking."""
+    md = MarkdownIt("commonmark").use(admon_plugin)
+    md.render("!!! note " + "a " * 50000 + "b\n    content")

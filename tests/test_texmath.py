@@ -106,3 +106,18 @@ def test_bracket_fixtures(line, title, input, expected):
     text = md.render(input)
     print(text)
     assert text.rstrip() == expected.rstrip()
+
+
+@pytest.mark.parametrize("delimiters", ["gitlab", "julia"])
+def test_fenced_math_block(delimiters):
+    md = MarkdownIt("commonmark").use(texmath_plugin, delimiters=delimiters)
+    text = md.render("```math\n\\alpha = 1\n```\n")
+    assert "<eqn>\\alpha = 1</eqn>" in text
+
+
+@pytest.mark.parametrize("delimiters", ["gitlab", "julia"])
+@pytest.mark.timeout(2)
+def test_fenced_math_block_redos(delimiters):
+    """An unclosed ``` ```math ``` fence must not trigger catastrophic backtracking."""
+    md = MarkdownIt("commonmark").use(texmath_plugin, delimiters=delimiters)
+    md.render("```math\n" + " " * 20000)
