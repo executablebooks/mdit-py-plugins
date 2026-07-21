@@ -23,6 +23,8 @@ _ADVERSARIAL_CHARS = [" ", "\t", "a", "1", "$", "`", "\\", '"', ".", "-"]
 _LENGTH = 20_000
 _BUDGET_SECONDS = 0.5
 
+# Metacharacters that end the run of literal leading characters.
+_METACHARS = set(".^$*+?()[]{}|")
 # Backslash escapes that denote a character *class*, not a literal, so prefix
 # extraction must stop rather than emit the letter that follows the backslash.
 _CLASS_ESCAPES = set("sSdDwWbBAZ")
@@ -33,9 +35,11 @@ def _literal_prefix(source: str) -> str:
 
     Anchored rules like ``^```math\\s+...`` only backtrack once their literal
     lead-in matches, so an adversarial run must be prefixed with that literal.
+    Parsing walks the source until the first metacharacter or character class,
+    treating ``\\x`` as the literal ``x`` and expanding a ``{n}`` repeat of the
+    preceding literal (so ```` `{3} ```` yields three backticks).
     """
-    if source.startswith("^"):
-        source = source[1:]
+    source = source.removeprefix("^")
     out: list[str] = []
     i = 0
     while i < len(source):
@@ -46,26 +50,26 @@ def _literal_prefix(source: str) -> str:
                 break
             out.append(nxt)
             i += 2
-        elif char in ".^$*+?()[]{}|":
+        elif char == "{" and out:
+            end = source.find("}", i)
+            count = source[i + 1 : end] if end != -1 else ""
+            if not (repeats := count.split(",")[0]).isdigit():
+                break
+            out.append(out[-1] * (int(repeats) - 1))
+            i = end + 1
+        elif char in _METACHARS:
             break
         else:
             out.append(char)
             i += 1
-        if i < len(source) and source[i] == "{":
-            end = source.find("}", i)
-            if end == -1 or not out:
-                break
-            count = source[i + 1 : end].split(",")[0]
-            if not count.isdigit():
-                break
-            out.append(out[-1] * (int(count) - 1))
-            i = end + 1
     return "".join(out)
 
 
 def _iter_patterns() -> list[tuple[str, re.Pattern[str]]]:
     found: dict[int, tuple[str, re.Pattern[str]]] = {}
 
+    # Patterns may sit directly in a module global or nested inside a global
+    # container (e.g. texmath's ``rules`` dict of delimiter flavors), so recurse.
     def _collect(where: str, value: object) -> None:
         if isinstance(value, re.Pattern):
             found.setdefault(id(value), (where, value))
@@ -88,9 +92,13 @@ def _iter_patterns() -> list[tuple[str, re.Pattern[str]]]:
 
 _PATTERNS = _iter_patterns()
 
+# Several patterns share a ``where`` (e.g. every texmath flavor lives in one
+# ``rules`` dict), so include the regex source to keep failing ids unambiguous.
+_IDS = [f"{where} {pattern.pattern[:48]}" for where, pattern in _PATTERNS]
+
 
 @pytest.mark.timeout(10)
-@pytest.mark.parametrize("where,pattern", _PATTERNS, ids=[w for w, _ in _PATTERNS])
+@pytest.mark.parametrize("where,pattern", _PATTERNS, ids=_IDS)
 def test_regex_is_redos_safe(where: str, pattern: re.Pattern[str]) -> None:
     prefix = _literal_prefix(pattern.pattern)
     for char in _ADVERSARIAL_CHARS:

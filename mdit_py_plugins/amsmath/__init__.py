@@ -55,7 +55,7 @@ ENVIRONMENTS = [
 # whose total width is the actual width of the contents;
 # thus they can be used as a component in a containing expression
 
-RE_OPEN = r"\\begin\{(" + "|".join(ENVIRONMENTS) + r")([\*]?)\}"
+RE_OPEN = re.compile(r"\\begin\{(" + "|".join(ENVIRONMENTS) + r")([\*]?)\}")
 
 
 def amsmath_plugin(
@@ -112,7 +112,7 @@ def amsmath_block(
     first_end = state.eMarks[startLine]
     first_text = state.src[first_start:first_end]
 
-    if not (match_open := re.match(RE_OPEN, first_text)):
+    if not (match_open := RE_OPEN.match(first_text)):
         return False
 
     # construct the closing tag

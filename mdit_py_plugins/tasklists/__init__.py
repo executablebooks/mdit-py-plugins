@@ -28,6 +28,7 @@ from markdown_it.token import Token
 # https://github.github.com/gfm/#whitespace-character
 # (spec version 0.29-gfm (2019-04-06))
 _GFM_WHITESPACE_RE = r"[ \t\n\v\f\r]"
+_TASK_LIST_ITEM_RE = re.compile(rf"\[[ xX]]{_GFM_WHITESPACE_RE}+")
 
 
 def tasklists_plugin(
@@ -148,4 +149,4 @@ def tasklists_plugin(
 
     def starts_with_todo_markdown(token: Token) -> bool:
         # leading whitespace in a list item is already trimmed off by markdown-it
-        return re.match(rf"\[[ xX]]{_GFM_WHITESPACE_RE}+", token.content) is not None
+        return _TASK_LIST_ITEM_RE.match(token.content) is not None
