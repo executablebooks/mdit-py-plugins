@@ -170,9 +170,6 @@ def dollar_post(src: str, end: int) -> bool:
 
 
 def render(tex: str, displayMode: bool, macros: Any) -> str:
-    # The captured math source is attacker-controlled and interpolated into HTML
-    # templates, so escape it; a real (KaTeX-style) renderer would emit safe markup
-    # of its own and replace this stub.
     return escapeHtml(tex)
     # TODO better HTML renderer port for math
     # try:

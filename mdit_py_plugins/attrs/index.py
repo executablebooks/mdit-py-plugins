@@ -273,10 +273,15 @@ def _attr_resolve_block_rule(state: StateCore, *, allowed: set[str] | None) -> N
         len_tokens -= 1
 
 
-def _is_event_or_style(key: str) -> bool:
-    """Attributes that inject script even when raw HTML is disabled."""
-    lowered = key.lower()
-    return lowered.startswith("on") or lowered == "style"
+def _is_insecure_attr(key: str) -> bool:
+    """Return True for attributes that enable scripting or style injection.
+
+    Event-handler attributes (``on*``, e.g. ``onclick``) execute JavaScript, and
+    ``style`` permits CSS-based injection, so both are stripped by default when
+    no explicit ``allowed`` list is given.
+    """
+    key = key.lower()
+    return key == "style" or key.startswith("on")
 
 
 def _add_attrs(
@@ -290,10 +295,11 @@ def _add_attrs(
     (the default), event-handler (``on*``) and ``style`` attributes are still
     diverted, so the default configuration cannot emit a script vector.
     """
-    if allowed is None:
-        disallowed = {k: v for k, v in attrs.items() if _is_event_or_style(k)}
-    else:
+    if allowed is not None:
         disallowed = {k: v for k, v in attrs.items() if k not in allowed}
+    else:
+        disallowed = {k: v for k, v in attrs.items() if _is_insecure_attr(k)}
+
     if disallowed:
         token.meta["insecure_attrs"] = disallowed
         attrs = {k: v for k, v in attrs.items() if k not in disallowed}
