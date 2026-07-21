@@ -56,10 +56,11 @@ def attrs_plugin(
     :param allowed: A list of allowed attribute names.
         If not ``None``, any attributes not in this list will be removed
         and placed in the token's meta under the key "insecure_attrs".
-        When ``None`` (the default), event-handler (``on*``) and ``style``
-        attributes are still diverted to "insecure_attrs", since they inject
-        script even when raw HTML is disabled; pass an explicit allow-list to
-        restrict attributes further for untrusted input.
+        If ``None`` (the default), event-handler (``on*``) and ``style``
+        attributes are still removed as a baseline protection against script
+        and CSS injection. This is not a full sanitiser: to safely render
+        untrusted input, pass an explicit ``allowed`` list (e.g.
+        ``("id", "class")``).
     """
 
     if spans:
@@ -99,10 +100,11 @@ def attrs_block_plugin(md: MarkdownIt, *, allowed: Sequence[str] | None = None) 
     :param allowed: A list of allowed attribute names.
         If not ``None``, any attributes not in this list will be removed
         and placed in the token's meta under the key "insecure_attrs".
-        When ``None`` (the default), event-handler (``on*``) and ``style``
-        attributes are still diverted to "insecure_attrs", since they inject
-        script even when raw HTML is disabled; pass an explicit allow-list to
-        restrict attributes further for untrusted input.
+        If ``None`` (the default), event-handler (``on*``) and ``style``
+        attributes are still removed as a baseline protection against script
+        and CSS injection. This is not a full sanitiser: to safely render
+        untrusted input, pass an explicit ``allowed`` list (e.g.
+        ``("id", "class")``).
     """
     md.block.ruler.before("fence", "attr", _attr_block_rule)
     md.core.ruler.after(
@@ -289,11 +291,13 @@ def _add_attrs(
     attrs: dict[str, Any],
     allowed: set[str] | None,
 ) -> None:
-    """Add attributes to a token, diverting disallowed ones to meta.
+    """Add attributes to a token, skipping any disallowed attributes.
 
-    With an explicit ``allowed`` set, anything outside it is diverted. Without one
-    (the default), event-handler (``on*``) and ``style`` attributes are still
-    diverted, so the default configuration cannot emit a script vector.
+    When ``allowed`` is not ``None`` only those names are kept. When it is
+    ``None`` (the default) an insecure-by-default baseline still removes
+    event-handler (``on*``) and ``style`` attributes, so untrusted input cannot
+    inject script or CSS. Anything removed is preserved in
+    ``token.meta["insecure_attrs"]``.
     """
     if allowed is not None:
         disallowed = {k: v for k, v in attrs.items() if k not in allowed}
