@@ -79,3 +79,11 @@ def test_comment_token():
     )
     expected_token.attrSet("class", "myst-line-comment")
     assert tokens == [expected_token]
+
+
+def test_target_label_is_html_escaped():
+    """MyST target labels must be HTML-escaped in href and text content (XSS)."""
+    md = MarkdownIt("commonmark").use(myst_block_plugin)
+    text = md.render("(<img src=x onerror=alert(1)>)=")
+    assert "<img" not in text
+    assert "&lt;img src=x onerror=alert(1)&gt;" in text

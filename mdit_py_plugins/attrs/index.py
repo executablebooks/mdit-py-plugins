@@ -56,10 +56,19 @@ def attrs_plugin(
     :param allowed: A list of allowed attribute names.
         If not ``None``, any attributes not in this list will be removed
         and placed in the token's meta under the key "insecure_attrs".
+        If ``None`` (the default), event-handler (``on*``) and ``style``
+        attributes are still removed as a baseline protection against script
+        and CSS injection. This is not a full sanitiser: to safely render
+        untrusted input, pass an explicit ``allowed`` list (e.g.
+        ``("id", "class")``).
     """
 
     if spans:
-        md.inline.ruler.after(span_after, "span", _span_rule)
+        md.inline.ruler.after(
+            span_after,
+            "span",
+            partial(_span_rule, allowed=None if allowed is None else set(allowed)),
+        )
     if after:
         md.inline.ruler.push(
             "attr",
@@ -91,6 +100,11 @@ def attrs_block_plugin(md: MarkdownIt, *, allowed: Sequence[str] | None = None) 
     :param allowed: A list of allowed attribute names.
         If not ``None``, any attributes not in this list will be removed
         and placed in the token's meta under the key "insecure_attrs".
+        If ``None`` (the default), event-handler (``on*``) and ``style``
+        attributes are still removed as a baseline protection against script
+        and CSS injection. This is not a full sanitiser: to safely render
+        untrusted input, pass an explicit ``allowed`` list (e.g.
+        ``("id", "class")``).
     """
     md.block.ruler.before("fence", "attr", _attr_block_rule)
     md.core.ruler.after(
@@ -115,7 +129,9 @@ def _find_opening(tokens: Sequence[Token], index: int) -> int | None:
     return None
 
 
-def _span_rule(state: StateInline, silent: bool) -> bool:
+def _span_rule(
+    state: StateInline, silent: bool, *, allowed: set[str] | None = None
+) -> bool:
     if state.src[state.pos] != "[":
         return False
 
@@ -144,7 +160,7 @@ def _span_rule(state: StateInline, silent: bool) -> bool:
         state.pos = labelStart
         state.posMax = labelEnd
         token = state.push("span_open", "span", 1)
-        token.attrs = attrs  # type: ignore[assignment]
+        _add_attrs(token, attrs, allowed)
         state.md.inline.tokenize(state)
         token = state.push("span_close", "span", -1)
 
@@ -259,17 +275,38 @@ def _attr_resolve_block_rule(state: StateCore, *, allowed: set[str] | None) -> N
         len_tokens -= 1
 
 
+def _is_insecure_attr(key: str) -> bool:
+    """Return True for attributes that enable scripting or style injection.
+
+    Event-handler attributes (``on*``, e.g. ``onclick``) execute JavaScript, and
+    ``style`` permits CSS-based injection, so both are stripped by default when
+    no explicit ``allowed`` list is given.
+    """
+    key = key.lower()
+    return key == "style" or key.startswith("on")
+
+
 def _add_attrs(
     token: Token,
     attrs: dict[str, Any],
     allowed: set[str] | None,
 ) -> None:
-    """Add attributes to a token, skipping any disallowed attributes."""
-    if allowed is not None and (
-        disallowed := {k: v for k, v in attrs.items() if k not in allowed}
-    ):
+    """Add attributes to a token, skipping any disallowed attributes.
+
+    When ``allowed`` is not ``None`` only those names are kept. When it is
+    ``None`` (the default) an insecure-by-default baseline still removes
+    event-handler (``on*``) and ``style`` attributes, so untrusted input cannot
+    inject script or CSS. Anything removed is preserved in
+    ``token.meta["insecure_attrs"]``.
+    """
+    if allowed is not None:
+        disallowed = {k: v for k, v in attrs.items() if k not in allowed}
+    else:
+        disallowed = {k: v for k, v in attrs.items() if _is_insecure_attr(k)}
+
+    if disallowed:
         token.meta["insecure_attrs"] = disallowed
-        attrs = {k: v for k, v in attrs.items() if k in allowed}
+        attrs = {k: v for k, v in attrs.items() if k not in disallowed}
 
     # attributes takes precedence over existing attributes
     token.attrs.update(attrs)

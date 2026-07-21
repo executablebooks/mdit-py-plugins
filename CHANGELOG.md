@@ -1,5 +1,16 @@
 # Change Log
 
+## Unreleased
+
+- 🔒 SECURITY: Escape user-controlled content in plugin renderers and harden the `attrs` default (#143)
+
+  Addresses externally-reported XSS advisories affecting default configurations:
+
+  - `texmath`: math content and equation-number labels are now HTML-escaped by the default renderer, matching `dollarmath` and `amsmath`. Previously input such as ``$<img src=x onerror=alert(1)>$`` emitted live markup.
+  - `dollarmath`: equation labels are now escaped in the generated `id` attribute and permalink `href`.
+  - `myst_block`: target labels (``(name)=``) are now escaped in the rendered anchor.
+  - `attrs` / `attrs_block`: when no explicit `allowed` list is given, event-handler (`on*`) and `style` attributes are now stripped by default (removed entries are preserved in `token.meta["insecure_attrs"]`). Text spans (``[text]{...}``) now also honour the `allowed` list, which they previously bypassed entirely. This is a baseline protection, not a full sanitiser — pass an explicit `allowed` list (e.g. `("id", "class")`) to safely render untrusted input.
+
 ## 0.7.0 - 2026-07-19
 
 - ✨ NEW: Add section reference plugin (`section_ref`) (#144)
