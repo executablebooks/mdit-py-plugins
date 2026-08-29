@@ -287,6 +287,22 @@ def math_inline_dollar(
 DOLLAR_EQNO_REV = re.compile(r"^\s*\)([^)$\r\n]+?)\(\s*\${2}")
 
 
+def _math_block_content(
+    state: StateBlock, startLine: int, startPos: int, endLine: int, end: int
+) -> str:
+    """Extract math body, omitting parent container prefixes on each line."""
+    content_start = startPos + 2
+    if startLine == endLine:
+        return state.src[content_start:end]
+
+    parts: list[str] = [state.src[content_start : state.eMarks[startLine]], "\n"]
+    for line in range(startLine + 1, endLine):
+        parts.append(state.src[state.bMarks[line] : state.eMarks[line]])
+        parts.append("\n")
+    parts.append(state.src[state.bMarks[endLine] : end])
+    return "".join(parts)
+
+
 def math_block_dollar(
     allow_labels: bool = True,
     label_normalizer: Callable[[str], str] | None = None,
@@ -365,7 +381,7 @@ def math_block_dollar(
 
         token = state.push("math_block_label" if label else "math_block", "math", 0)
         token.block = True
-        token.content = state.src[startPos + 2 : end]
+        token.content = _math_block_content(state, startLine, startPos, nextLine, end)
         token.markup = "$$"
         token.map = [startLine, state.line]
         if label:
