@@ -183,7 +183,7 @@ def admonition(state: StateBlock, startLine: int, endLine: int, silent: bool) ->
     return True
 
 
-def admon_plugin(md: MarkdownIt, render: None | Callable[..., str] = None) -> None:
+def admon_plugin(md: MarkdownIt, render: Callable[..., str] | None = None) -> None:
     """Plugin to use
     `python-markdown style admonitions
     <https://python-markdown.github.io/extensions/admonition>`_.
