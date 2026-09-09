@@ -61,6 +61,61 @@ a = 1
 </code></pre>
 .
 
+block: attrs last in a blockquote
+.
+> {.a}
+
+para
+.
+<blockquote></blockquote>
+<p>para</p>
+.
+
+block: attrs last in a list item
+.
+- {.a}
+.
+<ul>
+<li></li>
+</ul>
+.
+
+block: attrs last in an ordered list item
+.
+1. {.a}
+.
+<ol>
+<li></li>
+</ol>
+.
+
+block: two attrs blocks last in a blockquote
+.
+> {.a}
+> {.b}
+.
+<blockquote></blockquote>
+.
+
+block: attrs before a blockquote containing only attrs
+.
+{.a}
+{.b}
+> {.c}
+.
+<blockquote class="a b"></blockquote>
+.
+
+block: attrs followed by a paragraph in a blockquote
+.
+> {.a}
+> para
+.
+<blockquote>
+<p class="a">para</p>
+</blockquote>
+.
+
 block after paragraph
 .
 a

@@ -238,7 +238,8 @@ def _attr_resolve_block_rule(state: StateCore, *, allowed: set[str] | None) -> N
             i += 1
             continue
 
-        if i + 1 < len_tokens:
+        # skip closing tokens; attributes would be rendered into the closing tag
+        if i + 1 < len_tokens and state.tokens[i + 1].nesting >= 0:
             next_token = state.tokens[i + 1]
 
             # classes are appended
