@@ -41,8 +41,14 @@ def attrs_plugin(
     - `key="value"` or `key=value` specifies a key-value attribute.
        Quotes are not needed when the value consists entirely of
        ASCII alphanumeric characters or `_` or `:` or `-`.
-       Backslash escapes may be used inside quoted values.
-    - `%` begins a comment, which ends with the next `%` or the end of the attribute (`}`).
+       Backslash escapes may be used inside quoted values,
+       to allow a ``"`` character within the value.
+       Note that the backslash is retained in the value:
+       ``{k="a\\"b"}`` gives ``k`` the value ``a\\"b``.
+    - `%` begins a comment, which ends with the next `%`.
+      If no further `%` occurs in the rest of the line (for a block attribute)
+      or of the paragraph (for an inline attribute),
+      the comment instead ends at the next `}`, which also ends the attribute.
 
     Multiple attribute blocks are merged.
 
@@ -175,8 +181,8 @@ def _attr_inline_rule(
     state.pos += new_pos + 1
     if not silent:
         attr_token = state.tokens[token_index]
-        if "class" in attrs and "class" in token.attrs:
-            attrs["class"] = f"{token.attrs['class']} {attrs['class']}"
+        if "class" in attrs and "class" in attr_token.attrs:
+            attrs["class"] = f"{attr_token.attrs['class']} {attrs['class']}"
         _add_attrs(attr_token, attrs, allowed)
     return True
 
@@ -238,7 +244,8 @@ def _attr_resolve_block_rule(state: StateCore, *, allowed: set[str] | None) -> N
             i += 1
             continue
 
-        if i + 1 < len_tokens:
+        # skip closing tokens; attributes would be rendered into the closing tag
+        if i + 1 < len_tokens and state.tokens[i + 1].nesting >= 0:
             next_token = state.tokens[i + 1]
 
             # classes are appended

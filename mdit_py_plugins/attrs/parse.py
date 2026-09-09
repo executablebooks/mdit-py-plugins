@@ -100,17 +100,28 @@ def parse(string: str) -> tuple[int, dict[str, str]]:
     """Parse attributes from start of string.
 
     :returns: (length of parsed string, dict of attributes)
+    :raises ParseError: if the attributes are malformed,
+        or the string ends before the closing `}`
     """
     pos = 0
     state: State = State.START
     tokens = TokenState()
     while pos < len(string):
-        state = HANDLERS[state](string[pos], pos, tokens)
+        if (
+            state == State.SCANNING_COMMENT
+            and string[pos] == "}"
+            and "%" not in string[pos + 1 :]
+        ):
+            # a comment ends at the next `%`, but there is none left to close it,
+            # so this `}` ends both the comment and the attributes
+            state = State.DONE
+        else:
+            state = HANDLERS[state](string[pos], pos, tokens)
         if state == State.DONE:
             return pos, tokens.compile(string)
         pos = pos + 1
 
-    return pos, tokens.compile(string)
+    raise ParseError("Attributes not terminated", pos)
 
 
 def handle_start(char: str, pos: int, tokens: TokenState) -> State:
