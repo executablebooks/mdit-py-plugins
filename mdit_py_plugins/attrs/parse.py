@@ -107,7 +107,16 @@ def parse(string: str) -> tuple[int, dict[str, str]]:
     state: State = State.START
     tokens = TokenState()
     while pos < len(string):
-        state = HANDLERS[state](string[pos], pos, tokens)
+        if (
+            state == State.SCANNING_COMMENT
+            and string[pos] == "}"
+            and "%" not in string[pos + 1 :]
+        ):
+            # a comment ends at the next `%`, but there is none left to close it,
+            # so this `}` ends both the comment and the attributes
+            state = State.DONE
+        else:
+            state = HANDLERS[state](string[pos], pos, tokens)
         if state == State.DONE:
             return pos, tokens.compile(string)
         pos = pos + 1
@@ -145,9 +154,6 @@ def handle_scanning(char: str, pos: int, tokens: TokenState) -> State:
 def handle_scanning_comment(char: str, pos: int, tokens: TokenState) -> State:
     if char == "%":
         return State.SCANNING
-
-    if char == "}":
-        return State.DONE
 
     return State.SCANNING_COMMENT
 

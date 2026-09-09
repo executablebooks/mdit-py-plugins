@@ -166,6 +166,23 @@ para
 <p>para</p>
 .
 
+comment: block, attributes after a brace inside the comment
+.
+{% c } % .b}
+para
+.
+<p class="b">para</p>
+.
+
+comment: block, a brace inside the comment does not terminate the group
+.
+{% see } below %{x}
+para
+.
+<p>{% see } below %{x}
+para</p>
+.
+
 
 simple reference link
 .
@@ -288,7 +305,7 @@ unterminated: partially scanned attributes are not applied
 <p><code>a</code>{ .a b</p>
 .
 
-unterminated: escaped quote never re-closed
+unterminated: escaped brace inside a quoted value
 .
 `a`{k="a\}
 .
@@ -330,11 +347,39 @@ comment: closed by a brace, following text is kept
 <p><code>a</code>b</p>
 .
 
-comment: a brace ends the comment
+comment: a brace inside a comment closed by a percent
 .
 `a`{% x } y %}
 .
-<p><code>a</code> y %}</p>
+<p><code>a</code></p>
+.
+
+comment: attributes after a brace inside the comment
+.
+`a`{.a % c } % #i}
+.
+<p><code id="i" class="a">a</code></p>
+.
+
+comment: an empty comment containing a brace
+.
+`a`{% } %}
+.
+<p><code>a</code></p>
+.
+
+comment: text after a brace-closed comment is kept
+.
+`a`{.a %c} and {more}
+.
+<p><code class="a">a</code> and {more}</p>
+.
+
+comment: a later percent keeps a brace-closed comment open
+.
+`a`{.a %c} and 100% sure
+.
+<p><code>a</code>{.a %c} and 100% sure</p>
 .
 
 spans: simple
@@ -398,6 +443,13 @@ spans: comment
 [a]{%c}
 .
 <p><span>a</span></p>
+.
+
+spans: a brace inside an unterminated comment is not a span
+.
+[a]{% a } %{b}
+.
+<p>[a]{% a } %{b}</p>
 .
 
 spans: nested text syntax

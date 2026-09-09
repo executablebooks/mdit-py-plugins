@@ -45,7 +45,8 @@ def attrs_plugin(
        to allow a ``"`` character within the value.
        Note that the backslash is retained in the value:
        ``{k="a\\"b"}`` gives ``k`` the value ``a\\"b``.
-    - `%` begins a comment, which ends with the next `%` or the end of the attribute (`}`).
+    - `%` begins a comment, which ends with the next `%`,
+      or with the end of the attribute (`}`) if no `%` follows.
 
     Multiple attribute blocks are merged.
 
