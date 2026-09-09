@@ -70,6 +70,47 @@ a
 {#a .a c=1}</p>
 .
 
+unterminated: block group is not an attribute block
+.
+{.a
+para
+.
+<p>{.a
+para</p>
+.
+
+comment: block
+.
+{%x}
+para
+.
+<p>para</p>
+.
+
+comment: block after a class
+.
+{.a %c}
+para
+.
+<p class="a">para</p>
+.
+
+comment: block closed by a percent
+.
+{% just a comment %}
+para
+.
+<p>para</p>
+.
+
+comment: block with a brace inside the comment
+.
+{% x } y %}
+para
+.
+<p>para</p>
+.
+
 
 simple reference link
 .
@@ -134,6 +175,106 @@ merging attributes
 <p><img src="b" alt="a" id="x" class="a b x x g" other="a"></p>
 .
 
+unterminated: inline code
+.
+`a`{
+.
+<p><code>a</code>{</p>
+.
+
+unterminated: inline code with a class
+.
+`a`{.a
+.
+<p><code>a</code>{.a</p>
+.
+
+unterminated: link
+.
+[a](u){
+.
+<p><a href="u">a</a>{</p>
+.
+
+unterminated: image
+.
+![a](u){.x
+.
+<p><img src="u" alt="a">{.x</p>
+.
+
+unterminated: following text is not consumed
+.
+`a`{.a
+more
+.
+<p><code>a</code>{.a
+more</p>
+.
+
+unterminated: group after a terminated group
+.
+`a`{.a}{
+.
+<p><code class="a">a</code>{</p>
+.
+
+unterminated: partially scanned attributes are not applied
+.
+`a`{ .a b
+.
+<p><code>a</code>{ .a b</p>
+.
+
+unterminated: escaped quote never re-closed
+.
+`a`{k="a\}
+.
+<p><code>a</code>{k=&quot;a}</p>
+.
+
+unterminated: inside a link label
+.
+[x `a`{.a](u)
+.
+<p><a href="u">x <code>a</code>{.a</a></p>
+.
+
+comment: inline code
+.
+`a`{%c}
+.
+<p><code>a</code></p>
+.
+
+comment: after a class
+.
+`a`{.a %c}
+.
+<p><code class="a">a</code></p>
+.
+
+comment: link
+.
+[a](u){%c}
+.
+<p><a href="u">a</a></p>
+.
+
+comment: closed by a brace, following text is kept
+.
+`a`{%a}b
+.
+<p><code>a</code>b</p>
+.
+
+comment: a brace ends the comment
+.
+`a`{% x } y %}
+.
+<p><code>a</code> y %}</p>
+.
+
 spans: simple
 .
 [a]{#id .b}c
@@ -174,6 +315,27 @@ spans: escaped span attribute
 [a]\{.b}
 .
 <p>[a]{.b}</p>
+.
+
+spans: unterminated attributes are not a span
+.
+[a]{
+.
+<p>[a]{</p>
+.
+
+spans: unterminated attributes with a class are not a span
+.
+[a]{.x
+.
+<p>[a]{.x</p>
+.
+
+spans: comment
+.
+[a]{%c}
+.
+<p><span>a</span></p>
 .
 
 spans: nested text syntax

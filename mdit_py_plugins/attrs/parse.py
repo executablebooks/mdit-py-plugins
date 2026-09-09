@@ -100,6 +100,8 @@ def parse(string: str) -> tuple[int, dict[str, str]]:
     """Parse attributes from start of string.
 
     :returns: (length of parsed string, dict of attributes)
+    :raises ParseError: if the attributes are malformed,
+        or the string ends before the closing `}`
     """
     pos = 0
     state: State = State.START
@@ -110,7 +112,7 @@ def parse(string: str) -> tuple[int, dict[str, str]]:
             return pos, tokens.compile(string)
         pos = pos + 1
 
-    return pos, tokens.compile(string)
+    raise ParseError("Attributes not terminated", pos)
 
 
 def handle_start(char: str, pos: int, tokens: TokenState) -> State:
@@ -143,6 +145,9 @@ def handle_scanning(char: str, pos: int, tokens: TokenState) -> State:
 def handle_scanning_comment(char: str, pos: int, tokens: TokenState) -> State:
     if char == "%":
         return State.SCANNING
+
+    if char == "}":
+        return State.DONE
 
     return State.SCANNING_COMMENT
 
