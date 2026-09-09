@@ -197,6 +197,13 @@ simple inline code
 <p><code id="id" b="c" class="a">a</code></p>
 .
 
+quoted value keeps a backslash escape
+.
+`a`{k="a\"b"}
+.
+<p><code k="a\&quot;b">a</code></p>
+.
+
 ignore if space
 .
 ![a](b) {#id key="*"}

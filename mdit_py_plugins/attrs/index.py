@@ -41,7 +41,10 @@ def attrs_plugin(
     - `key="value"` or `key=value` specifies a key-value attribute.
        Quotes are not needed when the value consists entirely of
        ASCII alphanumeric characters or `_` or `:` or `-`.
-       Backslash escapes may be used inside quoted values.
+       Backslash escapes may be used inside quoted values,
+       to allow a ``"`` character within the value.
+       Note that the backslash is retained in the value:
+       ``{k="a\\"b"}`` gives ``k`` the value ``a\\"b``.
     - `%` begins a comment, which ends with the next `%` or the end of the attribute (`}`).
 
     Multiple attribute blocks are merged.
