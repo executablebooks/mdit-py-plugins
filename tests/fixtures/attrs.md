@@ -400,7 +400,49 @@ spans: merge attributes
 .
 [a]{#a .a}{#b .a .b other=c}{other=d}
 .
-<p><span id="b" class="a b" other="d">a</span></p>
+<p><span id="b" class="a a b" other="d">a</span></p>
+.
+
+spans: merge classes from two groups
+.
+[a]{.x}{.y}
+.
+<p><span class="x y">a</span></p>
+.
+
+spans: merge classes from three groups
+.
+[a]{.x}{.y}{.z}
+.
+<p><span class="x y z">a</span></p>
+.
+
+spans: merge classes with an id in each group
+.
+[a]{.x #p}{.y #q}
+.
+<p><span id="q" class="x y">a</span></p>
+.
+
+spans: merge classes on the outer of nested spans
+.
+[[a]{.i}]{.x}{.y}
+.
+<p><span class="x y"><span class="i">a</span></span></p>
+.
+
+links: merge classes from two groups
+.
+[a](u){.x}{.y}
+.
+<p><a href="u" class="x y">a</a></p>
+.
+
+links: merge classes from three groups
+.
+[a](u){.x}{.y}{.z}
+.
+<p><a href="u" class="x y z">a</a></p>
 .
 
 Indented by 4 spaces

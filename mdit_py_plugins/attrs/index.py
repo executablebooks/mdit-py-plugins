@@ -175,8 +175,8 @@ def _attr_inline_rule(
     state.pos += new_pos + 1
     if not silent:
         attr_token = state.tokens[token_index]
-        if "class" in attrs and "class" in token.attrs:
-            attrs["class"] = f"{token.attrs['class']} {attrs['class']}"
+        if "class" in attrs and "class" in attr_token.attrs:
+            attrs["class"] = f"{attr_token.attrs['class']} {attrs['class']}"
         _add_attrs(attr_token, attrs, allowed)
     return True
 
