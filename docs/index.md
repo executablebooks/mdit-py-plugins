@@ -43,6 +43,50 @@ html_string = md.render("some *Markdown*")
 .. autofunction:: mdit_py_plugins.front_matter.front_matter_plugin
 ```
 
+### Extract metadata and render HTML
+
+Register the plugin, parse the source once, then render the resulting tokens:
+
+```python
+from markdown_it import MarkdownIt
+from mdit_py_plugins.front_matter import front_matter_plugin
+
+md = MarkdownIt("commonmark").use(front_matter_plugin)
+source = "---\ntitle: Example\ndraft: false\n---\n# Welcome\n"
+env = {}
+tokens = md.parse(source, env)
+front_matter = next(
+    (token.content for token in tokens if token.type == "front_matter"), None
+)
+html = md.renderer.render(tokens, md.options, env)
+
+assert front_matter == "title: Example\ndraft: false"
+assert html == "\n<h1>Welcome</h1>\n"
+```
+
+The `front_matter` token contains the metadata text without its delimiters.
+It is hidden, so the default HTML renderer omits it.
+Pass the same `env` to parsing and rendering so other plugins can share their state.
+Calling `md.render(source)` instead would parse the source again.
+
+The plugin does not parse YAML or store metadata in `env`.
+To convert YAML text into Python objects, use a YAML parser separately.
+For example, with [PyYAML](https://pyyaml.org/) installed:
+
+```python
+import yaml
+
+metadata = yaml.safe_load(front_matter) if front_matter else {}
+assert metadata == {"title": "Example", "draft": False}
+```
+
+YAML can also produce lists or scalar values; validate the result if your application
+requires a mapping or particular fields.
+The extraction example returns `None` when no front matter is present and an empty
+string for an empty front-matter block.
+Place the opening `---` at the very start of the document, without leading blank
+lines or indentation, and close the block with another `---` line.
+
 ## GFM (GitHub Flavored Markdown)
 
 ```{eval-rst}
