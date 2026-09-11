@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+- 📚 DOCS: Explain extracting front matter and rendering HTML from one parse (#133).
+
 ## 0.7.0 - 2026-07-19
 
 - ✨ NEW: Add section reference plugin (`section_ref`) (#144)
