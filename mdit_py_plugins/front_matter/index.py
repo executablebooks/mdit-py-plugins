@@ -1,16 +1,18 @@
 """Process front matter."""
 
+from functools import partial
+
 from markdown_it import MarkdownIt
 from markdown_it.rules_block import StateBlock
 
 from mdit_py_plugins.utils import is_code_block
 
 
-def front_matter_plugin(md: MarkdownIt) -> None:
+def front_matter_plugin(md: MarkdownIt, *, marker: str = "-") -> None:
     """Plugin ported from
     `markdown-it-front-matter <https://github.com/ParkSB/markdown-it-front-matter>`__.
 
-    It parses initial metadata, stored between opening/closing dashes:
+    It parses initial metadata, stored between opening/closing markers:
 
     .. code-block:: md
 
@@ -18,19 +20,47 @@ def front_matter_plugin(md: MarkdownIt) -> None:
         valid-front-matter: true
         ---
 
+    For example, to extract TOML-style front matter:
+
+    .. code-block:: python
+
+        md = MarkdownIt().use(front_matter_plugin, marker="+")
+        tokens = md.parse('+++\\ntitle = "Hello"\\n+++\\n# Heading')
+        assert tokens[0].content == 'title = "Hello"'
+
+    :param marker: Single non-whitespace character used for the delimiters,
+        excluding NUL (which Markdown normalizes before parsing).
+        At least three repetitions are required; the closing delimiter must
+        be at least as long as the opening delimiter. Defaults to ``-`` for
+        YAML-style front matter. Use ``+`` for TOML-style ``+++`` delimiters
+        or ``;`` for JSON-style ``;;;`` delimiters. The content is returned
+        as raw text, without decoding YAML, TOML, or JSON. The YAML ``...``
+        terminator is recognized only with the default marker.
+    :raises ValueError: If the marker is not a single non-whitespace character,
+        or is NUL.
+
     """
+    if len(marker) != 1 or marker.isspace() or marker == "\x00":
+        raise ValueError(
+            "marker must be a single non-whitespace character other than NUL"
+        )
+
     md.block.ruler.before(
         "table",
         "front_matter",
-        _front_matter_rule,
+        partial(_front_matter_rule, marker_chr=marker),
         {"alt": ["paragraph", "reference", "blockquote", "list"]},
     )
 
 
 def _front_matter_rule(
-    state: StateBlock, startLine: int, endLine: int, silent: bool
+    state: StateBlock,
+    startLine: int,
+    endLine: int,
+    silent: bool,
+    *,
+    marker_chr: str = "-",
 ) -> bool:
-    marker_chr = "-"
     min_markers = 3
 
     auto_closed = False
@@ -69,7 +99,7 @@ def _front_matter_rule(
             # unclosed block should be autoclosed by end of document.
             return False
 
-        if state.src[start:maximum] == "...":
+        if marker_chr == "-" and state.src[start:maximum] == "...":
             break
 
         start = state.bMarks[nextLine] + state.tShift[nextLine]
