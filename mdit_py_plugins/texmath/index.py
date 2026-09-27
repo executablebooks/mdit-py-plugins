@@ -128,25 +128,28 @@ def make_block_func(rule: RuleDictType) -> Callable[[StateBlock, int, int, bool]
     def _func(state: StateBlock, begLine: int, endLine: int, silent: bool) -> bool:
         begin = state.bMarks[begLine] + state.tShift[begLine]
         res = applyRule(rule, state.src, begin, state.parentType == "blockquote")
-        if res:
-            if not silent:
-                token = state.push(rule["name"], "math", 0)
-                token.block = True
-                token.content = res[1]
-                token.info = res[len(res.groups())]
-                token.markup = rule["tag"]
+        if not res:
+            return False
 
-            line = begLine
-            endpos = begin + res.end() - 1
+        # find the line holding the end of the match, within this block only
+        endpos = begin + res.end() - 1
+        line = begLine
+        while line < endLine and endpos > state.eMarks[line]:
+            line += 1
+        if line >= endLine or endpos < state.bMarks[line]:
+            # the closing delimiter lies outside the current block,
+            # e.g. math opened inside a blockquote and closed after it
+            return False
 
-            while line < endLine:
-                if endpos >= state.bMarks[line] and endpos <= state.eMarks[line]:
-                    # line for end of block math found ...
-                    state.line = line + 1
-                    break
-                line += 1
+        if not silent:
+            token = state.push(rule["name"], "math", 0)
+            token.block = True
+            token.content = res[1]
+            token.info = res[len(res.groups())]
+            token.markup = rule["tag"]
 
-        return bool(res)
+        state.line = line + 1
+        return True
 
     return _func
 

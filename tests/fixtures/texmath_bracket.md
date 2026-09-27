@@ -410,3 +410,15 @@ Indented by 4 spaces, DISABLE-CODEBLOCKS
     </eqn>
 </section>
 .
+
+display equation opened in blockquote and closed outside it (valid=False)
+.
+> \[ a=1
+
+\]
+.
+<blockquote>
+<p>[ a=1</p>
+</blockquote>
+<p>]</p>
+.
