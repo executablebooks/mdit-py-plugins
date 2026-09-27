@@ -81,6 +81,23 @@ def test_plugin_parse(data_regression):
 
 
 @pytest.mark.parametrize(
+    "delimiters,opening,closing",
+    [
+        ("brackets", "\\[", "\\]"),
+        ("dollars", "$$", "$$"),
+        ("kramdown", "$$", "$$"),
+        ("gitlab", "```math", "```"),
+        ("julia", "```math", "```"),
+    ],
+)
+def test_block_closed_outside_blockquote(delimiters, opening, closing):
+    """A math block opened inside a blockquote cannot close after it."""
+    md = MarkdownIt("commonmark").use(texmath_plugin, delimiters=delimiters)
+    tokens = md.parse(f"> {opening} a=1\n\n{closing}\n")
+    assert not [t for t in tokens if t.type.startswith("math_block")]
+
+
+@pytest.mark.parametrize(
     "line,title,input,expected",
     read_fixture_file(FIXTURE_PATH.joinpath("texmath_dollar.md")),
 )

@@ -454,3 +454,31 @@ Indented by 4 spaces, DISABLE-CODEBLOCKS
 <eqn>a</eqn>
 </section>
 .
+
+display equation opened in blockquote and closed outside it (valid=False)
+.
+> $$ a=1
+
+$$
+.
+<blockquote>
+<p>$$ a=1</p>
+</blockquote>
+<p>$$</p>
+.
+
+display equation opened in nested blockquote and closed outside it (valid=False)
+.
+- > $$ a=1
+
+$$ (1)
+.
+<ul>
+<li>
+<blockquote>
+<p>$$ a=1</p>
+</blockquote>
+</li>
+</ul>
+<p>$$ (1)</p>
+.

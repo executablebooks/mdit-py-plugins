@@ -1,5 +1,14 @@
 # Change Log
 
+## Unreleased
+
+- 🐛 FIX: `texmath` no longer loops forever on block math opened inside a blockquote and closed after it (#156)
+
+  The block rules matched their regex against the rest of the source, so the closing
+  delimiter could lie outside the current block; the rule then reported a match
+  without advancing `state.line`. The closing line is now searched within the current
+  block only, otherwise the rule does not match (no auto-closing, as in `amsmath`).
+
 ## 0.7.0 - 2026-07-19
 
 - ✨ NEW: Add section reference plugin (`section_ref`) (#144)
