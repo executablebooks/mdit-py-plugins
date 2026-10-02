@@ -42,6 +42,30 @@ def test_token():
     ]
 
 
+@pytest.mark.parametrize("closer", ["---", "..."])
+def test_token_content_excludes_the_closer(closer):
+    """The closing marker must not be left inside the extracted content.
+
+    ``...`` is the YAML document-end marker and is exercised by the fixture file,
+    so it has to be consumed like the dashed form rather than kept in the block.
+    """
+    md = MarkdownIt("commonmark").use(front_matter_plugin)
+    tokens = md.parse(f"---\na: 1\n{closer}")
+    assert [token.type for token in tokens] == ["front_matter"]
+    assert tokens[0].content == "a: 1"
+
+
+def test_dots_closer_on_the_last_line():
+    """A block closed by ``...`` on the final line is still front matter.
+
+    ``test_all`` cannot see this: the front_matter token is hidden, so only the
+    rendered output is asserted, and a block that is dropped rather than closed
+    renders as visible text instead of disappearing.
+    """
+    md = MarkdownIt("commonmark").use(front_matter_plugin)
+    assert md.render("---\na: 1\n...\n") == md.render("---\na: 1\n---\n") == ""
+
+
 def test_short_source():
     md = MarkdownIt("commonmark").use(front_matter_plugin)
 
