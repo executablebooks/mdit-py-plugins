@@ -1,5 +1,21 @@
 # Change Log
 
+## Unreleased
+
+- 🐛 FIX: front matter closed by `...` is parsed correctly
+
+  The YAML document-end marker was tested against the previous line rather than
+  the current one, because `start`/`maximum` were only moved onto the current
+  line after the test. Two things followed: a block whose last line was `...` was
+  dropped entirely, so the front matter leaked into the document as visible text,
+  and where it did parse, the marker itself was included in the token content.
+
+  ```python
+  MarkdownIt().use(front_matter_plugin).render("---\ntitle: a\n...\n")
+  # before: '<hr />\n<p>title: a\n...</p>\n'
+  # after:  ''
+  ```
+
 ## 0.7.0 - 2026-07-19
 
 - ✨ NEW: Add section reference plugin (`section_ref`) (#144)
