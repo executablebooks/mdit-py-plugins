@@ -11,13 +11,15 @@ These can be enabled individually:
 
 ```python
 from markdown_it import MarkdownIt
-md = MarkdownIt("commonmark").enable('table')
+
+md = MarkdownIt("commonmark").enable("table")
 ```
 
 or as part of a configuration:
 
 ```python
 from markdown_it import MarkdownIt
+
 md = MarkdownIt("gfm-like")
 ```
 
@@ -33,6 +35,7 @@ They can be chained and loaded *via*:
 ```python
 from markdown_it import MarkdownIt
 from mdit_py_plugins import plugin1, plugin2
+
 md = MarkdownIt().use(plugin1, keyword=value).use(plugin2, keyword=value)
 html_string = md.render("some *Markdown*")
 ```
