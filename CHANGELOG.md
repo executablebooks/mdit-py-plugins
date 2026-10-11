@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+- 🐛 FIX: Preserve explicit heading IDs in the anchors plugin and avoid generated ID collisions.
+
 ## 0.7.0 - 2026-07-19
 
 - ✨ NEW: Add section reference plugin (`section_ref`) (#144)
