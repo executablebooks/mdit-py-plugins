@@ -21,8 +21,8 @@ def container_plugin(
     md: MarkdownIt,
     name: str,
     marker: str = ":",
-    validate: None | Callable[[str, str], bool] = None,
-    render: None | Callable[..., str] = None,
+    validate: Callable[[str, str], bool] | None = None,
+    render: Callable[..., str] | None = None,
 ) -> None:
     """Plugin ported from
     `markdown-it-container <https://github.com/markdown-it/markdown-it-container>`__.
