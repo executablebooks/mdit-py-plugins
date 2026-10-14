@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+- 🐛 FIX: `gfm_autolink` hang on autolink-like text in link labels (#160)
+
 ## 0.7.0 - 2026-07-19
 
 - ✨ NEW: Add section reference plugin (`section_ref`) (#144)
