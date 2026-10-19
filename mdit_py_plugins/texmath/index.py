@@ -86,7 +86,7 @@ class RuleDictType(_RuleDictReqType, total=False):
 
 def applyRule(
     rule: RuleDictType, string: str, begin: int, inBlockquote: bool
-) -> None | Match[str]:
+) -> Match[str] | None:
     if not (
         string.startswith(rule["tag"], begin)
         and (rule["pre"](string, begin) if "pre" in rule else True)
@@ -202,14 +202,15 @@ rules: dict[str, dict[str, list[RuleDictType]]] = {
             {
                 "name": "math_block_eqno",
                 "rex": re.compile(
-                    r"^\\\[(((?!\\\]|\\\[)[\s\S])+?)\\\]\s*?\(([^)$\r\n]+?)\)", re.M
+                    r"^\\\[(((?!\\\]|\\\[)[\s\S])+?)\\\]\s*?\(([^)$\r\n]+?)\)",
+                    re.MULTILINE,
                 ),
                 "tmpl": '<section class="eqno"><eqn>{0}</eqn><span>({1})</span></section>',
                 "tag": "\\[",
             },
             {
                 "name": "math_block",
-                "rex": re.compile(r"^\\\[([\s\S]+?)\\\]", re.M),
+                "rex": re.compile(r"^\\\[([\s\S]+?)\\\]", re.MULTILINE),
                 "tmpl": "<section>\n<eqn>{0}</eqn>\n</section>\n",
                 "tag": "\\[",
             },
@@ -228,14 +229,14 @@ rules: dict[str, dict[str, list[RuleDictType]]] = {
             {
                 "name": "math_block_eqno",
                 "rex": re.compile(
-                    r"^`{3}math\s+?([^`]+?)\s+?`{3}\s*?\(([^)$\r\n]+?)\)", re.M
+                    r"^`{3}math\s+?([^`]+?)\s+?`{3}\s*?\(([^)$\r\n]+?)\)", re.MULTILINE
                 ),
                 "tmpl": '<section class="eqno">\n<eqn>{0}</eqn><span>({1})</span>\n</section>\n',
                 "tag": "```math",
             },
             {
                 "name": "math_block",
-                "rex": re.compile(r"^`{3}math\s+?([^`]+?)\s+?`{3}", re.M),
+                "rex": re.compile(r"^`{3}math\s+?([^`]+?)\s+?`{3}", re.MULTILINE),
                 "tmpl": "<section>\n<eqn>{0}</eqn>\n</section>\n",
                 "tag": "```math",
             },
@@ -270,14 +271,14 @@ rules: dict[str, dict[str, list[RuleDictType]]] = {
             {
                 "name": "math_block_eqno",
                 "rex": re.compile(
-                    r"^`{3}math\s+?([^`]+?)\s+?`{3}\s*?\(([^)$\r\n]+?)\)", re.M
+                    r"^`{3}math\s+?([^`]+?)\s+?`{3}\s*?\(([^)$\r\n]+?)\)", re.MULTILINE
                 ),
                 "tmpl": '<section class="eqno"><eqn>{0}</eqn><span>({1})</span></section>',
                 "tag": "```math",
             },
             {
                 "name": "math_block",
-                "rex": re.compile(r"^`{3}math\s+?([^`]+?)\s+?`{3}", re.M),
+                "rex": re.compile(r"^`{3}math\s+?([^`]+?)\s+?`{3}", re.MULTILINE),
                 "tmpl": "<section><eqn>{0}</eqn></section>",
                 "tag": "```math",
             },
@@ -295,13 +296,15 @@ rules: dict[str, dict[str, list[RuleDictType]]] = {
         "block": [
             {
                 "name": "math_block_eqno",
-                "rex": re.compile(r"^\${2}([^$]*?)\${2}\s*?\(([^)$\r\n]+?)\)", re.M),
+                "rex": re.compile(
+                    r"^\${2}([^$]*?)\${2}\s*?\(([^)$\r\n]+?)\)", re.MULTILINE
+                ),
                 "tmpl": '<section class="eqno"><eqn>{0}</eqn><span>({1})</span></section>',
                 "tag": "$$",
             },
             {
                 "name": "math_block",
-                "rex": re.compile(r"^\${2}([^$]*?)\${2}", re.M),
+                "rex": re.compile(r"^\${2}([^$]*?)\${2}", re.MULTILINE),
                 "tmpl": "<section><eqn>{0}</eqn></section>",
                 "tag": "$$",
             },
@@ -329,13 +332,15 @@ rules: dict[str, dict[str, list[RuleDictType]]] = {
         "block": [
             {
                 "name": "math_block_eqno",
-                "rex": re.compile(r"^\${2}([^$]*?)\${2}\s*?\(([^)$\r\n]+?)\)", re.M),
+                "rex": re.compile(
+                    r"^\${2}([^$]*?)\${2}\s*?\(([^)$\r\n]+?)\)", re.MULTILINE
+                ),
                 "tmpl": '<section class="eqno">\n<eqn>{0}</eqn><span>({1})</span>\n</section>\n',
                 "tag": "$$",
             },
             {
                 "name": "math_block",
-                "rex": re.compile(r"^\${2}([^$]*?)\${2}", re.M),
+                "rex": re.compile(r"^\${2}([^$]*?)\${2}", re.MULTILINE),
                 "tmpl": "<section>\n<eqn>{0}</eqn>\n</section>\n",
                 "tag": "$$",
             },
