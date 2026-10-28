@@ -1,5 +1,11 @@
 # Change Log
 
+## Unreleased
+
+- 🐛 FIX: Reserve inline footnote IDs before parsing their contents, avoiding
+  overwritten notes, duplicate anchors and `KeyError` when those contents refer
+  to another footnote.
+
 ## 0.7.0 - 2026-07-19
 
 - ✨ NEW: Add section reference plugin (`section_ref`) (#144)
