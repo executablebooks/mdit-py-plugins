@@ -57,6 +57,11 @@ html_string = md.render("some *Markdown*")
 
 ## Footnotes
 
+Inline footnotes keep separate identifiers when their contents refer to other
+footnotes. For example, `^[See also [^source]]` and a later `[^source]` reference
+both link to the same named footnote definition without overwriting the inline
+note.
+
 ```{eval-rst}
 .. autofunction:: mdit_py_plugins.footnote.footnote_plugin
 ```

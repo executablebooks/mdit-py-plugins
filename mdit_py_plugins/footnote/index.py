@@ -227,14 +227,14 @@ def footnote_inline(state: StateInline, silent: bool) -> bool:
         footnoteId = len(refs)
 
         tokens: list[Token] = []
+        # Reserve the ID before parsing content that may allocate more footnotes.
+        refs[footnoteId] = {"content": state.src[labelStart:labelEnd], "tokens": tokens}
         state.md.inline.parse(
             state.src[labelStart:labelEnd], state.md, state.env, tokens
         )
 
         token = state.push("footnote_ref", "", 0)
         token.meta = {"id": footnoteId}
-
-        refs[footnoteId] = {"content": state.src[labelStart:labelEnd], "tokens": tokens}
 
     state.pos = labelEnd + 1
     state.posMax = maximum
