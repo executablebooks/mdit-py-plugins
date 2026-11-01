@@ -159,6 +159,10 @@ def _www_inline_rule(state: StateInline, silent: bool) -> bool:
     label = src[pos : pos + length]
 
     if silent:
+        # Advance by one: parseLinkLabel must keep seeing every character
+        # (a full-token advance can overshoot ']' when the match extends
+        # past it), and any advance at all breaks the no-progress loop.
+        state.pos += 1
         return True
 
     full_url = state.md.normalizeLink(url)
@@ -223,6 +227,8 @@ def _protocol_rule(state: StateInline, silent: bool) -> bool:
     label = combined[:total_len]
 
     if silent:
+        # Advance by one, as above; never touch pending in silent mode.
+        state.pos += 1
         return True
     return _create_autolink(state, bscan_len, total_len, full_url, label)
 
@@ -291,5 +297,7 @@ def _email_rule(state: StateInline, silent: bool) -> bool:
     url = "mailto:" + email_text
 
     if silent:
+        # Advance by one, as above; never touch pending in silent mode.
+        state.pos += 1
         return True
     return _create_autolink(state, local_len, total_len, url, email_text)
