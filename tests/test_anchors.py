@@ -60,3 +60,55 @@ def test_explicit_heading_id_does_not_call_slug_function() -> None:
         .use(anchors_plugin, slug_func=slug_func)
     )
     assert md.render("{#custom}\n# Heading") == '<h1 id="custom">Heading</h1>\n'
+
+
+@pytest.mark.parametrize(
+    "source, expected_ids",
+    [
+        pytest.param(
+            "{#foo}\n### Bar\n\n# Foo",
+            ["foo", "foo-1"],
+            id="out-of-level-id-reserved",
+        ),
+        pytest.param(
+            "{#a}\n# X\n\n{#a}\n# Y",
+            ["a", "a"],
+            id="duplicate-explicit-ids-kept",
+        ),
+        pytest.param(
+            '{id=""}\n# Title',
+            ["title"],
+            id="empty-id-is-generated",
+        ),
+        pytest.param(
+            '{id=""}\n# Title\n\n# Title',
+            ["title", "title-1"],
+            id="empty-id-not-reserved",
+        ),
+    ],
+)
+def test_explicit_heading_id_edge_cases(source: str, expected_ids: list[str]) -> None:
+    """Pin the edge cases of explicit heading IDs.
+
+    An explicit ID outside the selected levels is still reserved,
+    duplicate explicit IDs are kept as written (no error is raised),
+    and an empty ID (invalid in HTML) is treated as absent.
+    """
+    md = (
+        MarkdownIt("commonmark")
+        .use(attrs_block_plugin)
+        .use(anchors_plugin, permalink=True)
+    )
+    tokens = md.parse(source)
+    assert [
+        token.attrGet("id") for token in tokens if token.type == "heading_open"
+    ] == expected_ids
+    rendered = md.renderer.render(tokens, md.options, {})
+    assert 'id=""' not in rendered
+    assert 'href="#"' not in rendered
+
+
+def test_explicit_heading_id_plugin_order() -> None:
+    """The explicit ID is kept whichever plugin is loaded first."""
+    md = MarkdownIt("commonmark").use(anchors_plugin).use(attrs_block_plugin)
+    assert md.render("{#custom}\n# Heading") == '<h1 id="custom">Heading</h1>\n'
