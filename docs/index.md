@@ -186,6 +186,9 @@ which gives:
 <p>Inline <span class="math inline">\(a&lt;b\)</span> and <div class="math inline">\[x^2\]</div> in a paragraph.</p>
 ```
 
+A browser closes the `<p>` before the `<div>`, so in the page the text after inline `$$...$$`
+falls outside the paragraph: allow for that when styling or selecting this output.
+
 The returned string is inserted as is, so escape the content, as above, unless it comes from a trusted source
 (the default renderer escapes it for you).
 The same function can instead return fully typeset output, such as MathML from a converter library.

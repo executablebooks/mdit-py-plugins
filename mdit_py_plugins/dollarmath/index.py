@@ -51,7 +51,7 @@ def dollarmath_plugin(
     :param renderer: Function to render content: `(str, {"display_mode": bool}) -> str`,
         by default escapes HTML.
         Its return value is placed inside the element as is,
-        so a custom renderer must escape the content itself.
+        so a custom renderer is responsible for escaping it (the default renderer does).
     :param label_renderer: Function to render labels, by default creates anchor
 
     The plugin does not typeset the math.
