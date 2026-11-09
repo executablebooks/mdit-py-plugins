@@ -106,11 +106,14 @@ def parse(string: str) -> tuple[int, dict[str, str]]:
     pos = 0
     state: State = State.START
     tokens = TokenState()
+    # found once, so that checking for a later `%` at each `}` does not
+    # rescan the rest of the string (which would be quadratic in its length)
+    last_percent = string.rfind("%")
     while pos < len(string):
         if (
             state == State.SCANNING_COMMENT
             and string[pos] == "}"
-            and "%" not in string[pos + 1 :]
+            and pos > last_percent
         ):
             # a comment ends at the next `%`, but there is none left to close it,
             # so this `}` ends both the comment and the attributes
