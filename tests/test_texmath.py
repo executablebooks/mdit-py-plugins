@@ -116,6 +116,26 @@ def test_fenced_math_block(delimiters):
 
 
 @pytest.mark.parametrize("delimiters", ["gitlab", "julia"])
+@pytest.mark.parametrize(
+    "source,expected",
+    [
+        ("```math\n  a = 1\n  b = 2\n```\n", "<eqn>  a = 1\n  b = 2</eqn>"),
+        ("```math\n  a = 1\n``` (1)\n", "<eqn>  a = 1</eqn><span>(1)</span>"),
+    ],
+    ids=["math_block", "math_block_eqno"],
+)
+def test_fenced_math_block_keeps_indent(delimiters, source, expected):
+    """The ReDoS fix must not change output: the first line keeps its indentation.
+
+    One whitespace character (the newline after the opening fence) separates
+    the fence from the body; a pattern that skips all leading whitespace
+    would render ``<eqn>a = 1`` instead.
+    """
+    md = MarkdownIt("commonmark").use(texmath_plugin, delimiters=delimiters)
+    assert expected in md.render(source)
+
+
+@pytest.mark.parametrize("delimiters", ["gitlab", "julia"])
 @pytest.mark.timeout(2)
 def test_fenced_math_block_redos(delimiters):
     """An unclosed ``` ```math ``` fence must not trigger catastrophic backtracking."""

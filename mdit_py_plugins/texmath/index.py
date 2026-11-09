@@ -228,7 +228,7 @@ rules: dict[str, dict[str, list[RuleDictType]]] = {
             {
                 "name": "math_block_eqno",
                 "rex": re.compile(
-                    r"^`{3}math\s+([^`\s](?:[^`]*[^`\s])?)\s+`{3}\s*?\(([^)$\r\n]+?)\)",
+                    r"^`{3}math\s(\s*[^`\s](?:[^`]*[^`\s])?)\s+`{3}\s*?\(([^)$\r\n]+?)\)",
                     re.M,
                 ),
                 "tmpl": '<section class="eqno">\n<eqn>{0}</eqn><span>({1})</span>\n</section>\n',
@@ -236,7 +236,9 @@ rules: dict[str, dict[str, list[RuleDictType]]] = {
             },
             {
                 "name": "math_block",
-                "rex": re.compile(r"^`{3}math\s+([^`\s](?:[^`]*[^`\s])?)\s+`{3}", re.M),
+                "rex": re.compile(
+                    r"^`{3}math\s(\s*[^`\s](?:[^`]*[^`\s])?)\s+`{3}", re.M
+                ),
                 "tmpl": "<section>\n<eqn>{0}</eqn>\n</section>\n",
                 "tag": "```math",
             },
@@ -271,7 +273,7 @@ rules: dict[str, dict[str, list[RuleDictType]]] = {
             {
                 "name": "math_block_eqno",
                 "rex": re.compile(
-                    r"^`{3}math\s+([^`\s](?:[^`]*[^`\s])?)\s+`{3}\s*?\(([^)$\r\n]+?)\)",
+                    r"^`{3}math\s(\s*[^`\s](?:[^`]*[^`\s])?)\s+`{3}\s*?\(([^)$\r\n]+?)\)",
                     re.M,
                 ),
                 "tmpl": '<section class="eqno"><eqn>{0}</eqn><span>({1})</span></section>',
@@ -279,7 +281,9 @@ rules: dict[str, dict[str, list[RuleDictType]]] = {
             },
             {
                 "name": "math_block",
-                "rex": re.compile(r"^`{3}math\s+([^`\s](?:[^`]*[^`\s])?)\s+`{3}", re.M),
+                "rex": re.compile(
+                    r"^`{3}math\s(\s*[^`\s](?:[^`]*[^`\s])?)\s+`{3}", re.M
+                ),
                 "tmpl": "<section><eqn>{0}</eqn></section>",
                 "tag": "```math",
             },
