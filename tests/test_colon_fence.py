@@ -52,6 +52,12 @@ def test_plugin_parse(data_regression):
             '<pre><code class="block-a&quot;&gt;&lt;xss&gt;" >x\n</code></pre>\n',
             id="entity-encoded",
         ),
+        pytest.param(
+            # benign: same attribute value as before, now well-formed
+            ":::a&b\nx\n:::\n",
+            '<pre><code class="block-a&amp;b" >x\n</code></pre>\n',
+            id="ampersand",
+        ),
     ],
 )
 def test_block_name_is_escaped(source, expected):

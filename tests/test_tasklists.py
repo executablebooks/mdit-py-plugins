@@ -65,3 +65,17 @@ def test_label_after_is_escaped(source, label):
         f'<label class="task-list-item-label" for="task-item-ID">{label}</label>'
         "</li>\n</ul>\n"
     )
+
+
+def test_label_after_entity_is_shown_literally():
+    """The ``label_after`` label is the item's raw source text, escaped (#143).
+
+    So a source entity is shown as written (``&amp;``), not decoded.
+    Only the label is asserted: the inline children before the last one
+    are also rendered outside the label, which is a separate, existing issue.
+    """
+    md = MarkdownIt("commonmark", {"html": False}).use(
+        tasklists_plugin, label=True, label_after=True
+    )
+    labels = re.findall(r"<label [^>]*>(.*?)</label>", md.render("- [ ] a &amp; b\n"))
+    assert labels == [" a &amp;amp; b"]
