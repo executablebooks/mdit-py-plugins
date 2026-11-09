@@ -69,11 +69,18 @@ def _front_matter_rule(
             # unclosed block should be autoclosed by end of document.
             return False
 
-        if state.src[start:maximum] == "...":
-            break
-
         start = state.bMarks[nextLine] + state.tShift[nextLine]
         maximum = state.eMarks[nextLine]
+
+        if (
+            state.sCount[nextLine] == 0
+            and state.src.startswith("...", start)
+            and state.skipSpaces(start + 3) >= maximum
+        ):
+            # YAML document-end marker: `...` at column 0, trailing spaces allowed.
+            # It is checked on the current line and consumed, so it is not content.
+            auto_closed = True
+            break
 
         if start < maximum and state.sCount[nextLine] < state.blkIndent:
             # non-empty line with negative indent should stop the list:
