@@ -116,3 +116,136 @@ def test_span_respects_allowed_list():
     assert 'id="a"' in text
     assert "width" not in text
     assert "onclick" not in text
+
+
+@pytest.mark.parametrize(
+    "src,expected,removed",
+    [
+        pytest.param(
+            '[a](https://x){href="javascript:alert(1)"}',
+            '<p><a href="https://x">a</a></p>\n',
+            {"href": "javascript:alert(1)"},
+            id="link-href",
+        ),
+        pytest.param(
+            '[a](https://x){HREF="JavaScript:alert(1)"}',
+            '<p><a href="https://x">a</a></p>\n',
+            {"HREF": "JavaScript:alert(1)"},
+            id="link-href-case",
+        ),
+        pytest.param(
+            '[a](https://x){href="java\tscript:alert(1)"}',
+            '<p><a href="https://x">a</a></p>\n',
+            {"href": "java\tscript:alert(1)"},
+            id="link-href-tab",
+        ),
+        pytest.param(
+            '[a](https://x){href="\x01 javascript:alert(1)"}',
+            '<p><a href="https://x">a</a></p>\n',
+            {"href": "\x01 javascript:alert(1)"},
+            id="link-href-leading-control",
+        ),
+        pytest.param(
+            '![i](x.png){src="javascript:alert(1)"}',
+            '<p><img src="x.png" alt="i" /></p>\n',
+            {"src": "javascript:alert(1)"},
+            id="image-src",
+        ),
+        pytest.param(
+            '[x]{href="vbscript:x"}',
+            "<p><span>x</span></p>\n",
+            {"href": "vbscript:x"},
+            id="span-href",
+        ),
+        pytest.param(
+            '{formaction="javascript:x"}\npara\n',
+            "<p>para</p>\n",
+            {"formaction": "javascript:x"},
+            id="block-formaction",
+        ),
+        pytest.param(
+            '{action="data:text/html,x"}\npara\n',
+            "<p>para</p>\n",
+            {"action": "data:text/html,x"},
+            id="block-action",
+        ),
+        pytest.param(
+            '{xlink:href="javascript:x"}\npara\n',
+            "<p>para</p>\n",
+            {"xlink:href": "javascript:x"},
+            id="block-xlink-href",
+        ),
+    ],
+)
+def test_url_attrs_validated(src, expected, removed):
+    """URL-valued attributes go through ``md.validateLink``, like link destinations.
+
+    Otherwise ``{href="javascript:..."}`` would bypass the check markdown-it
+    applies to ``[a](javascript:...)``, even with ``html=False``.
+    """
+    md = (
+        MarkdownIt("commonmark", {"html": False})
+        .use(attrs_plugin, spans=True)
+        .use(attrs_block_plugin)
+    )
+    assert md.render(src) == expected
+    tokens = md.parse(src)
+    metas = [t.meta for t in tokens] + [
+        c.meta for t in tokens for c in (t.children or [])
+    ]
+    assert {"insecure_attrs": removed} in metas
+
+
+@pytest.mark.parametrize(
+    "src,expected",
+    [
+        pytest.param(
+            '[a](https://x){href="https://ok"}',
+            '<p><a href="https://ok">a</a></p>\n',
+            id="link-https",
+        ),
+        pytest.param(
+            '[a](https://x){href="#frag"}',
+            '<p><a href="#frag">a</a></p>\n',
+            id="link-fragment",
+        ),
+        pytest.param(
+            '![i](x.png){src="data:image/png;base64,AAA"}',
+            '<p><img src="data:image/png;base64,AAA" alt="i" /></p>\n',
+            id="image-data-png",
+        ),
+        pytest.param(
+            '{href="https://ok"}\npara\n',
+            '<p href="https://ok">para</p>\n',
+            id="block-https",
+        ),
+    ],
+)
+def test_url_attrs_valid_kept(src, expected):
+    """URLs that ``md.validateLink`` accepts are kept as written."""
+    md = (
+        MarkdownIt("commonmark", {"html": False})
+        .use(attrs_plugin, spans=True)
+        .use(attrs_block_plugin)
+    )
+    assert md.render(src) == expected
+
+
+def test_url_attrs_validated_when_allowed():
+    """An explicit ``allowed`` list does not skip the URL check."""
+    md = MarkdownIt("commonmark", {"html": False}).use(attrs_plugin, allowed=["href"])
+    src = '[a](https://x){href="javascript:alert(1)"}'
+    assert md.render(src) == '<p><a href="https://x">a</a></p>\n'
+    link_open = md.parse(src)[1].children[0]
+    assert link_open.meta == {"insecure_attrs": {"href": "javascript:alert(1)"}}
+
+
+def test_url_attrs_use_custom_validate_link():
+    """A ``validateLink`` override on the instance is honoured."""
+    md = MarkdownIt("commonmark", {"html": False}).use(attrs_block_plugin)
+    md.validateLink = lambda url: not url.startswith("https://blocked")  # type: ignore[method-assign]
+    assert md.render('{href="https://blocked/x"}\npara\n') == "<p>para</p>\n"
+    assert (
+        md.render('{href="https://fine/x"}\npara\n')
+        == '<p href="https://fine/x">para</p>\n'
+    )
