@@ -36,6 +36,16 @@ def front_matter_plugin(md: MarkdownIt, *, marker: str = "-") -> None:
         or ``;`` for JSON-style ``;;;`` delimiters. The content is returned
         as raw text, without decoding YAML, TOML, or JSON. The YAML ``...``
         terminator is recognized only with the default marker.
+
+        The plugin is meant to be used once per parser, with one marker.
+        Calling ``use`` again with another marker adds a second rule with the
+        same ``front_matter`` name, which rule-name operations such as
+        ``md.disable("front_matter")`` do not reach.
+
+        Choose a character that does not start other Markdown block syntax
+        (for example not ``#``, ``>``, ``~`` or a backtick): a document whose
+        first line starts with three or more of the marker is otherwise taken
+        as front matter.
     :raises ValueError: If the marker is not a single non-whitespace character,
         or is NUL.
 
