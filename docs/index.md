@@ -27,15 +27,37 @@ See <inv:markdown_it#using>
 
 ## mdit-py-plugins package
 
-The [`mdit_py_plugins`](https://github.com/executablebooks/mdit-py-plugins), contains a number of common plugins.
-They can be chained and loaded *via*:
+The [`mdit_py_plugins`](https://github.com/executablebooks/mdit-py-plugins) package contains a number of common plugins.
+Each plugin is a function in its own submodule (for example `mdit_py_plugins.footnote.footnote_plugin`),
+so import it from there; the top-level package does not re-export them.
+
+Load a plugin with `MarkdownIt.use`, passing any options as keyword arguments.
+`use` returns the `MarkdownIt` instance, so the calls can be chained:
 
 ```python
 from markdown_it import MarkdownIt
-from mdit_py_plugins import plugin1, plugin2
-md = MarkdownIt().use(plugin1, keyword=value).use(plugin2, keyword=value)
-html_string = md.render("some *Markdown*")
+from mdit_py_plugins.footnote import footnote_plugin
+from mdit_py_plugins.front_matter import front_matter_plugin
+from mdit_py_plugins.tasklists import tasklists_plugin
+
+md = (
+    MarkdownIt("commonmark")
+    .use(front_matter_plugin)
+    .use(footnote_plugin)
+    .use(tasklists_plugin, enabled=True)
+)
+text = """\
+---
+title: Example
+---
+- [x] Some *Markdown*[^1]
+
+[^1]: A footnote.
+"""
+html_string = md.render(text)
 ```
+
+The options of each plugin are listed in its section below.
 
 ## Front-Matter
 
