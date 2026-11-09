@@ -49,9 +49,28 @@ def dollarmath_plugin(
     :param label_normalizer: Function to normalize the label,
         by default replaces whitespace with `-`
     :param renderer: Function to render content: `(str, {"display_mode": bool}) -> str`,
-        by default escapes HTML
+        by default escapes HTML.
+        Its return value is placed inside the element as is,
+        so a custom renderer is responsible for escaping it (the default renderer does).
     :param label_renderer: Function to render labels, by default creates anchor
 
+    The plugin does not typeset the math.
+    Each token becomes an HTML element holding the rendered content,
+    and typesetting is left to a library such as MathJax or KaTeX:
+
+    - ``math_inline`` (``$a$``):
+      ``<span class="math inline">``, with ``display_mode=False``
+    - ``math_inline_double`` (``$$a$$`` inside a paragraph, with ``double_inline``):
+      ``<div class="math inline">``, with ``display_mode=True``
+    - ``math_block`` (``$$a$$`` on its own lines):
+      ``<div class="math block">``, with ``display_mode=True``
+    - ``math_block_label`` (``$$a$$ (eq1)``):
+      ``<div id="eq1" class="math block">``, starting with the label anchor,
+      with ``display_mode=True``
+
+    The tag says how to display the math (``div`` for display, ``span`` for inline),
+    and the class says where it was written (``inline`` inside a paragraph,
+    ``block`` on its own lines), as in executablebooks/markdown-it-dollarmath.
     """
     if label_normalizer is None:
         label_normalizer = lambda label: re.sub(r"\s+", "-", label)  # noqa: E731

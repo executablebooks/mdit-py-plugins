@@ -136,6 +136,23 @@ foo^[ *bar* ]
 .
 
 
+An inline note inside an inline note gets its own id:
+.
+^[outer ^[inner]]
+.
+<p><sup class="footnote-ref"><a href="#fn1" id="fnref1">[1]</a></sup></p>
+<hr class="footnotes-sep">
+<section class="footnotes">
+<ol class="footnotes-list">
+<li id="fn1" class="footnote-item"><p>outer <sup class="footnote-ref"><a href="#fn2" id="fnref2">[2]</a></sup> <a href="#fnref1" class="footnote-backref">↩︎</a></p>
+</li>
+<li id="fn2" class="footnote-item"><p>inner <a href="#fnref2" class="footnote-backref">↩︎</a></p>
+</li>
+</ol>
+</section>
+.
+
+
 Duplicate footnotes:
 .
 [^xxxxx] [^xxxxx]
