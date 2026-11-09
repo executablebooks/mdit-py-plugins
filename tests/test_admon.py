@@ -52,32 +52,42 @@ def _render_seconds(md: MarkdownIt, source: str) -> float:
 
 
 @pytest.mark.timeout(60)
-def test_header_redos():
-    """A multi-tag header with a long unquoted space run parses in linear time.
+@pytest.mark.parametrize(
+    ("header", "filler", "small_run"),
+    [
+        # tokens + space run: ``[^"]+\s+"`` tried every split of the run
+        pytest.param("note a{run}b", " ", 25_000, id="space-run"),
+        # quote run: ``"(?P<title>.*)"\S*$`` tried every quote as the closing one
+        pytest.param('note "{run} y', '"', 10_000, id="quote-run"),
+    ],
+)
+def test_header_redos(header, filler, small_run):
+    """A multi-tag header with a long run of spaces or quotes parses in linear time.
 
-    The title pattern ``[^"]+\\s+"`` backtracked quadratically on this input (#143),
-    taking seconds at 100k characters.
+    The title pattern backtracked quadratically on these inputs (#143),
+    taking seconds at tens of thousands of characters.
     The guard compares two run lengths instead of asserting a time budget,
     so it does not depend on how fast the machine is:
     a run four times longer takes about 4x as long when parsing is linear,
     and about 16x when it is quadratic.
     The two lengths are timed in alternation and the fastest of each kept,
     stopping once the ratio holds,
-    so a single slow sample (a busy machine) cannot fail the test,
+    so a single slow sample (a busy machine) does not fail the test,
     while a quadratic parse is slow on every sample.
     Retries also stop once the renders have taken 15 seconds in all,
     which a linear parse (milliseconds per round) never reaches,
     so a regression fails on the assertion rather than the timeout.
+    The quote run is shorter, because each quote costs a quadratic parse more.
     """
     md = MarkdownIt().use(admon_plugin)
 
     def source(run: int) -> str:
-        return "!!! note a" + " " * run + "b\n    content"
+        return "!!! " + header.format(run=filler * run) + "\n    content"
 
-    small_source, large_source = source(25_000), source(100_000)
+    small_source, large_source = source(small_run), source(4 * small_run)
     small = large = float("inf")
     spent = 0.0
-    for _ in range(5):
+    for _ in range(20):
         small_sample = _render_seconds(md, small_source)
         large_sample = _render_seconds(md, large_source)
         small, large = min(small, small_sample), min(large, large_sample)
@@ -85,6 +95,6 @@ def test_header_redos():
         if large < 8 * small or spent > 15:
             break
     assert large < 8 * small, (
-        f"25k run: {small:.4f}s, 100k run: {large:.4f}s ({large / small:.1f}x); "
-        "the admon header parse is super-linear (ReDoS)"
+        f"{small_run} run: {small:.4f}s, {4 * small_run} run: {large:.4f}s "
+        f"({large / small:.1f}x); the admon header parse is super-linear (ReDoS)"
     )
