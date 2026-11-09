@@ -1,9 +1,5 @@
 # Change Log
 
-## Unreleased
-
-- ✨ NEW: Allow configuring the front matter delimiter character with `marker` (#134).
-
 ## 0.7.0 - 2026-07-19
 
 - ✨ NEW: Add section reference plugin (`section_ref`) (#144)
