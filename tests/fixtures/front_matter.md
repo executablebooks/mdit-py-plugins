@@ -63,6 +63,30 @@ text: |
 <h1>Head</h1>
 .
 
+should not close on four dots:
+.
+---
+x: 1
+....
+---
+# Head
+.
+
+<h1>Head</h1>
+.
+
+should not close on triple dots followed by text:
+.
+---
+x: 1
+...x
+---
+# Head
+.
+
+<h1>Head</h1>
+.
+
 should parse front matter with indentation:
 .
 ---
