@@ -45,7 +45,7 @@ def front_matter_plugin(md: MarkdownIt, *, marker: str = "-") -> None:
         Choose a character that does not start other Markdown block syntax
         (for example not ``#``, ``>``, ``~`` or a backtick): a document whose
         first line starts with three or more of the marker is otherwise taken
-        as front matter.
+        as front matter when a later line closes it.
     :raises ValueError: If the marker is not a single non-whitespace character,
         or is NUL.
 
