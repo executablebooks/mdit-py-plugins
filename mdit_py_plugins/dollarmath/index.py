@@ -73,7 +73,7 @@ def dollarmath_plugin(
     ``block`` on its own lines), as in executablebooks/markdown-it-dollarmath.
     """
     if label_normalizer is None:
-        label_normalizer = lambda label: re.sub(r"\s+", "-", label)
+        label_normalizer = lambda label: re.sub(r"\s+", "-", label)  # noqa: E731
 
     md.inline.ruler.before(
         "escape",
@@ -96,8 +96,10 @@ def dollarmath_plugin(
 
     _label_renderer: Callable[[str], str]
     if label_renderer is None:
-        _label_renderer = lambda label: (
-            f'<a href="#{label}" class="mathlabel" title="Permalink to this equation">¶</a>'
+        _label_renderer = (  # noqa: E731
+            lambda label: (
+                f'<a href="#{label}" class="mathlabel" title="Permalink to this equation">¶</a>'
+            )
         )
     else:
         _label_renderer = label_renderer
