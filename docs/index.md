@@ -11,13 +11,15 @@ These can be enabled individually:
 
 ```python
 from markdown_it import MarkdownIt
-md = MarkdownIt("commonmark").enable('table')
+
+md = MarkdownIt("commonmark").enable("table")
 ```
 
 or as part of a configuration:
 
 ```python
 from markdown_it import MarkdownIt
+
 md = MarkdownIt("gfm-like")
 ```
 
