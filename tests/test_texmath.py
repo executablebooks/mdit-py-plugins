@@ -139,6 +139,35 @@ def test_fenced_math_block_keeps_indent(delimiters, source, expected):
 
 
 @pytest.mark.parametrize("delimiters", ["gitlab", "julia"])
+@pytest.mark.parametrize(
+    "source,expected",
+    [
+        ("```math\n  \n```\n\nafter\n", ("math_block", " ")),
+        ("```math\n  \n``` (1)\n\nafter\n", ("math_block_eqno", " ", "1")),
+    ],
+    ids=["math_block", "math_block_eqno"],
+)
+def test_fenced_math_block_whitespace_only(delimiters, source, expected):
+    """A body that is only whitespace is still a math block, as it was before #143.
+
+    As a code fence instead, the eqno form would run to the end of the document,
+    because ``` ``` (1) ``` cannot close a code fence,
+    so the paragraph after it would become code.
+    """
+    md = MarkdownIt("commonmark").use(texmath_plugin, delimiters=delimiters)
+    tokens = md.parse(source)
+    assert [t.type for t in tokens] == [
+        expected[0],
+        "paragraph_open",
+        "inline",
+        "paragraph_close",
+    ]
+    assert (tokens[0].type, tokens[0].content, tokens[0].info)[: len(expected)] == (
+        expected
+    )
+
+
+@pytest.mark.parametrize("delimiters", ["gitlab", "julia"])
 @pytest.mark.timeout(2)
 def test_fenced_math_block_redos(delimiters):
     """An unclosed ``` ```math ``` fence must not trigger catastrophic backtracking."""
