@@ -64,6 +64,21 @@ def test_block_func():
     }
 
 
+@pytest.mark.parametrize("allow_labels", [True, False])
+def test_block_func_ambiguous_trailing_content(allow_labels):
+    """A same-line close followed by non-label trailing content is
+    ambiguous, so the block rule should not match and greedily scan
+    subsequent lines for the next ``$$``.
+    """
+    block_func = main.math_block_dollar(allow_labels=allow_labels)
+    md = MarkdownIt()
+    src = "$$b$$ trailing\n$$c$$\n"
+    tokens = []
+    state = StateBlock(src, md, {}, tokens)
+    assert block_func(state, 0, 2, False) is False
+    assert tokens == []
+
+
 def test_plugin_parse(data_regression):
     md = MarkdownIt().use(dollarmath_plugin)
     tokens = md.parse(
@@ -84,6 +99,18 @@ def test_plugin_parse(data_regression):
 def test_custom_renderer(data_regression):
     md = MarkdownIt().use(dollarmath_plugin, renderer=lambda x, y: x)
     assert md.render("$x$").strip() == '<p><span class="math inline">x</span></p>'
+
+
+def test_block_in_blockquote_allow_blank_lines():
+    """A blank ``>`` line inside a blockquoted ``$$`` block keeps no ``>`` prefix.
+
+    The fixture tests run with ``allow_blank_lines=False``, so this case needs its own test.
+    """
+    md = MarkdownIt("commonmark").use(dollarmath_plugin, allow_blank_lines=True)
+    tokens = md.parse("> $$\n> a\n>\n> b\n> $$\n")
+    math_tokens = [t for t in tokens if t.type.startswith("math")]
+    assert [t.type for t in math_tokens] == ["math_block"]
+    assert math_tokens[0].content == "\na\n\nb\n"
 
 
 @pytest.mark.parametrize(

@@ -159,7 +159,10 @@ def _www_inline_rule(state: StateInline, silent: bool) -> bool:
     label = src[pos : pos + length]
 
     if silent:
-        return True
+        # Autolinks are only recognised when emitting tokens. When skipping
+        # silently (e.g. scanning a link label), report no match so the parser
+        # steps over this text as plain characters (#160).
+        return False
 
     full_url = state.md.normalizeLink(url)
     if not state.md.validateLink(full_url):
@@ -223,7 +226,7 @@ def _protocol_rule(state: StateInline, silent: bool) -> bool:
     label = combined[:total_len]
 
     if silent:
-        return True
+        return False  # see _www_inline_rule
     return _create_autolink(state, bscan_len, total_len, full_url, label)
 
 
@@ -291,5 +294,5 @@ def _email_rule(state: StateInline, silent: bool) -> bool:
     url = "mailto:" + email_text
 
     if silent:
-        return True
+        return False  # see _www_inline_rule
     return _create_autolink(state, local_len, total_len, url, email_text)
