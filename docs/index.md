@@ -140,12 +140,76 @@ The options of each plugin are listed in its section below.
 ```
 
 ```{eval-rst}
-.. autofunction:: mdit_py_plugins.dollarmath.dollarmath_plugin
+.. autofunction:: mdit_py_plugins.amsmath.amsmath_plugin
 ```
 
 ```{eval-rst}
-.. autofunction:: mdit_py_plugins.amsmath.amsmath_plugin
+.. autofunction:: mdit_py_plugins.dollarmath.dollarmath_plugin
 ```
+
+### Rendering dollarmath output
+
+`dollarmath_plugin` does not typeset math: it wraps each piece of math in an HTML element, listed above.
+The tag says how to display the math, and the class says where it was written.
+So inline `$$x$$` (with `double_inline=True`) becomes `<div class="math inline">`:
+display math written inside a paragraph.
+Pick the display mode from the tag (`div` or `span`), not from the class.
+
+There are two common ways to typeset the output.
+
+**Add delimiters on the server, with `renderer=`.**
+The `renderer` function receives the math content and `{"display_mode": bool}`,
+and returns the HTML to put inside the element.
+Wrapping the content in `\(...\)` or `\[...\]` lets MathJax (with its default configuration)
+or KaTeX's auto-render extension find it in the page:
+
+```python
+from markdown_it import MarkdownIt
+from markdown_it.common.utils import escapeHtml
+from mdit_py_plugins.dollarmath import dollarmath_plugin
+
+
+def render_tex(content: str, options: dict) -> str:
+    content = escapeHtml(content)
+    if options["display_mode"]:
+        return rf"\[{content}\]"
+    return rf"\({content}\)"
+
+
+md = MarkdownIt().use(dollarmath_plugin, double_inline=True, renderer=render_tex)
+html_string = md.render("Inline $a<b$ and $$x^2$$ in a paragraph.")
+```
+
+which gives:
+
+```html
+<p>Inline <span class="math inline">\(a&lt;b\)</span> and <div class="math inline">\[x^2\]</div> in a paragraph.</p>
+```
+
+The returned string is inserted as is, so escape the content, as above, unless it comes from a trusted source
+(the default renderer escapes it for you).
+The same function can instead return fully typeset output, such as MathML from a converter library.
+
+**Typeset the elements in the browser.**
+Without a `renderer`, each element holds the escaped LaTeX source,
+and a script can typeset the elements in place, for example with KaTeX:
+
+```javascript
+for (const el of document.querySelectorAll("span.math, div.math")) {
+  // a labelled block starts with its permalink anchor: keep it out of the math
+  const label = el.querySelector(".mathlabel");
+  if (label) label.remove();
+  katex.render(el.textContent.trim(), el, {
+    displayMode: el.tagName === "DIV",
+    throwOnError: false,
+  });
+  if (label) el.prepend(label);
+}
+```
+
+To change the label anchor, pass `label_renderer=`.
+To change the tags or classes themselves, replace the render rule for a token type
+with `md.add_render_rule` after loading the plugin.
 
 ## Subscripts
 
