@@ -72,11 +72,13 @@ def _front_matter_rule(
         start = state.bMarks[nextLine] + state.tShift[nextLine]
         maximum = state.eMarks[nextLine]
 
-        if state.src[start:maximum] == "...":
-            # The YAML document-end marker closes the block on this line, so it must
-            # be consumed here: checking it before start/maximum are moved onto the
-            # current line tests the previous one, which both missed a `...` that
-            # ends the document and leaked the marker into the extracted content.
+        if (
+            state.sCount[nextLine] == 0
+            and state.src.startswith("...", start)
+            and state.skipSpaces(start + 3) >= maximum
+        ):
+            # YAML document-end marker: `...` at column 0, trailing spaces allowed.
+            # It is checked on the current line and consumed, so it is not content.
             auto_closed = True
             break
 

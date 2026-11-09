@@ -42,7 +42,7 @@ def test_token():
     ]
 
 
-@pytest.mark.parametrize("closer", ["---", "..."])
+@pytest.mark.parametrize("closer", ["---", "...", "...   "])
 def test_token_content_excludes_the_closer(closer):
     """The closing marker must not be left inside the extracted content.
 
