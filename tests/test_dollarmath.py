@@ -106,20 +106,34 @@ def test_dollarmath_fixtures(line, title, input, expected):
     assert text.rstrip() == expected.rstrip()
 
 
-def test_label_is_html_escaped():
-    """Equation labels must be HTML-escaped in the id attribute and href (XSS)."""
-    md = MarkdownIt("commonmark").use(dollarmath_plugin)
-    text = md.render('$$a=1$$ ("><svg/onload=alert(1)>)')
-    # the payload must not break out of the attribute / inject an element
-    assert "<svg" not in text
-    assert '"><svg' not in text
-    assert "&lt;svg/onload=alert(1)&gt;" in text
+# no parentheses inside the label, or it is not parsed as one
+_LABEL_XSS = '$$\na=1\n$$ ("><svg onload=alert`1`>)\n'
 
 
-def test_label_escaped_with_custom_normalizer():
-    """Even a permissive label_normalizer output is escaped before rendering."""
-    md = MarkdownIt("commonmark").use(
-        dollarmath_plugin, label_normalizer=lambda label: label
+@pytest.mark.parametrize(
+    "label_normalizer,label",
+    [
+        pytest.param(
+            None,
+            "&quot;&gt;&lt;svg-onload=alert`1`&gt;",
+            id="default-normalizer",
+        ),
+        pytest.param(
+            lambda label: label,
+            "&quot;&gt;&lt;svg onload=alert`1`&gt;",
+            id="identity-normalizer",
+        ),
+    ],
+)
+def test_label_is_html_escaped(label_normalizer, label):
+    """The label must not break out of the ``id`` and ``href`` attributes (#143)."""
+    md = MarkdownIt("commonmark", {"html": False}).use(
+        dollarmath_plugin, label_normalizer=label_normalizer
     )
-    text = md.render('$$a=1$$ ("><svg/onload=alert(1)>)')
-    assert "<svg" not in text
+    # the payload must reach the label renderer, not fall back to a paragraph
+    assert [t.type for t in md.parse(_LABEL_XSS)] == ["math_block_label"]
+    assert md.render(_LABEL_XSS) == (
+        f'<div id="{label}" class="math block">\n'
+        f'<a href="#{label}" class="mathlabel" title="Permalink to this equation">'
+        "¶</a>\na=1\n</div>\n"
+    )
