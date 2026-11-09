@@ -223,3 +223,54 @@ xmpp:foo@bar.baz/txt/bin
 .
 <p><a href="xmpp:foo@bar.baz/txt">xmpp:foo@bar.baz/txt</a>/bin</p>
 .
+
+GFM autolink: www in link text after leading text (#160)
+.
+see [www.example.com](https://example.com)
+.
+<p>see <a href="https://example.com">www.example.com</a></p>
+.
+
+GFM autolink: www in emphasized link text (#160)
+.
+[link *www.example.com*](https://example.org)
+.
+<p><a href="https://example.org">link <em>www.example.com</em></a></p>
+.
+
+GFM autolink: www in image alt text (#160)
+.
+see ![www.example.com](i.png)
+.
+<p>see <img src="i.png" alt="www.example.com"></p>
+.
+
+GFM autolink: www in reference link label (#160)
+.
+see [www.example.com]
+
+[www.example.com]: https://example.com
+.
+<p>see <a href="https://example.com">www.example.com</a></p>
+.
+
+GFM autolink: protocol in link text with preceding text (#160)
+.
+https[x https://example.com](u)
+.
+<p>https<a href="u">x https://example.com</a></p>
+.
+
+GFM autolink: email in link text with preceding text (#160)
+.
+a[x b@example.com](u)
+.
+<p>a<a href="u">x b@example.com</a></p>
+.
+
+GFM autolink: mailto in link text with preceding text (#160)
+.
+mailto[x mailto:a@example.com](u)
+.
+<p>mailto<a href="u">x mailto:a@example.com</a></p>
+.
