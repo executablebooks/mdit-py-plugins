@@ -451,6 +451,36 @@ a+b=c
 </blockquote>
 .
 
+display equation in nested blockquote, multi-line. (valid=True)
+.
+> > $$
+> > a
+> > b
+> > $$
+.
+<blockquote>
+<blockquote>
+<div class="math block">
+a
+b
+</div>
+</blockquote>
+</blockquote>
+.
+
+display equation in blockquote, content on the delimiter lines. (valid=True)
+.
+> $$ a
+> b $$
+.
+<blockquote>
+<div class="math block">
+a
+b
+</div>
+</blockquote>
+.
+
 mixed syntax:
 .
 $$
