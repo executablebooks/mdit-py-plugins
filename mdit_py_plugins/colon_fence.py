@@ -153,7 +153,7 @@ def _render(
 
     return (
         "<pre><code"
-        + (f' class="block-{block_name}" ' if block_name else "")
+        + (f' class="block-{escapeHtml(block_name)}" ' if block_name else "")
         + ">"
         + content
         + "</code></pre>\n"
