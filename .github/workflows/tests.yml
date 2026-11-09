@@ -10,6 +10,9 @@ on:
       - 'v*'
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
 
   pre-commit:
@@ -55,30 +58,70 @@ jobs:
         files: ./coverage.xml
         fail_ci_if_error: true
 
+  build:
+
+    name: Build distributions
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        persist-credentials: false
+    - uses: actions/setup-python@v7
+      with:
+        python-version: "3.13"
+    # `python -m build` builds with the project's own [build-system] pin,
+    # so the release build cannot drift from it
+    # (`pip install flit~=3.4` resolves flit 3.12 + flit_core 4.2, and `flit build` crashes)
+    - run: python -m pip install build twine
+    - run: python -m build
+    - run: python -m twine check --strict dist/*
+    - name: Check the tag matches the built version
+      if: startsWith(github.ref, 'refs/tags/v')
+      run: |
+        python - <<'EOF'
+        import os, pathlib, sys
+        tag = os.environ["GITHUB_REF_NAME"].removeprefix("v")
+        wheels = list(pathlib.Path("dist").glob("*.whl"))
+        sdists = list(pathlib.Path("dist").glob("*.tar.gz"))
+        if len(wheels) != 1 or len(sdists) != 1:
+            sys.exit(f"expected one wheel and one sdist, got {len(wheels)} and {len(sdists)}")
+        versions = {p.name.removesuffix(".tar.gz").split("-")[1] for p in wheels + sdists}
+        if versions != {tag}:
+            sys.exit(f"tag v{tag} != built version(s) {sorted(versions)}")
+        print(f"tag v{tag} matches the built version")
+        EOF
+    - uses: actions/upload-artifact@v7
+      with:
+        name: dist
+        path: dist/
+        retention-days: 7
+
   allgood:
     runs-on: ubuntu-latest
     needs:
     - pre-commit
     - tests
+    - build
     steps:
     - run: echo "Great success!"
 
   publish:
 
     name: Publish to PyPI
-    needs: [pre-commit, tests]
-    if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+    needs: [pre-commit, tests, build]
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     permissions:
-      id-token: write
+      id-token: write  # the only permission this job has (trusted publishing)
     environment:
       name: pypi
       url: https://pypi.org/p/mdit-py-plugins
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-python@v5
+    # publish exactly the distributions the `build` job built and checked
+    - uses: actions/download-artifact@v8
       with:
-        python-version: "3.10"
-    - run: pip install flit~=3.4
-    - run: flit build
+        name: dist
+        path: dist/
+    # attestations are generated and uploaded by default
     - uses: pypa/gh-action-pypi-publish@release/v1
