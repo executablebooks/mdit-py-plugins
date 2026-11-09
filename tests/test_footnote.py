@@ -1,4 +1,5 @@
 from pathlib import Path
+import re
 from textwrap import dedent
 
 from markdown_it import MarkdownIt
@@ -436,6 +437,66 @@ def test_plugin_render():
     """
         )
     )
+
+
+@pytest.mark.parametrize("move_to_end", [False, True])
+@pytest.mark.parametrize(
+    "source,contents,counts",
+    [
+        (
+            "^[outer [^named]]\n\n[^named]: named body",
+            ["outer [^named]", "named"],
+            [None, 1],
+        ),
+        (
+            "^[outer [^named]] again[^named]\n\n[^named]: named body",
+            ["outer [^named]", "named"],
+            [None, 2],
+        ),
+        ("^[outer ^[inner]]", ["outer ^[inner]", "inner"], [None, None]),
+        (
+            "^[outer ^[middle ^[inner]]]",
+            ["outer ^[middle ^[inner]]", "middle ^[inner]", "inner"],
+            [None, None, None],
+        ),
+        (
+            "^[first] ^[outer [^named]] again[^named]\n\n[^named]: named body",
+            ["first", "outer [^named]", "named"],
+            [None, None, 2],
+        ),
+        (
+            "before[^named] ^[outer[^named]]\n\n[^named]: named body",
+            ["named", "outer[^named]"],
+            [2, None],
+        ),
+        (
+            "^[first] again[^named]\n\n[^named]: named body",
+            ["first", "named"],
+            [None, 1],
+        ),
+    ],
+)
+def test_inline_footnote_ids(
+    source: str, contents: list[str], counts: list[int | None], move_to_end: bool
+) -> None:
+    md = MarkdownIt().use(footnote_plugin, move_to_end=move_to_end)
+    env = {}
+    tokens = md.parse(source, env)
+    notes = env["footnotes"]["list"]
+    assert list(notes) == list(range(len(contents)))
+    assert [
+        note.get("content", note.get("label")) for note in notes.values()
+    ] == contents
+    assert [note.get("count") for note in notes.values()] == counts
+
+    if move_to_end:
+        rendered = md.renderer.render(tokens, md.options, env)
+        identifiers = re.findall(r'\bid="([^"]+)"', rendered)
+        targets = re.findall(r'\bhref="#([^"]+)"', rendered)
+        assert len(identifiers) == len(set(identifiers))
+        assert set(targets) <= set(identifiers)
+        if "named" in contents:
+            assert "named body" in rendered
 
 
 @pytest.mark.parametrize("line,title,input,expected", read_fixture_file(FIXTURE_PATH))
