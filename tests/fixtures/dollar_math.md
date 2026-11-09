@@ -418,6 +418,69 @@ a+b=c
 </blockquote>
 .
 
+display equation in blockquote, multi-line. (valid=True)
+.
+> Given
+>
+> $$
+> x^2 + y^2 = 9
+> $$
+>
+> What is the radius of the circle?
+.
+<blockquote>
+<p>Given</p>
+<div class="math block">
+x^2 + y^2 = 9
+</div>
+<p>What is the radius of the circle?</p>
+</blockquote>
+.
+
+labelled display equation in blockquote, multi-line. (valid=True)
+.
+> $$
+> a+b=c
+> $$ (2)
+.
+<blockquote>
+<div id="2" class="math block">
+<a href="#2" class="mathlabel" title="Permalink to this equation">¶</a>
+a+b=c
+</div>
+</blockquote>
+.
+
+display equation in nested blockquote, multi-line. (valid=True)
+.
+> > $$
+> > a
+> > b
+> > $$
+.
+<blockquote>
+<blockquote>
+<div class="math block">
+a
+b
+</div>
+</blockquote>
+</blockquote>
+.
+
+display equation in blockquote, content on the delimiter lines. (valid=True)
+.
+> $$ a
+> b $$
+.
+<blockquote>
+<div class="math block">
+a
+b
+</div>
+</blockquote>
+.
+
 mixed syntax:
 .
 $$

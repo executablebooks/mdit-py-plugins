@@ -101,6 +101,18 @@ def test_custom_renderer(data_regression):
     assert md.render("$x$").strip() == '<p><span class="math inline">x</span></p>'
 
 
+def test_block_in_blockquote_allow_blank_lines():
+    """A blank ``>`` line inside a blockquoted ``$$`` block keeps no ``>`` prefix.
+
+    The fixture tests run with ``allow_blank_lines=False``, so this case needs its own test.
+    """
+    md = MarkdownIt("commonmark").use(dollarmath_plugin, allow_blank_lines=True)
+    tokens = md.parse("> $$\n> a\n>\n> b\n> $$\n")
+    math_tokens = [t for t in tokens if t.type.startswith("math")]
+    assert [t.type for t in math_tokens] == ["math_block"]
+    assert math_tokens[0].content == "\na\n\nb\n"
+
+
 @pytest.mark.parametrize(
     "line,title,input,expected",
     read_fixture_file(FIXTURE_PATH.joinpath("dollar_math.md")),
