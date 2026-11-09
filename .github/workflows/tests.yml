@@ -82,8 +82,11 @@ jobs:
         python - <<'EOF'
         import os, pathlib, sys
         tag = os.environ["GITHUB_REF_NAME"].removeprefix("v")
-        dists = list(pathlib.Path("dist").glob("*.whl")) + list(pathlib.Path("dist").glob("*.tar.gz"))
-        versions = {p.name.removesuffix(".tar.gz").split("-")[1] for p in dists}
+        wheels = list(pathlib.Path("dist").glob("*.whl"))
+        sdists = list(pathlib.Path("dist").glob("*.tar.gz"))
+        if len(wheels) != 1 or len(sdists) != 1:
+            sys.exit(f"expected one wheel and one sdist, got {len(wheels)} and {len(sdists)}")
+        versions = {p.name.removesuffix(".tar.gz").split("-")[1] for p in wheels + sdists}
         if versions != {tag}:
             sys.exit(f"tag v{tag} != built version(s) {sorted(versions)}")
         print(f"tag v{tag} matches the built version")
