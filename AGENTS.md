@@ -215,7 +215,7 @@ plugin_name/
 Plugins create and manipulate markdown-it tokens:
 
 ```python
-token = state.push("my_type_open", "div", 1)   # Opening tag
+token = state.push("my_type_open", "div", 1)  # Opening tag
 token.attrSet("class", "my-class")
 token.markup = "..."
 token.map = [startLine, nextLine]
@@ -302,6 +302,7 @@ print(md.render("Some $inline$ math"))
    ```python
    from markdown_it import MarkdownIt
 
+
    def my_plugin(md: MarkdownIt) -> None:
        md.block.ruler.before("fence", "my_rule", _my_rule)
        md.add_render_rule("my_type", _render_my_type)
@@ -317,6 +318,7 @@ Block rules receive `(state: StateBlock, startLine: int, endLine: int, silent: b
 
 ```python
 from markdown_it.rules_block import StateBlock
+
 
 def my_block_rule(
     state: StateBlock, startLine: int, endLine: int, silent: bool
@@ -347,6 +349,7 @@ Inline rules receive `(state: StateInline, silent: bool) -> bool`:
 
 ```python
 from markdown_it.rules_inline import StateInline
+
 
 def my_inline_rule(state: StateInline, silent: bool) -> bool:
     if state.src[state.pos] != "$":
