@@ -1,3 +1,4 @@
+import gc
 from pathlib import Path
 from textwrap import dedent
 import time
@@ -37,16 +38,17 @@ def test_plugin_parse(data_regression, text_idx):
     data_regression.check([t.as_dict() for t in tokens])
 
 
-def _best_render_seconds(md: MarkdownIt, source: str, limit: float) -> float:
-    """Fastest of three renders, stopping early once one exceeds ``limit``."""
-    best = float("inf")
-    for _ in range(3):
+def _render_seconds(md: MarkdownIt, source: str) -> float:
+    """Time one render with the garbage collector paused."""
+    gc_was_enabled = gc.isenabled()
+    gc.disable()
+    try:
         start = time.perf_counter()
         md.render(source)
-        best = min(best, time.perf_counter() - start)
-        if best > limit:
-            break
-    return best
+        return time.perf_counter() - start
+    finally:
+        if gc_was_enabled:
+            gc.enable()
 
 
 @pytest.mark.timeout(60)
@@ -59,14 +61,29 @@ def test_header_redos():
     so it does not depend on how fast the machine is:
     a run four times longer takes about 4x as long when parsing is linear,
     and about 16x when it is quadratic.
+    The two lengths are timed in alternation and the fastest of each kept,
+    stopping once the ratio holds,
+    so a single slow sample (a busy machine) cannot fail the test,
+    while a quadratic parse is slow on every sample.
+    Retries also stop once the renders have taken 15 seconds in all,
+    which a linear parse (milliseconds per round) never reaches,
+    so a regression fails on the assertion rather than the timeout.
     """
     md = MarkdownIt().use(admon_plugin)
 
     def source(run: int) -> str:
         return "!!! note a" + " " * run + "b\n    content"
 
-    small = _best_render_seconds(md, source(25_000), float("inf"))
-    large = _best_render_seconds(md, source(100_000), 8 * small)
+    small_source, large_source = source(25_000), source(100_000)
+    small = large = float("inf")
+    spent = 0.0
+    for _ in range(5):
+        small_sample = _render_seconds(md, small_source)
+        large_sample = _render_seconds(md, large_source)
+        small, large = min(small, small_sample), min(large, large_sample)
+        spent += small_sample + large_sample
+        if large < 8 * small or spent > 15:
+            break
     assert large < 8 * small, (
         f"25k run: {small:.4f}s, 100k run: {large:.4f}s ({large / small:.1f}x); "
         "the admon header parse is super-linear (ReDoS)"

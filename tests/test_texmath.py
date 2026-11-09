@@ -119,8 +119,8 @@ def test_fenced_math_block(delimiters):
 @pytest.mark.parametrize(
     "source,expected",
     [
-        ("```math\n  a = 1\n  b = 2\n```\n", "<eqn>  a = 1\n  b = 2</eqn>"),
-        ("```math\n  a = 1\n``` (1)\n", "<eqn>  a = 1</eqn><span>(1)</span>"),
+        ("```math\n  a = 1\n  b = 2\n```\n", ("math_block", "  a = 1\n  b = 2")),
+        ("```math\n  a = 1\n``` (1)\n", ("math_block_eqno", "  a = 1", "1")),
     ],
     ids=["math_block", "math_block_eqno"],
 )
@@ -129,10 +129,13 @@ def test_fenced_math_block_keeps_indent(delimiters, source, expected):
 
     One whitespace character (the newline after the opening fence) separates
     the fence from the body; a pattern that skips all leading whitespace
-    would render ``<eqn>a = 1`` instead.
+    would give the content ``a = 1`` instead.
+    The tokens are checked rather than the HTML,
+    because every math block renders with the same template.
     """
     md = MarkdownIt("commonmark").use(texmath_plugin, delimiters=delimiters)
-    assert expected in md.render(source)
+    [token] = md.parse(source)
+    assert (token.type, token.content, token.info)[: len(expected)] == expected
 
 
 @pytest.mark.parametrize("delimiters", ["gitlab", "julia"])
