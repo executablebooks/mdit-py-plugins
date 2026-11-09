@@ -44,12 +44,11 @@ def test_attrs_allowed(data_regression):
     [
         ('[x]{onclick="alert(1)"}', "onclick"),
         ('[x]{OnClick="alert(1)"}', "onclick"),  # case-insensitive
-        ('[x]{style="color:red"}', "style"),
         ('![a](i.png){onerror="alert(1)"}', "onerror"),
     ],
 )
-def test_event_handler_and_style_stripped_by_default(src, leaked):
-    """With no ``allowed`` list, on* and style attributes are removed (XSS)."""
+def test_event_handler_stripped_by_default(src, leaked):
+    """With no ``allowed`` list, on* attributes are removed (XSS)."""
     md = MarkdownIt("commonmark").use(attrs_plugin, spans=True).use(attrs_block_plugin)
     text = md.render(src)
     assert leaked.lower() not in text.lower()
@@ -61,8 +60,48 @@ def test_block_event_handler_stripped_by_default():
     assert "onmouseover" not in text
 
 
+def test_event_handler_moved_to_meta():
+    """A removed on* attribute is kept in ``token.meta["insecure_attrs"]``."""
+    md = MarkdownIt("commonmark").use(attrs_block_plugin)
+    tokens = md.parse("{#a onclick=x}\nparagraph\n")
+    assert tokens[0].type == "paragraph_open"
+    assert tokens[0].attrs == {"id": "a"}
+    assert tokens[0].meta == {"insecure_attrs": {"onclick": "x"}}
+
+
+@pytest.mark.parametrize(
+    "src,token_type,expected",
+    [
+        pytest.param(
+            "{style=lower-alpha}\n1. a\n",
+            "ordered_list_open",
+            "lower-alpha",
+            id="block-list",
+        ),
+        pytest.param('[x]{style="color:red"}', "span_open", "color:red", id="span"),
+        pytest.param(
+            '![a](i.png){style="width:1em"}', "image", "width:1em", id="image"
+        ),
+    ],
+)
+def test_style_kept_by_default(src, token_type, expected):
+    """With no ``allowed`` list, ``style`` is kept (it does not run script).
+
+    MyST-Parser reads ``{style=lower-alpha}`` on an ordered list
+    to choose its numbering, so dropping it would break documents.
+    """
+    md = MarkdownIt("commonmark").use(attrs_plugin, spans=True).use(attrs_block_plugin)
+    tokens = md.parse(src)
+    found = [t for t in tokens if t.type == token_type]
+    found += [c for t in tokens for c in (t.children or []) if c.type == token_type]
+    assert len(found) == 1
+    assert found[0].attrs.get("style") == expected
+    assert "insecure_attrs" not in found[0].meta
+    assert f'style="{expected}"' in md.render(src)
+
+
 def test_benign_attrs_preserved_by_default():
-    """The insecure-by-default baseline only strips on*/style, not benign attrs."""
+    """The insecure-by-default baseline only strips on*, not benign attrs."""
     md = MarkdownIt("commonmark").use(attrs_plugin, spans=True)
     text = md.render("[x]{#a .b width=100 data-y=z}")
     assert 'id="a"' in text

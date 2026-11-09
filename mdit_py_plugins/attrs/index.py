@@ -56,11 +56,12 @@ def attrs_plugin(
     :param allowed: A list of allowed attribute names.
         If not ``None``, any attributes not in this list will be removed
         and placed in the token's meta under the key "insecure_attrs".
-        If ``None`` (the default), event-handler (``on*``) and ``style``
-        attributes are still removed as a baseline protection against script
-        and CSS injection. This is not a full sanitiser: to safely render
-        untrusted input, pass an explicit ``allowed`` list (e.g.
-        ``("id", "class")``).
+        If ``None`` (the default), event-handler attributes
+        (any name starting with ``on``, such as ``onclick``) are still removed,
+        as a baseline protection against script injection.
+        Other attributes, including ``style``, are kept.
+        This is not a full sanitiser: to safely render untrusted input,
+        pass an explicit ``allowed`` list (e.g. ``("id", "class")``).
     """
 
     if spans:
@@ -100,11 +101,12 @@ def attrs_block_plugin(md: MarkdownIt, *, allowed: Sequence[str] | None = None) 
     :param allowed: A list of allowed attribute names.
         If not ``None``, any attributes not in this list will be removed
         and placed in the token's meta under the key "insecure_attrs".
-        If ``None`` (the default), event-handler (``on*``) and ``style``
-        attributes are still removed as a baseline protection against script
-        and CSS injection. This is not a full sanitiser: to safely render
-        untrusted input, pass an explicit ``allowed`` list (e.g.
-        ``("id", "class")``).
+        If ``None`` (the default), event-handler attributes
+        (any name starting with ``on``, such as ``onclick``) are still removed,
+        as a baseline protection against script injection.
+        Other attributes, including ``style``, are kept.
+        This is not a full sanitiser: to safely render untrusted input,
+        pass an explicit ``allowed`` list (e.g. ``("id", "class")``).
     """
     md.block.ruler.before("fence", "attr", _attr_block_rule)
     md.core.ruler.after(
@@ -276,14 +278,12 @@ def _attr_resolve_block_rule(state: StateCore, *, allowed: set[str] | None) -> N
 
 
 def _is_insecure_attr(key: str) -> bool:
-    """Return True for attributes that enable scripting or style injection.
+    """Return True for event-handler attributes (``on*``, e.g. ``onclick``).
 
-    Event-handler attributes (``on*``, e.g. ``onclick``) execute JavaScript, and
-    ``style`` permits CSS-based injection, so both are stripped by default when
-    no explicit ``allowed`` list is given.
+    They execute JavaScript, so they are removed by default
+    when no explicit ``allowed`` list is given.
     """
-    key = key.lower()
-    return key == "style" or key.startswith("on")
+    return key.lower().startswith("on")
 
 
 def _add_attrs(
@@ -293,11 +293,10 @@ def _add_attrs(
 ) -> None:
     """Add attributes to a token, skipping any disallowed attributes.
 
-    When ``allowed`` is not ``None`` only those names are kept. When it is
-    ``None`` (the default) an insecure-by-default baseline still removes
-    event-handler (``on*``) and ``style`` attributes, so untrusted input cannot
-    inject script or CSS. Anything removed is preserved in
-    ``token.meta["insecure_attrs"]``.
+    When ``allowed`` is not ``None`` only those names are kept.
+    When it is ``None`` (the default) event-handler (``on*``) attributes
+    are still removed, so untrusted input cannot inject script.
+    Anything removed is preserved in ``token.meta["insecure_attrs"]``.
     """
     if allowed is not None:
         disallowed = {k: v for k, v in attrs.items() if k not in allowed}

@@ -84,12 +84,6 @@ _CASES = [
         "onxss=",
     ),
     Case(
-        "attrs-span-style",
-        lambda md: md.use(attrs_plugin, spans=True),
-        '[click]{style="color:red"}\n',
-        "style=",
-    ),
-    Case(
         "attrs-block-event",
         lambda md: md.use(attrs_block_plugin),
         '{onxss="alert(1)"}\nparagraph\n',
