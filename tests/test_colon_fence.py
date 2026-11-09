@@ -36,3 +36,30 @@ def test_plugin_parse(data_regression):
         )
     )
     data_regression.check([t.as_dict() for t in tokens])
+
+
+@pytest.mark.parametrize(
+    "source,expected",
+    [
+        pytest.param(
+            ':::a"onmouseover="alert(1)\nx\n:::\n',
+            '<pre><code class="block-a&quot;onmouseover=&quot;alert(1)" >x\n'
+            "</code></pre>\n",
+            id="raw-quote",
+        ),
+        pytest.param(
+            ":::a&quot;&gt;&lt;xss&gt;\nx\n:::\n",
+            '<pre><code class="block-a&quot;&gt;&lt;xss&gt;" >x\n</code></pre>\n',
+            id="entity-encoded",
+        ),
+    ],
+)
+def test_block_name_is_escaped(source, expected):
+    """The block name must not break out of the ``class`` attribute (#143).
+
+    With ``html=False`` the output must not carry markup from the source,
+    but the name used to be interpolated into the attribute unescaped
+    (and the entity-encoded form was unescaped first, then interpolated).
+    """
+    md = MarkdownIt("commonmark", {"html": False}).use(colon_fence_plugin)
+    assert md.render(source) == expected
