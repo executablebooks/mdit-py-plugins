@@ -469,6 +469,20 @@ $$
 
 display equation opened in nested blockquote and closed outside it (valid=False)
 .
+> > $$ a=1
+
+$$
+.
+<blockquote>
+<blockquote>
+<p>$$ a=1</p>
+</blockquote>
+</blockquote>
+<p>$$</p>
+.
+
+display equation opened in blockquote in a list item and closed outside it (valid=False)
+.
 - > $$ a=1
 
 $$ (1)
