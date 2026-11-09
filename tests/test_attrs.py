@@ -101,7 +101,7 @@ def test_style_kept_by_default(src, token_type, expected):
 
 
 def test_benign_attrs_preserved_by_default():
-    """The insecure-by-default baseline only strips on*, not benign attrs."""
+    """The default baseline only strips on*, not benign attrs."""
     md = MarkdownIt("commonmark").use(attrs_plugin, spans=True)
     text = md.render("[x]{#a .b width=100 data-y=z}")
     assert 'id="a"' in text
