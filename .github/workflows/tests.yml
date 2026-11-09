@@ -50,13 +50,14 @@ jobs:
         pytest --cov=mdit_py_plugins --cov-report=xml --cov-report=term-missing
     - name: Upload to Codecov
       uses: codecov/codecov-action@v5
-      if: github.event.pull_request.head.repo.full_name == github.repository
+      if: github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]'
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         name: mdit-py-plugins-pytests
         flags: pytests
         files: ./coverage.xml
-        fail_ci_if_error: true
+        # coverage is informational: an upload failure must not fail CI
+        fail_ci_if_error: false
 
   build:
 
