@@ -191,6 +191,11 @@ def render(tex: str, displayMode: bool, macros: Any) -> str:
 # https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/sticky
 
 
+# The ```math block patterns capture what markdown-it-texmath's r"\s+?([^`]+?)\s+?`{3}"
+# captures, but the body must start after one whitespace character and end on a
+# non-whitespace one, so a long whitespace run with no closing fence is matched in
+# linear time (#143); the |\s branch is the single character that pattern captures
+# from a body that is only whitespace.
 rules: dict[str, dict[str, list[RuleDictType]]] = {
     "brackets": {
         "inline": [
@@ -231,14 +236,17 @@ rules: dict[str, dict[str, list[RuleDictType]]] = {
             {
                 "name": "math_block_eqno",
                 "rex": re.compile(
-                    r"^`{3}math\s+?([^`]+?)\s+?`{3}\s*?\(([^)$\r\n]+?)\)", re.M
+                    r"^`{3}math\s(\s*[^`\s](?:[^`]*[^`\s])?|\s)\s+`{3}\s*?\(([^)$\r\n]+?)\)",
+                    re.M,
                 ),
                 "tmpl": '<section class="eqno">\n<eqn>{0}</eqn><span>({1})</span>\n</section>\n',
                 "tag": "```math",
             },
             {
                 "name": "math_block",
-                "rex": re.compile(r"^`{3}math\s+?([^`]+?)\s+?`{3}", re.M),
+                "rex": re.compile(
+                    r"^`{3}math\s(\s*[^`\s](?:[^`]*[^`\s])?|\s)\s+`{3}", re.M
+                ),
                 "tmpl": "<section>\n<eqn>{0}</eqn>\n</section>\n",
                 "tag": "```math",
             },
@@ -273,14 +281,17 @@ rules: dict[str, dict[str, list[RuleDictType]]] = {
             {
                 "name": "math_block_eqno",
                 "rex": re.compile(
-                    r"^`{3}math\s+?([^`]+?)\s+?`{3}\s*?\(([^)$\r\n]+?)\)", re.M
+                    r"^`{3}math\s(\s*[^`\s](?:[^`]*[^`\s])?|\s)\s+`{3}\s*?\(([^)$\r\n]+?)\)",
+                    re.M,
                 ),
                 "tmpl": '<section class="eqno"><eqn>{0}</eqn><span>({1})</span></section>',
                 "tag": "```math",
             },
             {
                 "name": "math_block",
-                "rex": re.compile(r"^`{3}math\s+?([^`]+?)\s+?`{3}", re.M),
+                "rex": re.compile(
+                    r"^`{3}math\s(\s*[^`\s](?:[^`]*[^`\s])?|\s)\s+`{3}", re.M
+                ),
                 "tmpl": "<section><eqn>{0}</eqn></section>",
                 "tag": "```math",
             },
