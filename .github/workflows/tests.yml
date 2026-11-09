@@ -106,19 +106,19 @@ jobs:
   publish:
 
     name: Publish to PyPI
-    needs: [pre-commit, tests]
-    if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+    needs: [pre-commit, tests, build]
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     permissions:
-      id-token: write
+      id-token: write  # the only permission this job has (trusted publishing)
     environment:
       name: pypi
       url: https://pypi.org/p/mdit-py-plugins
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-python@v5
+    # publish exactly the distributions the `build` job built and checked
+    - uses: actions/download-artifact@v8
       with:
-        python-version: "3.10"
-    - run: pip install flit~=3.4
-    - run: flit build
+        name: dist
+        path: dist/
+    # attestations are generated and uploaded by default
     - uses: pypa/gh-action-pypi-publish@release/v1
