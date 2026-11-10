@@ -41,19 +41,32 @@ _MAX_PART_DIGITS = 9
 def section_ref_plugin(md: MarkdownIt) -> None:
     """Parse section-sign references such as ``§1``, ``§1.1`` and ``§2.3.4``.
 
-    A reference is a ``§`` immediately followed by ASCII digits, optionally
-    grouped into further ``.``-separated levels (no spaces are allowed).
-    A trailing dot is not consumed, so ``see §1.`` captures ``§1``.  A ``§``
-    directly followed by an ASCII letter (e.g. ``§1a``) is *not* a reference,
-    but a following non-ASCII letter does not block a match, so ``见§3章``
-    still captures ``§3``.  A reference with any level longer than nine
-    digits (e.g. ``§1.1234567890``) is not a reference either: the whole
-    text stays literal, rather than a shorter prefix being captured.
-    Leading zeros count towards the nine digits, so ``§0000000001`` stays
-    literal too.
-    Following CommonMark backslash-escape behaviour, ``\\§1`` stays literal
-    text, while ``\\\\§1`` renders a literal backslash followed by a live
-    reference.
+    The grammar is normative:
+
+    - A reference is ``§`` (U+00A7) immediately followed by one or more
+      ``.``-separated levels, with no spaces.
+      Each level is 1 to 9 ASCII digits, ``§([0-9]{1,9}(\\.[0-9]{1,9})*)``,
+      and the match is maximal.
+      Only ASCII ``0``-``9`` are digits: other Unicode digits, such as
+      Arabic-Indic (U+0660 to U+0669) or fullwidth (U+FF10 to U+FF19) digits,
+      do not form a reference, so a ``§`` followed by one stays literal text.
+    - A trailing ``.`` is not part of the reference,
+      so in ``see §1.`` the reference is ``§1`` and the ``.`` stays text.
+    - There is no reference, and the whole run stays literal text,
+      if the character after the match is an ASCII letter (``§1a``, ``§1.2b``),
+      or if any level has more than nine digits, counting leading zeros
+      (``§1234567890``, ``§0000000001``).
+      No shorter prefix is taken, so ``§1.1234567890.2`` stays literal too.
+      A non-ASCII letter after the match does not block it,
+      so ``见§3章`` captures ``§3``.
+    - References are recognised wherever inline text is parsed,
+      and not inside code spans, autolinks, raw HTML or inline math.
+    - ``\\§`` is not a CommonMark backslash escape,
+      because ``§`` is not ASCII punctuation:
+      in ``\\§1`` the backslash stays visible and no reference is formed.
+      ``\\\\§1`` is a literal backslash followed by the reference ``§1``.
+      To write a literal sign, use ``&sect;`` or ``&#167;``,
+      which never form a reference (``&sect;1`` renders as the text ``§1``).
 
     Each reference becomes a single ``section_ref`` leaf token
     (``nesting=0``, ``children=None``, ``tag=""``, ``attrs={}``),
@@ -66,6 +79,10 @@ def section_ref_plugin(md: MarkdownIt) -> None:
 
     The default rendering is ``<span class="section-ref">§1.1</span>``.
     Override it with ``md.add_render_rule("section_ref", ...)``.
+    markdown-it-py's ``renderInlineAsText``, which renders image ``alt`` text,
+    keeps only ``text`` tokens, so ``![a §7 b](x.png)`` renders ``alt="a  b"``
+    (as it does for inline math). A renderer that wants the reference in the
+    alt text should use the ``section_ref`` token's ``content``.
 
     .. versionadded:: 0.7.0
 
