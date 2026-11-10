@@ -33,7 +33,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['pypy-3.10', '3.10', '3.11', '3.12', '3.13']
+        python-version: ['pypy-3.10', '3.10', '3.11', '3.12', '3.13', '3.14']
 
     steps:
     - uses: actions/checkout@v4
@@ -58,6 +58,28 @@ jobs:
         files: ./coverage.xml
         # coverage is informational: an upload failure must not fail CI
         fail_ci_if_error: false
+
+  tests-floor:
+
+    # the oldest markdown-it-py the package declares (`markdown-it-py>=3.0.0`):
+    # the plugins that need 4.1 skip their tests and check their version guard
+    name: tests (3.10, markdown-it-py 3.0.0)
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.10"
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .[testing] markdown-it-py==3.0.0
+    - name: Check the installed markdown-it-py
+      run: python -c "import markdown_it; assert markdown_it.__version__ == '3.0.0', markdown_it.__version__"
+    - name: Run pytest
+      run: pytest
 
   build:
 
@@ -103,6 +125,7 @@ jobs:
     needs:
     - pre-commit
     - tests
+    - tests-floor
     - build
     steps:
     - run: echo "Great success!"
@@ -110,7 +133,7 @@ jobs:
   publish:
 
     name: Publish to PyPI
-    needs: [pre-commit, tests, build]
+    needs: [pre-commit, tests, tests-floor, build]
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     permissions:
