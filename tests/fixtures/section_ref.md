@@ -83,6 +83,20 @@ Inside inline code (not captured):
 <p><code>§1</code></p>
 .
 
+Inside an autolink (not captured):
+.
+<https://example.com/§1>
+.
+<p><a href="https://example.com/%C2%A71">https://example.com/§1</a></p>
+.
+
+Inside raw HTML (not captured), but captured in its content:
+.
+<span title="§1">§2</span>
+.
+<p><span title="§1"><span class="section-ref">§2</span></span></p>
+.
+
 Inside fenced code block (not captured):
 .
 ```
@@ -135,11 +149,25 @@ Escaped backslash before ref (captured):
 <p>\<span class="section-ref">§1</span></p>
 .
 
+Entity section signs give a literal sign (not captured):
+.
+&sect;1 and &#167;2
+.
+<p>§1 and §2</p>
+.
+
 Followed by non-digit, non-space char (not captured):
 .
 §x and §.5
 .
 <p>§x and §.5</p>
+.
+
+Non-ASCII digits (not captured):
+.
+§١ and §３
+.
+<p>§١ and §３</p>
 .
 
 Leading zeros preserved in content (meta numbers are normalized):
