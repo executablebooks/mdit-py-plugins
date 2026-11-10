@@ -60,7 +60,9 @@ def section_ref_plugin(md: MarkdownIt) -> None:
       A non-ASCII letter after the match does not block it,
       so ``见§3章`` captures ``§3``.
     - References are recognised wherever inline text is parsed,
-      and not inside code spans, autolinks, raw HTML or inline math.
+      and not inside code spans, autolinks, inline math or raw HTML tags
+      (an attribute value is not inline text, but the text between two tags is,
+      so ``<span title="§1">§2</span>`` captures ``§2`` only).
     - ``\\§`` is not a CommonMark backslash escape,
       because ``§`` is not ASCII punctuation:
       in ``\\§1`` the backslash stays visible and no reference is formed.
