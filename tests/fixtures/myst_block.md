@@ -52,7 +52,7 @@ Target characters:
 .
 (a bc   |@<>*./_-+:)=
 .
-<div class="myst-target"><a href="#a bc   |@<>*./_-+:">(a bc   |@<>*./_-+:)=</a></div>
+<div class="myst-target"><a href="#a bc   |@&lt;&gt;*./_-+:">(a bc   |@&lt;&gt;*./_-+:)=</a></div>
 .
 
 Empty target:

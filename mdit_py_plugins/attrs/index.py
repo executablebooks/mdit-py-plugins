@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from functools import partial
+import re
 from typing import Any
 
 from markdown_it import MarkdownIt
@@ -62,10 +63,24 @@ def attrs_plugin(
     :param allowed: A list of allowed attribute names.
         If not ``None``, any attributes not in this list will be removed
         and placed in the token's meta under the key "insecure_attrs".
+        If ``None`` (the default), event-handler attributes
+        (any name starting with ``on``, such as ``onclick``) are still removed,
+        as a baseline protection against script injection.
+        Other attributes, including ``style``, are kept.
+        Whatever ``allowed`` says, the URL-valued attributes
+        ``href``, ``src``, ``action``, ``formaction`` and ``xlink:href``
+        are removed when ``md.validateLink`` rejects their value
+        (for example a ``javascript:`` URL), as for Markdown links and images.
+        This is not a full sanitiser: to safely render untrusted input,
+        pass an explicit ``allowed`` list (e.g. ``("id", "class")``).
     """
 
     if spans:
-        md.inline.ruler.after(span_after, "span", _span_rule)
+        md.inline.ruler.after(
+            span_after,
+            "span",
+            partial(_span_rule, allowed=None if allowed is None else set(allowed)),
+        )
     if after:
         md.inline.ruler.push(
             "attr",
@@ -97,6 +112,16 @@ def attrs_block_plugin(md: MarkdownIt, *, allowed: Sequence[str] | None = None) 
     :param allowed: A list of allowed attribute names.
         If not ``None``, any attributes not in this list will be removed
         and placed in the token's meta under the key "insecure_attrs".
+        If ``None`` (the default), event-handler attributes
+        (any name starting with ``on``, such as ``onclick``) are still removed,
+        as a baseline protection against script injection.
+        Other attributes, including ``style``, are kept.
+        Whatever ``allowed`` says, the URL-valued attributes
+        ``href``, ``src``, ``action``, ``formaction`` and ``xlink:href``
+        are removed when ``md.validateLink`` rejects their value
+        (for example a ``javascript:`` URL), as for Markdown links and images.
+        This is not a full sanitiser: to safely render untrusted input,
+        pass an explicit ``allowed`` list (e.g. ``("id", "class")``).
     """
     md.block.ruler.before("fence", "attr", _attr_block_rule)
     md.core.ruler.after(
@@ -121,7 +146,9 @@ def _find_opening(tokens: Sequence[Token], index: int) -> int | None:
     return None
 
 
-def _span_rule(state: StateInline, silent: bool) -> bool:
+def _span_rule(
+    state: StateInline, silent: bool, *, allowed: set[str] | None = None
+) -> bool:
     if state.src[state.pos] != "[":
         return False
 
@@ -150,7 +177,7 @@ def _span_rule(state: StateInline, silent: bool) -> bool:
         state.pos = labelStart
         state.posMax = labelEnd
         token = state.push("span_open", "span", 1)
-        token.attrs = attrs  # type: ignore[assignment]
+        _add_attrs(state.md, token, attrs, allowed)
         state.md.inline.tokenize(state)
         token = state.push("span_close", "span", -1)
 
@@ -183,7 +210,7 @@ def _attr_inline_rule(
         attr_token = state.tokens[token_index]
         if "class" in attrs and "class" in attr_token.attrs:
             attrs["class"] = f"{attr_token.attrs['class']} {attrs['class']}"
-        _add_attrs(attr_token, attrs, allowed)
+        _add_attrs(state.md, attr_token, attrs, allowed)
     return True
 
 
@@ -260,23 +287,69 @@ def _attr_resolve_block_rule(state: StateCore, *, allowed: set[str] | None) -> N
                     if key == "class" or key not in next_token.attrs:
                         next_token.attrs[key] = value
             else:
-                _add_attrs(next_token, state.tokens[i].attrs, allowed)
+                _add_attrs(state.md, next_token, state.tokens[i].attrs, allowed)
 
         state.tokens.pop(i)
         len_tokens -= 1
 
 
+_URL_ATTRS = frozenset(("href", "src", "action", "formaction", "xlink:href"))
+"""Attributes whose value is a URL, checked with ``md.validateLink``."""
+
+_URL_IGNORED_RE = re.compile(r"[\t\n\r]")
+_URL_STRIP = "".join(chr(i) for i in range(0x21))
+
+
+def _is_insecure_attr(key: str) -> bool:
+    """Return True for event-handler attributes (``on*``, e.g. ``onclick``).
+
+    They execute JavaScript, so they are removed by default
+    when no explicit ``allowed`` list is given.
+    """
+    return key.lower().startswith("on")
+
+
+def _is_valid_url(md: MarkdownIt, value: Any) -> bool:
+    """Return True if ``md.validateLink`` accepts a URL-valued attribute.
+
+    Browsers ignore ASCII tabs and newlines anywhere in a URL,
+    and control characters and spaces around it, before reading its scheme
+    (so ``java<TAB>script:`` is a ``javascript:`` URL).
+    The value is emitted as written, so those characters are removed
+    before it is normalised and validated.
+    """
+    url = _URL_IGNORED_RE.sub("", str(value)).strip(_URL_STRIP)
+    return md.validateLink(md.normalizeLink(url))
+
+
 def _add_attrs(
+    md: MarkdownIt,
     token: Token,
     attrs: dict[str, Any],
     allowed: set[str] | None,
 ) -> None:
-    """Add attributes to a token, skipping any disallowed attributes."""
-    if allowed is not None and (
-        disallowed := {k: v for k, v in attrs.items() if k not in allowed}
-    ):
+    """Add attributes to a token, skipping any disallowed attributes.
+
+    When ``allowed`` is not ``None`` only those names are kept.
+    When it is ``None`` (the default) event-handler (``on*``) attributes
+    are still removed, so untrusted input cannot inject script.
+    In both cases, a URL-valued attribute (``href``, ``src``, ...)
+    is removed if ``md.validateLink`` rejects it.
+    Anything removed is preserved in ``token.meta["insecure_attrs"]``.
+    """
+    if allowed is not None:
+        disallowed = {k: v for k, v in attrs.items() if k not in allowed}
+    else:
+        disallowed = {k: v for k, v in attrs.items() if _is_insecure_attr(k)}
+    disallowed.update(
+        (k, v)
+        for k, v in attrs.items()
+        if k not in disallowed and k.lower() in _URL_ATTRS and not _is_valid_url(md, v)
+    )
+
+    if disallowed:
         token.meta["insecure_attrs"] = disallowed
-        attrs = {k: v for k, v in attrs.items() if k in allowed}
+        attrs = {k: v for k, v in attrs.items() if k not in disallowed}
 
     # attributes takes precedence over existing attributes
     token.attrs.update(attrs)
