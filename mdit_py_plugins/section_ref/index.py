@@ -49,6 +49,8 @@ def section_ref_plugin(md: MarkdownIt) -> None:
     still captures ``§3``.  A reference with any level longer than nine
     digits (e.g. ``§1.1234567890``) is not a reference either: the whole
     text stays literal, rather than a shorter prefix being captured.
+    Leading zeros count towards the nine digits, so ``§0000000001`` stays
+    literal too.
     Following CommonMark backslash-escape behaviour, ``\\§1`` stays literal
     text, while ``\\\\§1`` renders a literal backslash followed by a live
     reference.
