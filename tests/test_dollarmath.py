@@ -131,3 +131,36 @@ def test_dollarmath_fixtures(line, title, input, expected):
     text = md.render(input)
     print(text)
     assert text.rstrip() == expected.rstrip()
+
+
+# no parentheses inside the label, or it is not parsed as one
+_LABEL_XSS = '$$\na=1\n$$ ("><svg onload=alert`1`>)\n'
+
+
+@pytest.mark.parametrize(
+    "label_normalizer,label",
+    [
+        pytest.param(
+            None,
+            "&quot;&gt;&lt;svg-onload=alert`1`&gt;",
+            id="default-normalizer",
+        ),
+        pytest.param(
+            lambda label: label,
+            "&quot;&gt;&lt;svg onload=alert`1`&gt;",
+            id="identity-normalizer",
+        ),
+    ],
+)
+def test_label_is_html_escaped(label_normalizer, label):
+    """The label must not break out of the ``id`` and ``href`` attributes (#143)."""
+    md = MarkdownIt("commonmark", {"html": False}).use(
+        dollarmath_plugin, label_normalizer=label_normalizer
+    )
+    # the payload must reach the label renderer, not fall back to a paragraph
+    assert [t.type for t in md.parse(_LABEL_XSS)] == ["math_block_label"]
+    assert md.render(_LABEL_XSS) == (
+        f'<div id="{label}" class="math block">\n'
+        f'<a href="#{label}" class="mathlabel" title="Permalink to this equation">'
+        "¶</a>\na=1\n</div>\n"
+    )

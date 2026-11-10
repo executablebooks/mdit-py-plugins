@@ -6,7 +6,7 @@ from re import Match
 from typing import TYPE_CHECKING, Any, TypedDict
 
 from markdown_it import MarkdownIt
-from markdown_it.common.utils import charCodeAt
+from markdown_it.common.utils import charCodeAt, escapeHtml
 
 if TYPE_CHECKING:
     from markdown_it.renderer import RendererProtocol
@@ -65,7 +65,8 @@ def texmath_plugin(
                 env: EnvType,
             ) -> str:
                 return rule_block["tmpl"].format(  # noqa: B023
-                    render(tokens[idx].content, True, macros), tokens[idx].info
+                    render(tokens[idx].content, True, macros),
+                    escapeHtml(tokens[idx].info),
                 )
 
             md.add_render_rule(rule_block["name"], render_math_block)
@@ -172,7 +173,7 @@ def dollar_post(src: str, end: int) -> bool:
 
 
 def render(tex: str, displayMode: bool, macros: Any) -> str:
-    return tex
+    return escapeHtml(tex)
     # TODO better HTML renderer port for math
     # try:
     #     res = katex.renderToString(tex,{throwOnError:False,displayMode,macros})
