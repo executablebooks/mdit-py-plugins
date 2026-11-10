@@ -32,6 +32,61 @@ x: 1
 <h1>Head</h1>
 .
 
+should parse triple dots at end of document:
+.
+---
+x: 1
+...
+.
+.
+
+should ignore spaces after triple dots:
+.
+---
+x: 1
+...   
+# Head
+.
+
+<h1>Head</h1>
+.
+
+should not close on indented triple dots:
+.
+---
+text: |
+  ...
+---
+# Head
+.
+
+<h1>Head</h1>
+.
+
+should not close on four dots:
+.
+---
+x: 1
+....
+---
+# Head
+.
+
+<h1>Head</h1>
+.
+
+should not close on triple dots followed by text:
+.
+---
+x: 1
+...x
+---
+# Head
+.
+
+<h1>Head</h1>
+.
+
 should parse front matter with indentation:
 .
 ---

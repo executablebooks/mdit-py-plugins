@@ -29,6 +29,10 @@ def anchors_plugin(
 
         <h1 id="title-string">Title String <a class="header-anchor" href="#title-string">¶</a></h1>
 
+    Explicit heading IDs (e.g. ``{#id}`` from ``attrs_block_plugin``) are preserved,
+    at any level, and generated IDs avoid collisions with them.
+    Explicit IDs are not de-duplicated, and an empty explicit ID counts as no ID.
+
     :param min_level: minimum header level to apply anchors
     :param max_level: maximum header level to apply anchors
     :param slug_func: function to convert title text to id slug.
@@ -66,7 +70,14 @@ def _make_anchors_func(
     permalinkSpace: bool,
 ) -> Callable[[StateCore], None]:
     def _anchor_func(state: StateCore) -> None:
-        slugs: set[str] = set()
+        # reserve every explicit heading id (at any level) up front,
+        # so a generated slug never collides with one, whatever the order;
+        # an empty id is treated as absent
+        slugs: set[str] = {
+            str(heading_id)
+            for token in state.tokens
+            if token.type == "heading_open" and (heading_id := token.attrGet("id"))
+        }
         for idx, token in enumerate(state.tokens):
             if token.type != "heading_open":
                 continue
@@ -80,8 +91,10 @@ def _make_anchors_func(
                 for child in inline_token.children
                 if child.type in ["text", "code_inline"]
             )
-            slug = unique_slug(slug_func(title), slugs)
-            token.attrSet("id", slug)
+            slug = token.attrGet("id")
+            if not slug:
+                slug = unique_slug(slug_func(title), slugs)
+                token.attrSet("id", slug)
 
             if permalink:
                 link_open = Token(
@@ -116,7 +129,7 @@ def _make_anchors_func(
 
 
 def slugify(title: str) -> str:
-    return re.sub(r"[^\w\u4e00-\u9fff\- ]", "", title.strip().lower().replace(" ", "-"))
+    return re.sub(r"[^\w\u4e00-\u9fff\- ]", "", title.lower().replace(" ", "-"))
 
 
 def unique_slug(slug: str, slugs: set[str]) -> str:
