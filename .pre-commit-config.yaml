@@ -30,5 +30,5 @@ repos:
     rev: v2.4.1
     hooks:
     - id: mypy
-      additional_dependencies: [markdown-it-py~=3.0]
+      additional_dependencies: [markdown-it-py~=4.2]
       exclude: ^tests/

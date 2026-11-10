@@ -8,6 +8,10 @@ import pytest
 
 from mdit_py_plugins.gfm import gfm_plugin
 
+# The plugin needs markdown-it-py >= 4.1.0 (it raises RuntimeError below that);
+# the guard itself is tested in test_mdit_version_guard.py, on every version.
+pytest.importorskip("markdown_it", minversion="4.1.0")
+
 FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures", "gfm.md")
 
 
