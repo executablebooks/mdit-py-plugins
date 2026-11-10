@@ -1,24 +1,137 @@
 # Change Log
 
-## 0.7.0 - 2026-07-19
+## 0.7.0 - 2026-11-10
 
-- ✨ NEW: Add section reference plugin (`section_ref`) (#144)
+A security and bug-fix release.
+Plugin renderers now escape user content in HTML attribute, label and math positions,
+`attrs` drops event-handler attributes by default and validates URL-valued attributes,
+and the regular expressions in `texmath` ```` ```math ```` blocks and `admon` headers no longer backtrack polynomially (#143).
+It also fixes parser hangs in `gfm_autolink` (#160) and `texmath` (#156),
+and adds the `section_ref` plugin.
+The release requires markdown-it-py >= 3.0 and supports Python 3.10 to 3.14.
+Several fixes change rendered output: see **Upgrade notes** below.
 
-  The `section_ref` plugin captures section-sign references — the syntax LLMs
-  commonly use to point at numbered headings — into dedicated `section_ref` tokens,
+### Upgrade notes
+
+- **Requires markdown-it-py >= 3.0** ([#170](https://github.com/executablebooks/mdit-py-plugins/pull/170)).
+  The declared floor was 2.0, but 0.5.0 and later already failed to import `subscript` with markdown-it-py 2.x.
+  `section_ref`, `gfm` and `gfm_autolink` still need markdown-it-py >= 4.1 and raise `RuntimeError` on older versions.
+  Python 3.10 to 3.14 are supported.
+- **`attrs_plugin` / `attrs_block_plugin` defaults are stricter** ([#150](https://github.com/executablebooks/mdit-py-plugins/pull/150)).
+  With no `allowed` list, event-handler attributes (any key starting with `on`, in any case) are removed
+  and moved to `token.meta["insecure_attrs"]`; `style` is kept.
+  Whatever `allowed` says, `href`, `src`, `action`, `formaction` and `xlink:href` are removed when `md.validateLink` rejects their value,
+  so `[a](https://x){href="javascript:alert(1)"}` keeps `href="https://x"`.
+  Text spans (`[text]{...}`) now honour `allowed`, which they used to bypass.
+  This is a baseline, not a sanitiser: for untrusted input, pass an explicit list such as `allowed=("id", "class")`.
+- **Renderers escape their output** ([#150](https://github.com/executablebooks/mdit-py-plugins/pull/150), [#165](https://github.com/executablebooks/mdit-py-plugins/pull/165)).
+  The `texmath` default renderer HTML-escapes the math source (`$a<b$` now renders `<eq>a&lt;b</eq>`),
+  and the `dollarmath` equation label, the `myst_block` target label, the `colon_fence` class name
+  and the `tasklists` `label_after` label are escaped too.
+  Benign text containing `&`, `<`, `>` or `"` in these positions is now emitted as entities.
+- **`anchors_plugin` ids can change** ([#159](https://github.com/executablebooks/mdit-py-plugins/pull/159)).
+  An explicit heading id (such as `{#custom}` from `attrs_block_plugin`) is now kept instead of being overwritten,
+  and generated slugs avoid it.
+  The default slug function no longer strips whitespace from the title,
+  matching MyST-Parser's `github_slugify`:
+  a title that starts or ends with a space next to an image, raw HTML or an entity gets a different id
+  (`# Foo ![img](x.png)` now gives `foo-`, it was `foo`).
+  To keep the old ids, pass `slug_func=lambda title: slugify(title.strip())`, with `slugify` from `mdit_py_plugins.anchors.index`.
+- **`mdit_py_plugins.attrs.parse.parse()` raises on an unterminated attribute group**, instead of succeeding at the end of the string
+  ([#153](https://github.com/executablebooks/mdit-py-plugins/pull/153)).
+  Every plugin call site declines the group, so `` `a`{.a `` now renders `<code>a</code>{.a`; it used to drop the `{.a`.
+- **The `section_ref` token shape is public API** ([#169](https://github.com/executablebooks/mdit-py-plugins/pull/169)): see its entry below.
+
+### 🔒 Security
+
+Thanks to [@KrisKennawayDD](https://github.com/KrisKennawayDD) for reporting these issues in #143,
+and to [@KyleKing](https://github.com/KyleKing) for the ReDoS analysis and fixes.
+
+- 🔒 FIX: Escape plugin renderer output and harden the `attrs` defaults, thanks to [@KyleKing](https://github.com/KyleKing) for the cross-plugin XSS test ([#150](https://github.com/executablebooks/mdit-py-plugins/pull/150), folding in [#151](https://github.com/executablebooks/mdit-py-plugins/pull/151))
+
+  With markdown-it-py's `html` option off, untrusted Markdown could still inject HTML or script through:
+  the `texmath` default renderer (math source), the `dollarmath` equation label (`id` and permalink `href`),
+  the `myst_block` `(name)=` target label, and `attrs` / `attrs_block` event-handler and `javascript:` URL attributes.
+  All of these are now escaped or filtered (see **Upgrade notes**),
+  and `tests/test_xss.py` renders injection probes through each plugin's default renderer.
+
+- 🔒 FIX: Escape the `colon_fence` class name and the `tasklists` `label_after` label ([#165](https://github.com/executablebooks/mdit-py-plugins/pull/165))
+
+  `:::a"onmouseover="alert(1)` rendered an attribute-breaking `class="block-a"onmouseover="alert(1)"`,
+  and `- [ ] <img src=x onerror=alert(1)>` with `label=True, label_after=True` rendered a raw `<img>`.
+
+- 🔒 FIX: ReDoS in `texmath` ```` ```math ```` blocks and `admon` headers, thanks to [@KyleKing](https://github.com/KyleKing) ([#148](https://github.com/executablebooks/mdit-py-plugins/pull/148))
+
+  The `texmath` ```` ```math ```` patterns (the `gitlab` and `julia` delimiters) backtracked cubically
+  on a fence followed by a long whitespace run with no closing fence,
+  and the `admon` multi-tag title pattern backtracked quadratically on a header with a long run of spaces or double quotes.
+  Both now run in linear time and match what they matched before, so output is unchanged.
+
+### ✨ New
+
+- ✨ NEW: Add the section reference plugin (`section_ref`) ([#144](https://github.com/executablebooks/mdit-py-plugins/pull/144), [#168](https://github.com/executablebooks/mdit-py-plugins/pull/168), [#169](https://github.com/executablebooks/mdit-py-plugins/pull/169))
+
+  The `section_ref` plugin captures section-sign references, the syntax LLMs
+  commonly use to point at numbered headings, into dedicated `section_ref` tokens,
   so downstream renderers (e.g. MyST-Parser) can resolve them to heading cross-references:
 
   ```markdown
   See §1, §1.1 and §2.3.4 for details.
   ```
 
-  A `§` must be immediately followed by ASCII digits (dot-separated for nested
-  levels, no spaces); the parsed section number is stored on the token's
-  `meta["numbers"]` as a list of ints (e.g. `[1, 1]` for `§1.1`).
+  A `§` must be immediately followed by one or more `.`-separated levels of 1 to 9 ASCII digits, with no spaces.
+  A trailing `.` is not part of the reference, and a reference directly followed by an ASCII letter (`§1a`),
+  or with a level longer than nine digits, stays literal text.
+  Each reference is a `section_ref` leaf token whose `content` is the text as written
+  and whose `meta["numbers"]` lists each level as an int (e.g. `[1, 1]` for `§1.1`).
+  The grammar and the token shape are documented in the plugin docstring and are public API from this release.
+  It renders as `<span class="section-ref">§1.1</span>` by default.
 
   **Requires markdown-it-py >= 4.1.0.**
 
-- 🐛 FIX: `myst_role` no longer mis-rejects a role at the start of inline content when the content ends with a backslash, and `\\{name}`x`` (an escaped backslash before a role) now parses the role (#62)
+### 🐛 Fixes
+
+- 🐛 FIX: `gfm_autolink` no longer hangs on autolink-like text in link labels (#160), thanks to [@AryanRG](https://github.com/AryanRG) ([#161](https://github.com/executablebooks/mdit-py-plugins/pull/161))
+- 🐛 FIX: `texmath` no longer loops forever on block math opened in a blockquote and closed after it (#156), thanks to [@acaprino](https://github.com/acaprino) ([#157](https://github.com/executablebooks/mdit-py-plugins/pull/157))
+- 🐛 FIX: `dollarmath`: a same-line `$$…$$` followed by text no longer swallows the following lines (#147), thanks to [@KyleKing](https://github.com/KyleKing) ([#149](https://github.com/executablebooks/mdit-py-plugins/pull/149))
+- 🐛 FIX: `dollarmath`: multi-line `$$` blocks in a blockquote no longer keep the `>` prefixes in their content (#125), thanks to [@BetterAndBetterII](https://github.com/BetterAndBetterII) ([#152](https://github.com/executablebooks/mdit-py-plugins/pull/152))
+- 🐛 FIX: `front_matter`: parse front matter closed by the YAML `...` document-end marker, thanks to [@feiiiiii5](https://github.com/feiiiiii5) ([#158](https://github.com/executablebooks/mdit-py-plugins/pull/158))
+
+  A block closed by `...` used to leak into the document as text when the `...` was the document's last line or had trailing spaces,
+  and otherwise kept the `...` in `token.content`.
+  The marker must be at column 0 and may be followed by spaces only.
+
+- 🐛 FIX: `footnote`: reserve an inline footnote's id before parsing its content, thanks to [@civilwarinfrance](https://github.com/civilwarinfrance) ([#162](https://github.com/executablebooks/mdit-py-plugins/pull/162))
+
+  A `[^named]` reference or a nested `^[...]` inside an inline footnote no longer loses the inner note, duplicates an id, or raises `KeyError: 'count'`.
+
+- 🐛 FIX: `anchors`: keep explicit heading ids, and do not strip slug titles, thanks to [@muneikh](https://github.com/muneikh) ([#159](https://github.com/executablebooks/mdit-py-plugins/pull/159))
+- 🐛 FIX: `attrs`: unterminated groups, class accumulation and closing-token merge ([#153](https://github.com/executablebooks/mdit-py-plugins/pull/153))
+
+  An unterminated attribute group no longer swallows the text after it.
+  Classes from adjacent attribute groups are combined on spans and links (`[a]{.x}{.y}` gives `class="x y"`),
+  as they already were on inline code and images.
+  An attributes block at the end of a container is no longer merged onto the closing token
+  (`> {.a}` rendered `</blockquote class="a">`).
+
+- 🐛 FIX: `myst_role` no longer rejects a role at the start of inline content when the content ends with a backslash,
+  and `` \\{name}`x` `` (an escaped backslash before a role) now parses the role (#62) ([#145](https://github.com/executablebooks/mdit-py-plugins/pull/145))
+
+### 📚 Documentation
+
+- 📚 DOCS: Explain front matter extraction and HTML rendering (#133), thanks to [@Gonghan-Princess](https://github.com/Gonghan-Princess) ([#154](https://github.com/executablebooks/mdit-py-plugins/pull/154))
+- 📚 DOCS: A runnable usage example (#44), the `dollarmath` rendering contract and a "Rendering dollarmath output" guide (#111),
+  and Read the Docs builds on Python 3.13 ([#166](https://github.com/executablebooks/mdit-py-plugins/pull/166))
+
+### 🔧 Maintenance
+
+- 🔧 Require markdown-it-py >= 3.0, test the floor and Python 3.14 in CI, and update the classifiers ([#170](https://github.com/executablebooks/mdit-py-plugins/pull/170))
+- 🔧 Releases are published to PyPI with trusted publishing (#141), with attestations ([#142](https://github.com/executablebooks/mdit-py-plugins/pull/142)),
+  from distributions built with `python -m build` and checked on every pull request ([#164](https://github.com/executablebooks/mdit-py-plugins/pull/164))
+- 🔧 pre-commit autoupdate (ruff 0.17, mypy 2.4) with a pinned ruff base rule set ([#138](https://github.com/executablebooks/mdit-py-plugins/pull/138)),
+  and a non-blocking Codecov upload ([#167](https://github.com/executablebooks/mdit-py-plugins/pull/167))
+
+**Full Changelog**: <https://github.com/executablebooks/mdit-py-plugins/compare/v0.6.1...v0.7.0>
 
 ## 0.6.1 - 2026-05-13
 
