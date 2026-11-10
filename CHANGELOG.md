@@ -7,8 +7,8 @@ Plugin renderers now escape user content in HTML attribute, label and math posit
 `attrs` drops event-handler attributes by default and validates URL-valued attributes,
 and the regular expressions in `texmath` ```` ```math ```` blocks and `admon` headers no longer backtrack polynomially (#143).
 It also fixes parser hangs in `gfm_autolink` (#160) and `texmath` (#156),
-and adds the `section_ref` plugin;
-it requires markdown-it-py >= 3.0 and supports Python 3.10 to 3.14.
+and adds the `section_ref` plugin.
+The release requires markdown-it-py >= 3.0 and supports Python 3.10 to 3.14.
 Several fixes change rendered output: see **Upgrade notes** below.
 
 ### Upgrade notes
@@ -17,7 +17,6 @@ Several fixes change rendered output: see **Upgrade notes** below.
   The declared floor was 2.0, but 0.5.0 and later already failed to import `subscript` with markdown-it-py 2.x.
   `section_ref`, `gfm` and `gfm_autolink` still need markdown-it-py >= 4.1 and raise `RuntimeError` on older versions.
   Python 3.10 to 3.14 are supported.
-
 - **`attrs_plugin` / `attrs_block_plugin` defaults are stricter** ([#150](https://github.com/executablebooks/mdit-py-plugins/pull/150)).
   With no `allowed` list, event-handler attributes (any key starting with `on`, in any case) are removed
   and moved to `token.meta["insecure_attrs"]`; `style` is kept.
@@ -98,7 +97,8 @@ and to [@KyleKing](https://github.com/KyleKing) for the ReDoS analysis and fixes
 - 🐛 FIX: `dollarmath`: multi-line `$$` blocks in a blockquote no longer keep the `>` prefixes in their content (#125), thanks to [@BetterAndBetterII](https://github.com/BetterAndBetterII) ([#152](https://github.com/executablebooks/mdit-py-plugins/pull/152))
 - 🐛 FIX: `front_matter`: parse front matter closed by the YAML `...` document-end marker, thanks to [@feiiiiii5](https://github.com/feiiiiii5) ([#158](https://github.com/executablebooks/mdit-py-plugins/pull/158))
 
-  A block whose last line was `...` used to leak into the document as text.
+  A block closed by `...` used to leak into the document as text when the `...` was the document's last line or had trailing spaces,
+  and otherwise kept the `...` in `token.content`.
   The marker must be at column 0 and may be followed by spaces only.
 
 - 🐛 FIX: `footnote`: reserve an inline footnote's id before parsing its content, thanks to [@civilwarinfrance](https://github.com/civilwarinfrance) ([#162](https://github.com/executablebooks/mdit-py-plugins/pull/162))
