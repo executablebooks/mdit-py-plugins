@@ -29,6 +29,14 @@ if TYPE_CHECKING:
 # ASCII digits only (``[0-9]``, never ``\d`` which also matches unicode digits).
 _SECTION_REF_PATTERN = re.compile(r"§([0-9]+(?:\.[0-9]+)*)")
 
+# Longest dotted part (in written digits, leading zeros included) that is still
+# read as a section number.  Nine digits keeps every number below 10**9, so it
+# fits a signed 32-bit integer for downstream consumers, and keeps ``int()`` far
+# below Python's integer string conversion limit (4300 digits by default, and
+# never configurable below 640), which would otherwise raise ``ValueError`` and
+# abort the whole render.  No real document has a billion sections.
+_MAX_PART_DIGITS = 9
+
 
 def section_ref_plugin(md: MarkdownIt) -> None:
     """Parse section-sign references such as ``§1``, ``§1.1`` and ``§2.3.4``.
@@ -38,9 +46,12 @@ def section_ref_plugin(md: MarkdownIt) -> None:
     A trailing dot is not consumed, so ``see §1.`` captures ``§1``.  A ``§``
     directly followed by an ASCII letter (e.g. ``§1a``) is *not* a reference,
     but a following non-ASCII letter does not block a match, so ``见§3章``
-    still captures ``§3``.  Following CommonMark backslash-escape behaviour,
-    ``\\§1`` stays literal text, while ``\\\\§1`` renders a literal backslash
-    followed by a live reference.
+    still captures ``§3``.  A reference with any level longer than nine
+    digits (e.g. ``§1.1234567890``) is not a reference either: the whole
+    text stays literal, rather than a shorter prefix being captured.
+    Following CommonMark backslash-escape behaviour, ``\\§1`` stays literal
+    text, while ``\\\\§1`` renders a literal backslash followed by a live
+    reference.
 
     Each reference becomes a ``section_ref`` token, with the matched text
     (e.g. ``"§1.1"``) as its ``content``, ``markup`` set to ``§`` and
@@ -76,11 +87,17 @@ def _section_ref_rule(state: StateInline, silent: bool) -> bool:
     if end < state.posMax and state.src[end].isascii() and state.src[end].isalpha():
         return False
 
+    # reject an over-long level outright, so hostile input can never raise in
+    # ``int()``; the whole text stays literal (no prefix match splits a number)
+    parts = match.group(1).split(".")
+    if any(len(part) > _MAX_PART_DIGITS for part in parts):
+        return False
+
     if not silent:
         token = state.push("section_ref", "", 0)
         token.content = match.group(0)
         token.markup = "§"
-        token.meta = {"numbers": [int(part) for part in match.group(1).split(".")]}
+        token.meta = {"numbers": [int(part) for part in parts]}
 
     state.pos = end
     return True

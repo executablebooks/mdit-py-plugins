@@ -1,4 +1,5 @@
 from pathlib import Path
+import time
 from types import SimpleNamespace
 
 from markdown_it import MarkdownIt
@@ -126,3 +127,71 @@ def test_all(line, title, input, expected):
     text = md.render(input)
     print(text)
     assert text.rstrip() == expected.rstrip()
+
+
+def test_huge_digit_run_renders_as_text():
+    """``§`` + 5000 digits must not raise (``int()`` refuses > 4300 digits).
+
+    The over-long level makes the rule decline, so the text renders literally.
+    """
+    md = MarkdownIt().use(section_ref_plugin)
+    digits = "1" * 5000
+    assert md.render(f"see §{digits}") == f"<p>see §{digits}</p>\n"
+    tokens = md.parseInline(f"see §{digits}")[0].children
+    assert tokens is not None
+    assert [t.type for t in tokens] == ["text"]
+
+
+@pytest.mark.parametrize(
+    "src,numbers",
+    [
+        ("§999999999", [999999999]),
+        ("§1.999999999.2", [1, 999999999, 2]),
+        ("§000000001", [1]),
+    ],
+)
+def test_numbers_at_bound(src, numbers):
+    """A level of exactly nine digits is still a reference, with its int value."""
+    md = MarkdownIt().use(section_ref_plugin)
+    tokens = md.parseInline(src)[0].children
+    assert tokens is not None
+    assert [t.type for t in tokens] == ["section_ref"]
+    assert tokens[0].content == src
+    assert tokens[0].meta == {"numbers": numbers}
+
+
+@pytest.mark.parametrize(
+    "src",
+    ["§1234567890", "§1.1234567890", "§1234567890.1", "§1.2.1234567890.3"],
+)
+def test_level_past_bound_declines(src):
+    """Any level past nine digits makes the whole text literal (no prefix match)."""
+    md = MarkdownIt().use(section_ref_plugin)
+    tokens = md.parseInline(src)[0].children
+    assert tokens is not None
+    assert [t.type for t in tokens] == ["text"]
+    assert tokens[0].content == src
+
+
+@pytest.mark.timeout(10)
+@pytest.mark.parametrize(
+    "src",
+    [
+        "§" + "1" * 200_000,
+        "§" + "1." * 100_000 + "1" * 10,
+        ("§" + "1" * 5000 + " ") * 40,
+        "§1 " * 20_000,
+    ],
+    ids=["one-run", "dotted-run", "many-runs", "many-refs"],
+)
+def test_long_digit_runs_stay_fast(src):
+    """Long digit runs are scanned in linear time, with no backtracking blow-up.
+
+    A quadratic scan of these inputs (up to 200k characters) would take far longer than
+    the budget, so staying under it shows the rule is linear in practice.
+    """
+    md = MarkdownIt().use(section_ref_plugin)
+    start = time.perf_counter()
+    md.render(src)
+    elapsed = time.perf_counter() - start
+    assert elapsed < 1.0, f"render took {elapsed:.3f}s for {len(src)} characters"

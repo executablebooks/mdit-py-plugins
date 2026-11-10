@@ -149,6 +149,34 @@ Leading zeros preserved in content (meta numbers are normalized):
 <p><span class="section-ref">§01.02</span></p>
 .
 
+Level at the nine-digit bound (captured):
+.
+§123456789 and §1.999999999
+.
+<p><span class="section-ref">§123456789</span> and <span class="section-ref">§1.999999999</span></p>
+.
+
+Level one past the nine-digit bound (not captured):
+.
+§1234567890 and §1.1234567890
+.
+<p>§1234567890 and §1.1234567890</p>
+.
+
+Over-long middle level (not captured, no partial prefix):
+.
+§1.1234567890.2 then §3
+.
+<p>§1.1234567890.2 then <span class="section-ref">§3</span></p>
+.
+
+Leading zeros count towards the bound (not captured):
+.
+§0000000001
+.
+<p>§0000000001</p>
+.
+
 In a heading:
 .
 ## About §2
