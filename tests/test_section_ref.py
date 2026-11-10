@@ -185,9 +185,10 @@ def test_level_past_bound_declines(src):
 def test_long_digit_runs_stay_fast(src):
     """Long digit runs are scanned in linear time, with no backtracking blow-up.
 
-    A quadratic scan of these inputs (up to 200k characters) would take tens of
-    seconds, far longer than the budget, so staying under it shows the rule is
-    linear in practice. The budget leaves room for slow CI runners and coverage.
+    A scan that does Python-level work per character, quadratic in the input
+    (up to 200k characters), or a backtracking regex would take far longer than
+    the budget. The budget leaves room for slow CI runners and coverage, so a
+    quadratic scan built from string slices or copies can still pass it.
     """
     md = MarkdownIt().use(section_ref_plugin)
     start = time.perf_counter()
