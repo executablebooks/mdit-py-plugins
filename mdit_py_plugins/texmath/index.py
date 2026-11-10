@@ -87,7 +87,7 @@ class RuleDictType(_RuleDictReqType, total=False):
 
 def applyRule(
     rule: RuleDictType, string: str, begin: int, inBlockquote: bool
-) -> None | Match[str]:
+) -> Match[str] | None:
     if not (
         string.startswith(rule["tag"], begin)
         and (rule["pre"](string, begin) if "pre" in rule else True)
@@ -129,25 +129,28 @@ def make_block_func(rule: RuleDictType) -> Callable[[StateBlock, int, int, bool]
     def _func(state: StateBlock, begLine: int, endLine: int, silent: bool) -> bool:
         begin = state.bMarks[begLine] + state.tShift[begLine]
         res = applyRule(rule, state.src, begin, state.parentType == "blockquote")
-        if res:
-            if not silent:
-                token = state.push(rule["name"], "math", 0)
-                token.block = True
-                token.content = res[1]
-                token.info = res[len(res.groups())]
-                token.markup = rule["tag"]
+        if not res:
+            return False
 
-            line = begLine
-            endpos = begin + res.end() - 1
+        # find the line holding the end of the match, within this block only
+        endpos = begin + res.end() - 1
+        line = begLine
+        while line < endLine and endpos > state.eMarks[line]:
+            line += 1
+        if line >= endLine or endpos < state.bMarks[line]:
+            # the closing delimiter lies outside the current block,
+            # e.g. math opened inside a blockquote and closed after it
+            return False
 
-            while line < endLine:
-                if endpos >= state.bMarks[line] and endpos <= state.eMarks[line]:
-                    # line for end of block math found ...
-                    state.line = line + 1
-                    break
-                line += 1
+        if not silent:
+            token = state.push(rule["name"], "math", 0)
+            token.block = True
+            token.content = res[1]
+            token.info = res[len(res.groups())]
+            token.markup = rule["tag"]
 
-        return bool(res)
+        state.line = line + 1
+        return True
 
     return _func
 
@@ -189,6 +192,11 @@ def render(tex: str, displayMode: bool, macros: Any) -> str:
 # https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/sticky
 
 
+# The ```math block patterns capture what markdown-it-texmath's r"\s+?([^`]+?)\s+?`{3}"
+# captures, but the body must start after one whitespace character and end on a
+# non-whitespace one, so a long whitespace run with no closing fence is matched in
+# linear time (#143); the |\s branch is the single character that pattern captures
+# from a body that is only whitespace.
 rules: dict[str, dict[str, list[RuleDictType]]] = {
     "brackets": {
         "inline": [
@@ -203,14 +211,15 @@ rules: dict[str, dict[str, list[RuleDictType]]] = {
             {
                 "name": "math_block_eqno",
                 "rex": re.compile(
-                    r"^\\\[(((?!\\\]|\\\[)[\s\S])+?)\\\]\s*?\(([^)$\r\n]+?)\)", re.M
+                    r"^\\\[(((?!\\\]|\\\[)[\s\S])+?)\\\]\s*?\(([^)$\r\n]+?)\)",
+                    re.MULTILINE,
                 ),
                 "tmpl": '<section class="eqno"><eqn>{0}</eqn><span>({1})</span></section>',
                 "tag": "\\[",
             },
             {
                 "name": "math_block",
-                "rex": re.compile(r"^\\\[([\s\S]+?)\\\]", re.M),
+                "rex": re.compile(r"^\\\[([\s\S]+?)\\\]", re.MULTILINE),
                 "tmpl": "<section>\n<eqn>{0}</eqn>\n</section>\n",
                 "tag": "\\[",
             },
@@ -229,14 +238,17 @@ rules: dict[str, dict[str, list[RuleDictType]]] = {
             {
                 "name": "math_block_eqno",
                 "rex": re.compile(
-                    r"^`{3}math\s+?([^`]+?)\s+?`{3}\s*?\(([^)$\r\n]+?)\)", re.M
+                    r"^`{3}math\s(\s*[^`\s](?:[^`]*[^`\s])?|\s)\s+`{3}\s*?\(([^)$\r\n]+?)\)",
+                    re.MULTILINE,
                 ),
                 "tmpl": '<section class="eqno">\n<eqn>{0}</eqn><span>({1})</span>\n</section>\n',
                 "tag": "```math",
             },
             {
                 "name": "math_block",
-                "rex": re.compile(r"^`{3}math\s+?([^`]+?)\s+?`{3}", re.M),
+                "rex": re.compile(
+                    r"^`{3}math\s(\s*[^`\s](?:[^`]*[^`\s])?|\s)\s+`{3}", re.MULTILINE
+                ),
                 "tmpl": "<section>\n<eqn>{0}</eqn>\n</section>\n",
                 "tag": "```math",
             },
@@ -271,14 +283,17 @@ rules: dict[str, dict[str, list[RuleDictType]]] = {
             {
                 "name": "math_block_eqno",
                 "rex": re.compile(
-                    r"^`{3}math\s+?([^`]+?)\s+?`{3}\s*?\(([^)$\r\n]+?)\)", re.M
+                    r"^`{3}math\s(\s*[^`\s](?:[^`]*[^`\s])?|\s)\s+`{3}\s*?\(([^)$\r\n]+?)\)",
+                    re.MULTILINE,
                 ),
                 "tmpl": '<section class="eqno"><eqn>{0}</eqn><span>({1})</span></section>',
                 "tag": "```math",
             },
             {
                 "name": "math_block",
-                "rex": re.compile(r"^`{3}math\s+?([^`]+?)\s+?`{3}", re.M),
+                "rex": re.compile(
+                    r"^`{3}math\s(\s*[^`\s](?:[^`]*[^`\s])?|\s)\s+`{3}", re.MULTILINE
+                ),
                 "tmpl": "<section><eqn>{0}</eqn></section>",
                 "tag": "```math",
             },
@@ -296,13 +311,15 @@ rules: dict[str, dict[str, list[RuleDictType]]] = {
         "block": [
             {
                 "name": "math_block_eqno",
-                "rex": re.compile(r"^\${2}([^$]*?)\${2}\s*?\(([^)$\r\n]+?)\)", re.M),
+                "rex": re.compile(
+                    r"^\${2}([^$]*?)\${2}\s*?\(([^)$\r\n]+?)\)", re.MULTILINE
+                ),
                 "tmpl": '<section class="eqno"><eqn>{0}</eqn><span>({1})</span></section>',
                 "tag": "$$",
             },
             {
                 "name": "math_block",
-                "rex": re.compile(r"^\${2}([^$]*?)\${2}", re.M),
+                "rex": re.compile(r"^\${2}([^$]*?)\${2}", re.MULTILINE),
                 "tmpl": "<section><eqn>{0}</eqn></section>",
                 "tag": "$$",
             },
@@ -330,13 +347,15 @@ rules: dict[str, dict[str, list[RuleDictType]]] = {
         "block": [
             {
                 "name": "math_block_eqno",
-                "rex": re.compile(r"^\${2}([^$]*?)\${2}\s*?\(([^)$\r\n]+?)\)", re.M),
+                "rex": re.compile(
+                    r"^\${2}([^$]*?)\${2}\s*?\(([^)$\r\n]+?)\)", re.MULTILINE
+                ),
                 "tmpl": '<section class="eqno">\n<eqn>{0}</eqn><span>({1})</span>\n</section>\n',
                 "tag": "$$",
             },
             {
                 "name": "math_block",
-                "rex": re.compile(r"^\${2}([^$]*?)\${2}", re.M),
+                "rex": re.compile(r"^\${2}([^$]*?)\${2}", re.MULTILINE),
                 "tmpl": "<section>\n<eqn>{0}</eqn>\n</section>\n",
                 "tag": "$$",
             },

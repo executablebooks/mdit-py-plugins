@@ -5,6 +5,7 @@ from markdown_it.utils import read_fixture_file
 import pytest
 
 from mdit_py_plugins.attrs import attrs_block_plugin, attrs_plugin
+from mdit_py_plugins.attrs.parse import ParseError, parse
 
 FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures")
 
@@ -249,3 +250,123 @@ def test_url_attrs_use_custom_validate_link():
         md.render('{href="https://fine/x"}\npara\n')
         == '<p href="https://fine/x">para</p>\n'
     )
+
+
+@pytest.mark.parametrize(
+    "allowed,expected",
+    [
+        pytest.param(
+            None,
+            [
+                '<p><span class="a b" style="s">x</span></p>\n',
+                '<p><a href="https://x" class="a b">a</a></p>\n',
+                '<p class="a b">para</p>\n',
+            ],
+            id="default",
+        ),
+        pytest.param(
+            ("id", "class"),
+            [
+                '<p><span class="a b">x</span></p>\n',
+                '<p><a href="https://x" class="a b">a</a></p>\n',
+                '<p class="a b">para</p>\n',
+            ],
+            id="allowed-class",
+        ),
+        pytest.param(
+            ("id",),
+            [
+                "<p><span>x</span></p>\n",
+                '<p><a href="https://x">a</a></p>\n',
+                "<p>para</p>\n",
+            ],
+            id="allowed-no-class",
+        ),
+    ],
+)
+def test_class_accumulation_is_filtered(allowed, expected):
+    """Classes accumulated across attribute groups still go through the filters.
+
+    Inline groups after a closing token (``span_close``, ``link_close``)
+    are merged onto its opening token, appending to the class already there,
+    and stacked block attributes are merged before they reach the block.
+    Neither merge may carry an ``on*`` attribute, a rejected URL,
+    or (with ``allowed``) a disallowed name onto the token.
+    """
+    md = (
+        MarkdownIt("commonmark", {"html": False})
+        .use(attrs_plugin, spans=True, allowed=allowed)
+        .use(attrs_block_plugin, allowed=allowed)
+    )
+    sources = [
+        "[x]{.a onclick=e}{.b style=s}",
+        '[a](https://x){.a}{.b href="javascript:alert(1)"}',
+        '{.a onclick=e}\n{.b href="javascript:x"}\npara\n',
+    ]
+    assert [md.render(src) for src in sources] == expected
+
+
+class _ScanCountingStr(str):
+    """A string that counts the characters its scanning methods could visit.
+
+    Slicing counts the length of the slice;
+    the substring and search methods count the whole string (an upper bound).
+    """
+
+    scanned = 0
+
+    def __getitem__(self, key):
+        result = super().__getitem__(key)
+        _ScanCountingStr.scanned += len(result)
+        return result
+
+    def __contains__(self, key):
+        _ScanCountingStr.scanned += len(self)
+        return super().__contains__(key)
+
+    def find(self, *args):
+        _ScanCountingStr.scanned += len(self)
+        return super().find(*args)
+
+    def rfind(self, *args):
+        _ScanCountingStr.scanned += len(self)
+        return super().rfind(*args)
+
+    def index(self, *args):
+        _ScanCountingStr.scanned += len(self)
+        return super().index(*args)
+
+    def rindex(self, *args):
+        _ScanCountingStr.scanned += len(self)
+        return super().rindex(*args)
+
+    def count(self, *args):
+        _ScanCountingStr.scanned += len(self)
+        return super().count(*args)
+
+
+@pytest.mark.parametrize("n", [1_000, 4_000])
+@pytest.mark.parametrize(
+    "tail,accepted",
+    [
+        pytest.param("%", False, id="unterminated"),
+        pytest.param("%}", True, id="terminated"),
+    ],
+)
+def test_comment_brace_scan_is_linear(n, tail, accepted):
+    """A `}` inside a comment must not rescan the rest of the string.
+
+    Whether a `}` ends a comment depends on whether a `%` follows it.
+    Searching the rest of the string at every `}` is quadratic,
+    which an input such as `{%` + `}` * n + `%` turns into a hang.
+    Count the characters scanned, rather than timing, so the test is deterministic:
+    a linear parse scans a small multiple of the length at any n.
+    """
+    text = _ScanCountingStr("{%" + "}" * n + tail)
+    _ScanCountingStr.scanned = 0
+    if accepted:
+        assert parse(text) == (len(text) - 1, {})
+    else:
+        with pytest.raises(ParseError, match="not terminated"):
+            parse(text)
+    assert _ScanCountingStr.scanned <= 10 * len(text)
