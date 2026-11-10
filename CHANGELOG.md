@@ -7,10 +7,16 @@ Plugin renderers now escape user content in HTML attribute, label and math posit
 `attrs` drops event-handler attributes by default and validates URL-valued attributes,
 and the regular expressions in `texmath` ```` ```math ```` blocks and `admon` headers no longer backtrack polynomially (#143).
 It also fixes parser hangs in `gfm_autolink` (#160) and `texmath` (#156),
-and adds the `section_ref` plugin.
+and adds the `section_ref` plugin;
+it requires markdown-it-py >= 3.0 and supports Python 3.10 to 3.14.
 Several fixes change rendered output: see **Upgrade notes** below.
 
 ### Upgrade notes
+
+- **Requires markdown-it-py >= 3.0** ([#170](https://github.com/executablebooks/mdit-py-plugins/pull/170)).
+  The declared floor was 2.0, but 0.5.0 and later already failed to import `subscript` with markdown-it-py 2.x.
+  `section_ref`, `gfm` and `gfm_autolink` still need markdown-it-py >= 4.1 and raise `RuntimeError` on older versions.
+  Python 3.10 to 3.14 are supported.
 
 - **`attrs_plugin` / `attrs_block_plugin` defaults are stricter** ([#150](https://github.com/executablebooks/mdit-py-plugins/pull/150)).
   With no `allowed` list, event-handler attributes (any key starting with `on`, in any case) are removed
@@ -119,6 +125,7 @@ and to [@KyleKing](https://github.com/KyleKing) for the ReDoS analysis and fixes
 
 ### 🔧 Maintenance
 
+- 🔧 Require markdown-it-py >= 3.0, test the floor and Python 3.14 in CI, and update the classifiers ([#170](https://github.com/executablebooks/mdit-py-plugins/pull/170))
 - 🔧 Releases are published to PyPI with trusted publishing (#141), with attestations ([#142](https://github.com/executablebooks/mdit-py-plugins/pull/142)),
   from distributions built with `python -m build` and checked on every pull request ([#164](https://github.com/executablebooks/mdit-py-plugins/pull/164))
 - 🔧 pre-commit autoupdate (ruff 0.17, mypy 2.4) with a pinned ruff base rule set ([#138](https://github.com/executablebooks/mdit-py-plugins/pull/138)),
