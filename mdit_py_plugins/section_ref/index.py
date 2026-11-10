@@ -55,12 +55,14 @@ def section_ref_plugin(md: MarkdownIt) -> None:
     text, while ``\\\\§1`` renders a literal backslash followed by a live
     reference.
 
-    Each reference becomes a ``section_ref`` token, with the matched text
-    (e.g. ``"§1.1"``) as its ``content``, ``markup`` set to ``§`` and
-    ``meta["numbers"]`` holding the parsed section number as a list of ints
-    (e.g. ``[1, 1]`` for ``§1.1``), so that downstream renderers can resolve
-    it to a heading target without re-parsing.  Leading zeros are normalized
-    (``§01.02`` gives ``[1, 2]``); the original text remains in ``content``.
+    Each reference becomes a single ``section_ref`` leaf token
+    (``nesting=0``, ``children=None``, ``tag=""``, ``attrs={}``),
+    with ``markup`` set to ``"§"``, the text as written (e.g. ``"§01.02"``)
+    as its ``content``, and ``meta["numbers"]`` holding the integer value of
+    each level as a list of ints (``[1, 2]`` for ``§01.02``; every value is at
+    most 999,999,999), so that downstream renderers can resolve it to a
+    heading target without re-parsing.
+    The token shape is part of the public API from 0.7.0.
 
     The default rendering is ``<span class="section-ref">§1.1</span>``.
     Override it with ``md.add_render_rule("section_ref", ...)``.

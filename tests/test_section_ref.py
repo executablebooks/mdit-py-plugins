@@ -112,6 +112,27 @@ def test_token():
     ]
 
 
+def test_token_shape_is_public_api():
+    """Every field of the ``section_ref`` token, which is public API from 0.7.0.
+
+    Downstream renderers (MyST-Parser) and ports of the grammar (ubCode) read
+    these fields directly, so changing any of them is a breaking change.
+    """
+    md = MarkdownIt().use(section_ref_plugin)
+    children = md.parseInline("§01.02")[0].children
+    assert children is not None
+    assert len(children) == 1
+    token = children[0]
+    assert token.type == "section_ref"
+    assert token.nesting == 0
+    assert token.children is None
+    assert token.tag == ""
+    assert token.attrs == {}
+    assert token.markup == "§"
+    assert token.content == "§01.02"
+    assert token.meta == {"numbers": [1, 2]}
+
+
 def test_runtime_error():
     """The plugin requires the ``add_terminator_char`` API (markdown-it-py >= 4.1.0)."""
     md = MarkdownIt()
