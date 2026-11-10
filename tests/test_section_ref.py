@@ -1,6 +1,5 @@
 from pathlib import Path
 import time
-from types import SimpleNamespace
 
 from markdown_it import MarkdownIt
 from markdown_it.token import Token
@@ -8,6 +7,10 @@ from markdown_it.utils import read_fixture_file
 import pytest
 
 from mdit_py_plugins.section_ref import section_ref_plugin
+
+# The plugin needs markdown-it-py >= 4.1.0 (it raises RuntimeError below that);
+# the guard itself is tested in test_mdit_version_guard.py, on every version.
+pytest.importorskip("markdown_it", minversion="4.1.0")
 
 FIXTURE_PATH = Path(__file__).parent.joinpath("fixtures", "section_ref.md")
 
@@ -131,14 +134,6 @@ def test_token_shape_is_public_api():
     assert token.markup == "§"
     assert token.content == "§01.02"
     assert token.meta == {"numbers": [1, 2]}
-
-
-def test_runtime_error():
-    """The plugin requires the ``add_terminator_char`` API (markdown-it-py >= 4.1.0)."""
-    md = MarkdownIt()
-    md.inline = SimpleNamespace()  # type: ignore[assignment]  # lacks add_terminator_char
-    with pytest.raises(RuntimeError, match="requires markdown-it-py"):
-        section_ref_plugin(md)
 
 
 @pytest.mark.parametrize("line,title,input,expected", read_fixture_file(FIXTURE_PATH))
