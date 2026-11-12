@@ -45,6 +45,8 @@ def test_all(line, title, input, expected):
         ),
         pytest.param("- [x] a & b\n", " a &amp; b", id="ampersand"),
         pytest.param("- [ ] plain task\n", " plain task", id="plain"),
+        pytest.param("- [ ]\tplain task\n", "\tplain task", id="tab-unchecked"),
+        pytest.param("- [x]\tplain task\n", "\tplain task", id="tab-checked"),
     ],
 )
 def test_label_after_is_escaped(source, label):

@@ -108,12 +108,14 @@ def tasklists_plugin(
     def make_checkbox(token: Token) -> Token:
         checkbox = Token("html_inline", "", 0)
         disabled_attr = 'disabled="disabled"' if disable_checkboxes else ""
-        if token.content.startswith("[ ] "):
+        # starts_with_todo_markdown already matched "[ ]", "[x]" or "[X]" followed by
+        # any GFM whitespace, so only the character inside the brackets matters here
+        if token.content[1] == " ":
             checkbox.content = (
                 '<input class="task-list-item-checkbox" '
                 f'{disabled_attr} type="checkbox">'
             )
-        elif token.content.startswith("[x] ") or token.content.startswith("[X] "):
+        else:
             checkbox.content = (
                 '<input class="task-list-item-checkbox" checked="checked" '
                 f'{disabled_attr} type="checkbox">'
