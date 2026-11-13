@@ -164,3 +164,38 @@ def test_label_is_html_escaped(label_normalizer, label):
         f'<a href="#{label}" class="mathlabel" title="Permalink to this equation">'
         "¶</a>\na=1\n</div>\n"
     )
+
+
+def test_inline_func_start_with_trailing_backslash():
+    """A dollar at position 0 must not read backslashes from the *end* of the source.
+
+    ``is_escaped`` used to decrement its position index past 0 and rely on
+    negative indexing, so it read the last character of the source instead of
+    finding no preceding character. Math at position 0 was then dropped
+    whenever the inline source ended with a backslash.
+    """
+    inline_func = main.math_inline_dollar()
+    md = MarkdownIt()
+    for src in ("$a$ is math\\", "$a$ is math\\\\"):
+        tokens = []
+        state = StateInline(src, md, {}, tokens)
+        assert inline_func(state, False) is True
+        assert tokens[0].type == "math_inline"
+        assert tokens[0].content == "a"
+
+
+def test_inline_func_escaped_dollar_mid_source_with_trailing_backslash():
+    """An escaped dollar mid-source must stay escaped even if the source ends with backslashes.
+
+    With the same off-the-end read as the previous test, a backslash run
+    preceding the dollar could pick up the trailing character of the source
+    and turn an odd backslash count into an even one, wrongly treating an
+    escaped dollar as the opening delimiter of a math span.
+    """
+    inline_func = main.math_inline_dollar()
+    md = MarkdownIt()
+    tokens = []
+    state = StateInline("\\$x$ y\\", md, {}, tokens)
+    state.pos = 1
+    assert inline_func(state, False) is False
+    assert tokens == []
