@@ -144,7 +144,6 @@ def test_empty_generated_slug_gets_no_id(source: str, expected_ids: list) -> Non
     assert rendered.count('class="header-anchor"') == expected_anchors
 
 
-
 @pytest.mark.parametrize(
     "source, expected_id",
     [
