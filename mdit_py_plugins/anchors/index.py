@@ -32,6 +32,8 @@ def anchors_plugin(
     Explicit heading IDs (e.g. ``{#id}`` from ``attrs_block_plugin``) are preserved,
     at any level, and generated IDs avoid collisions with them.
     Explicit IDs are not de-duplicated, and an empty explicit ID counts as no ID.
+    A generated empty slug (a title with no slug-able characters, e.g. ``## ???``)
+    likewise counts as no ID.
 
     :param min_level: minimum header level to apply anchors
     :param max_level: maximum header level to apply anchors
@@ -93,7 +95,14 @@ def _make_anchors_func(
             )
             slug = token.attrGet("id")
             if not slug:
-                slug = unique_slug(slug_func(title), slugs)
+                generated = slug_func(title)
+                if not generated:
+                    # A title with no slug-able characters slugifies to "".
+                    # An empty id="" is invalid HTML, so treat a generated empty
+                    # slug like an empty explicit ID: the heading gets no anchor
+                    # (and no permalink, which would point at "#").
+                    continue
+                slug = unique_slug(generated, slugs)
                 token.attrSet("id", slug)
 
             if permalink:

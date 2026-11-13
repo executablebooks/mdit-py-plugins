@@ -116,6 +116,35 @@ def test_explicit_heading_id_plugin_order() -> None:
 
 
 @pytest.mark.parametrize(
+    "source, expected_ids",
+    [
+        pytest.param("## ???", [None], id="no-slugable-chars"),
+        pytest.param("## ???\n\n## ???", [None, None], id="no-slugable-chars-twice"),
+        pytest.param(
+            "## ???\n\n## Real", [None, "real"], id="following-heading-unaffected"
+        ),
+    ],
+)
+def test_empty_generated_slug_gets_no_id(source: str, expected_ids: list) -> None:
+    """A generated empty slug is treated like an empty explicit ID: no id at all.
+
+    A heading whose title has no slug-able characters (e.g. ``## ???``)
+    would otherwise get an invalid empty ``id=""`` attribute, and with
+    ``permalink=True`` a link pointing at ``#``.
+    """
+    md = MarkdownIt("commonmark").use(anchors_plugin, permalink=True)
+    tokens = md.parse(source)
+    assert [
+        token.attrGet("id") for token in tokens if token.type == "heading_open"
+    ] == expected_ids
+    rendered = md.renderer.render(tokens, md.options, {})
+    assert 'id=""' not in rendered
+    assert 'href="#"' not in rendered
+    expected_anchors = sum(1 for i in expected_ids if i is not None)
+    assert rendered.count('class="header-anchor"') == expected_anchors
+
+
+@pytest.mark.parametrize(
     "source, expected_id",
     [
         pytest.param("# Foo", "foo", id="plain"),
