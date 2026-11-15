@@ -148,6 +148,18 @@ def --><blockquote>
 def -->
 .
 
+Multiline comment in list item:
+.
+- a
+  % abc
+% def
+.
+<ul>
+<li>a<!-- abc --></li>
+</ul>
+<!-- def -->
+.
+
 
 Indented by 4 spaces
 .

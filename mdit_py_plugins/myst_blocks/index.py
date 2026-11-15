@@ -65,6 +65,8 @@ def line_comment(state: StateBlock, startLine: int, endLine: int, silent: bool) 
         pos = state.bMarks[nextLine] + state.tShift[nextLine]
         maximum = state.eMarks[nextLine]
 
+        if state.sCount[nextLine] < state.blkIndent:
+            break
         if state.src[pos] != "%":
             break
         token.content += "\n" + state.src[pos + 1 : maximum].rstrip()
