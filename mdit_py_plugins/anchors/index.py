@@ -78,6 +78,7 @@ def _make_anchors_func(
             for token in state.tokens
             if token.type == "heading_open" and (heading_id := token.attrGet("id"))
         }
+        next_suffix: dict[str, int] = {}
         for idx, token in enumerate(state.tokens):
             if token.type != "heading_open":
                 continue
@@ -93,7 +94,7 @@ def _make_anchors_func(
             )
             slug = token.attrGet("id")
             if not slug:
-                slug = unique_slug(slug_func(title), slugs)
+                slug = unique_slug(slug_func(title), slugs, next_suffix)
                 token.attrSet("id", slug)
 
             if permalink:
@@ -132,11 +133,23 @@ def slugify(title: str) -> str:
     return re.sub(r"[^\w\u4e00-\u9fff\- ]", "", title.lower().replace(" ", "-"))
 
 
-def unique_slug(slug: str, slugs: set[str]) -> str:
+def unique_slug(
+    slug: str, slugs: set[str], next_suffix: dict[str, int] | None = None
+) -> str:
+    """Return ``slug``, or ``slug-1``, ``slug-2``, ... if taken, and add it to ``slugs``.
+
+    :param next_suffix: if given, remembers the next suffix to try for each base slug,
+        so that many headings with the same title take linear rather than quadratic time.
+    """
     uniq = slug
-    i = 1
-    while uniq in slugs:
+    i = 1 if next_suffix is None else next_suffix.get(slug, 1)
+    if uniq in slugs:
         uniq = f"{slug}-{i}"
+        while uniq in slugs:
+            i += 1
+            uniq = f"{slug}-{i}"
         i += 1
+    if next_suffix is not None:
+        next_suffix[slug] = i
     slugs.add(uniq)
     return uniq

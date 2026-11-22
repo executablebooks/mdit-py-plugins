@@ -1,5 +1,9 @@
 # Change Log
 
+## Unreleased
+
+- 🐛 FIX: `anchors` and `tasklists` no longer take quadratic time on many duplicate headings or long task lists.
+
 ## 0.7.0 - 2026-11-10
 
 A security and bug-fix release.

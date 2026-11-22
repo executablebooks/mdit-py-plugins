@@ -162,3 +162,38 @@ def test_plugin_is_redos_safe(case: Case) -> None:
             f"{case.id} took {elapsed:.3f}s on a {_RUN}x{filler!r} run; "
             "likely catastrophic backtracking (ReDoS)"
         )
+
+
+# Plugins that post-process the whole token stream can also go quadratic when a
+# construct is *repeated* many times, rather than when one construct holds a long run.
+_REPEATED_CASES = [
+    Case(
+        "anchors-duplicate-headings",
+        lambda md: md.use(anchors_plugin),
+        lambda line: line * _REPEATS,
+    ),
+    Case(
+        "tasklists-long-list",
+        lambda md: md.use(tasklists_plugin),
+        lambda line: line * _REPEATS,
+    ),
+]
+_REPEATED_LINES = {
+    "anchors-duplicate-headings": "# a\n",
+    "tasklists-long-list": "- [ ] a\n",
+}
+_REPEATS = 10_000
+
+
+@pytest.mark.timeout(10)
+@pytest.mark.parametrize("case", _REPEATED_CASES, ids=lambda case: case.id)
+def test_plugin_is_linear_in_repeats(case: Case) -> None:
+    md = MarkdownIt("commonmark")
+    case.configure(md)
+    source = case.payload(_REPEATED_LINES[case.id])
+    start = time.perf_counter()
+    md.render(source)
+    elapsed = time.perf_counter() - start
+    assert elapsed < _BUDGET_SECONDS, (
+        f"{case.id} took {elapsed:.3f}s on {_REPEATS} repeats; likely quadratic"
+    )
