@@ -57,6 +57,11 @@ def tasklists_plugin(
 
     def fcn(state: StateCore) -> None:
         tokens = state.tokens
+        # index of the most recent token seen at each nesting level, kept up to date
+        # as we scan forward, so finding a list item's parent is O(1) rather than
+        # a backward scan (which made long task lists quadratic)
+        last_at_level: dict[int, int] = {}
+        scanned = 0
         for i in range(2, len(tokens) - 1):
             if is_todo_item(tokens, i):
                 todoify(tokens[i])
@@ -64,18 +69,14 @@ def tasklists_plugin(
                     "class",
                     "task-list-item" + (" enabled" if not disable_checkboxes else ""),
                 )
-                tokens[parent_token(tokens, i - 2)].attrSet(
-                    "class", "contains-task-list"
-                )
+                # record every token before the list item
+                while scanned < i - 2:
+                    last_at_level[tokens[scanned].level] = scanned
+                    scanned += 1
+                parent = last_at_level.get(tokens[i - 2].level - 1, -1)
+                tokens[parent].attrSet("class", "contains-task-list")
 
     md.core.ruler.after("inline", "github-tasklists", fcn)
-
-    def parent_token(tokens: list[Token], index: int) -> int:
-        target_level = tokens[index].level - 1
-        for i in range(1, index + 1):
-            if tokens[index - i].level == target_level:
-                return index - i
-        return -1
 
     def is_todo_item(tokens: list[Token], index: int) -> bool:
         return (
